@@ -18,8 +18,8 @@ export function buildAppUrls(baseUrl: string, clientId: string): AppUrls {
 }
 
 export function resolveBaseUrl(env: NodeJS.ProcessEnv): string {
-  if (env.APP_URL) {
-    return env.APP_URL.replace(/\/$/, "");
+  if (env.DEPLOYED_APP_URL) {
+    return env.DEPLOYED_APP_URL.replace(/\/$/, "");
   }
 
   const port = env.PORT ?? "3000";

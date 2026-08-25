@@ -27,23 +27,23 @@ afterEach(() => {
 });
 
 describe("resolveBaseUrl", () => {
-  it("uses APP_URL when set", () => {
-    expect(resolveBaseUrl({ APP_URL: "https://myapp.onrender.com" })).toBe(
+  it("uses DEPLOYED_APP_URL when set", () => {
+    expect(resolveBaseUrl({ DEPLOYED_APP_URL: "https://myapp.onrender.com" })).toBe(
       "https://myapp.onrender.com"
     );
   });
 
-  it("strips trailing slash from APP_URL", () => {
-    expect(resolveBaseUrl({ APP_URL: "https://myapp.onrender.com/" })).toBe(
+  it("strips trailing slash from DEPLOYED_APP_URL", () => {
+    expect(resolveBaseUrl({ DEPLOYED_APP_URL: "https://myapp.onrender.com/" })).toBe(
       "https://myapp.onrender.com"
     );
   });
 
-  it("uses PORT when APP_URL is not set", () => {
+  it("uses PORT when DEPLOYED_APP_URL is not set", () => {
     expect(resolveBaseUrl({ PORT: "4000" })).toBe("http://localhost:4000");
   });
 
-  it("defaults to port 3000 when neither APP_URL nor PORT is set", () => {
+  it("defaults to port 3000 when neither DEPLOYED_APP_URL nor PORT is set", () => {
     expect(resolveBaseUrl({})).toBe("http://localhost:3000");
   });
 });
