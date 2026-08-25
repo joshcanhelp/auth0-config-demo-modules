@@ -42,7 +42,11 @@ export async function createApp(tenantDir: string) {
   const tenantConfig = readTenantConfig(TENANT_DIR, process.env);
   const baseUrl = resolveBaseUrl(process.env);
 
-  if (updateAllClientUrls(TENANT_DIR, baseUrl)) {
+  const deployedUrl = process.env.DEPLOYED_APP_URL?.replace(/\/$/, "");
+  const localUrlsChanged = updateAllClientUrls(TENANT_DIR, baseUrl);
+  const deployedUrlsChanged = deployedUrl ? updateAllClientUrls(TENANT_DIR, deployedUrl) : false;
+
+  if (localUrlsChanged || deployedUrlsChanged) {
     console.warn(
       `Warning: tenant config was updated with URLs for ${baseUrl}. Deploy the config before starting the app.`
     );
