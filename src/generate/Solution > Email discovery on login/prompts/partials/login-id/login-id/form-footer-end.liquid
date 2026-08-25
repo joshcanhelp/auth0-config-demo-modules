@@ -1,0 +1,124 @@
+<style>
+  .ulp-alternate-action {
+    display: none;
+  }
+</style>
+
+<script> 
+  var psLog = (message) => { console.log(message) }
+</script>
+
+<script>
+window.psLog("Loading email discovery ...");
+document.addEventListener("DOMContentLoaded", function () {
+
+  // Lets one click pass through without interception.
+  // We re-trigger submitBtn.click() after a passing check or invalid email.
+  let skipInterceptionOnNextClickEvent = false;
+
+  // Skips double-checking the same form data to avoid unnecessary checks.
+  let lastCheckedData = null;
+
+  // Caches the result of the last check to avoid unnecessary checks.
+  let lastCheckResult = null;
+
+  async function checkEmailExists(email) {
+    // TODO: This needs to come from Actions config or switch based on custom domain.
+    const apiBaseUrl = "https://api.apivant.com";
+    
+    window.psLog(`Checking ${email} against ${apiBaseUrl} ...`);
+    
+    const response = await fetch(
+      // TODO: Remove disableJanrainLookup when stable.
+      `${apiBaseUrl}/user/lookup?disableJanrainLookup=true&email=${encodeURIComponent(email)}`,
+    );
+    const responseJson = await response.json();
+    window.psLog(responseJson);
+
+    switch (responseJson.status) {
+      case "ID_FOUND":
+        return { exists: true };
+      case "NEW":
+        localStorage.setItem("exists_in_mdm", "false");
+        return { exists: false };
+      case "ONBOARDING":
+        localStorage.setItem("exists_in_mdm", "true");
+        return { exists: false };
+      default:
+        window.psLog(`Unexpected status ${responseJson.status}.`);
+        return {};
+    }
+  }
+
+  async function handleClick(event) {
+    if (skipInterceptionOnNextClickEvent) {
+      skipInterceptionOnNextClickEvent = false;
+      return;
+    }
+
+    window.psLog("Handling email discovery click ...");
+    
+    const submitBtn = event.target.closest("[type='submit']");
+    if (!submitBtn) {
+      window.psLog("No submit button found. Exiting ...");
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const form = submitBtn.closest("form");
+    if (!form) {
+      window.psLog("No form found. Exiting ...");
+      return;
+    }
+
+    const emailInput = form.querySelector('[name="username"]');
+    const emailValue = emailInput ? emailInput.value.trim() : "";
+    window.psLog(`Email value: ${emailValue}`);
+    const emailIsValid = emailValue && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
+    
+    // Skip check and allow Auth0 validation to run.
+    if (!emailIsValid) {
+      window.psLog("Invalid or missing email. Exiting ...");
+      skipInterceptionOnNextClickEvent = true;
+      submitBtn.click();
+      return;
+    }
+
+    let emailFound;
+    if (emailValue === lastCheckedData && lastCheckResult !== undefined) {
+      window.psLog("Using cached result for email check ...");
+      emailFound = lastCheckResult;
+    } else {
+      const { exists } = await checkEmailExists(emailValue);
+      emailFound = exists;
+      lastCheckedData = emailValue;
+      lastCheckResult = emailFound;
+    }
+
+    if (emailFound === undefined) {
+      window.psLog("Email existence check failed. Exiting ...");
+      return;
+    }
+
+    window.psLog(`Storing email ${emailValue} in sessionStorage`);
+    sessionStorage.setItem("ulp_prefill_email", emailValue);
+
+    if (emailFound) {
+      window.psLog("Email exists. Proceeding with login ...");
+      skipInterceptionOnNextClickEvent = true;
+      submitBtn.click();
+      return;
+    } else {
+      window.psLog("Email does not exist in Auth0. Redirecting to signup ...");
+      const signupUrl = new URL("/u/signup/identifier", window.location.origin);
+      signupUrl.searchParams.set("state", new URLSearchParams(window.location.search).get("state") || "");
+      window.location.href = signupUrl.toString();
+      return;
+    }
+  }
+
+  document.addEventListener("click", handleClick, true);
+});
+</script>

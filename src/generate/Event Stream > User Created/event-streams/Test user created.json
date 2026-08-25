@@ -1,0 +1,16 @@
+{
+  "id": "est_9TBeVjDLSD9J9vEhQksnnb",
+  "status": "enabled",
+  "name": "Test user created",
+  "subscriptions": [
+    {
+      "event_type": "user.created"
+    }
+  ],
+  "destination": {
+    "type": "action",
+    "configuration": {
+      "action_id": "User Created Event Stream Action"
+    }
+  }
+}

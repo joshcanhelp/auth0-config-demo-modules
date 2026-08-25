@@ -1,0 +1,16 @@
+{
+  "id": "04f77286-3b41-4ec2-bc73-bbd96d8069f3",
+  "name": "Soft Login Scope Control",
+  "code": "./actions/Soft Login Scope Control/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true
+}

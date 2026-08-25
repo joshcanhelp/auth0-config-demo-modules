@@ -1,0 +1,16 @@
+{
+  "id": "26af0964-cc1c-49d3-8d76-361cda6f1be8",
+  "name": "Terms & Conditions form",
+  "code": "./actions/Terms & Conditions form/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true
+}

@@ -1,0 +1,16 @@
+{
+  "id": "2f15542a-73b8-476d-8d89-9b689654edab",
+  "name": "[MFA01] Set MFA - Step 1",
+  "code": "./actions/[MFA01] Set MFA - Step 1/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true
+}

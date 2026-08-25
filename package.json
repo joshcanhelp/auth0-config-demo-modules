@@ -1,0 +1,36 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "tsx serve.ts",
+    "export": "tsx modules/scripts/export.ts",
+    "generate": "tsx modules/scripts/generate.ts",
+    "import": "tsx modules/scripts/import.ts",
+    "refresh": "tsx modules/scripts/refresh.ts",
+    "deploy-ulp": "tsx modules/scripts/deploy-ulp.ts",
+    "build": "tsc",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "watch": "tsx modules/scripts/watch.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-unused-imports": "^4.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "auth0-deploy-cli": "file:../auth0-deploy-cli",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "zod": "^4.4.3"
+  }
+}

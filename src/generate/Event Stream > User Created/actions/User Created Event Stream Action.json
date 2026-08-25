@@ -1,0 +1,20 @@
+{
+  "id": "068ea780-9c59-47fb-a891-8b5095920d5a",
+  "name": "User Created Event Stream Action",
+  "code": "./actions/User Created Event Stream Action/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [
+    {
+      "name": "SLACK_WEBHOOK_URL"
+    }
+  ],
+  "supported_triggers": [
+    {
+      "id": "event-stream",
+      "version": "v1"
+    }
+  ],
+  "deployed": true
+}

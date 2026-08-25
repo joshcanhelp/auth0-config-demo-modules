@@ -1,0 +1,16 @@
+{
+  "id": "354d7a78-bd57-458f-883c-0d68c29c7724",
+  "name": "Change Email",
+  "code": "./actions/Change Email/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true
+}

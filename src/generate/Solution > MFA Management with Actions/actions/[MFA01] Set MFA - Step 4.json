@@ -1,0 +1,16 @@
+{
+  "id": "935fa503-fefe-43b2-a442-5c77a6a45ec7",
+  "name": "[MFA01] Set MFA - Step 4",
+  "code": "./actions/[MFA01] Set MFA - Step 4/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true
+}

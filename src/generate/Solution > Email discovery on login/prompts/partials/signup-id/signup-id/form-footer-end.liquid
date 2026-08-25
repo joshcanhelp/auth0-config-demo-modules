@@ -1,0 +1,36 @@
+<style>
+  body.ulp-prefilling * {
+    visibility: hidden;
+  }
+
+  .ulp-alternate-action {
+    display: none;
+  }
+</style>
+
+<script>
+  // Runs synchronously before paint - adds class so CSS hides content immediately.
+  if (sessionStorage.getItem("ulp_prefill_email")) {
+    document.body.classList.add("ulp-prefilling");
+  }
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // If redirected from login with an email that doesn't exist, pre-populate
+  // the email field and auto-submit so the user doesn't have to re-enter it.
+  const prefillEmail = sessionStorage.getItem("ulp_prefill_email");
+  if (prefillEmail) {
+    sessionStorage.removeItem("ulp_prefill_email");
+
+    const form = document.querySelector("form");
+    const emailInput = form && form.querySelector('[name="email"]');
+    const submitBtn = form && form.querySelector("[type='submit']");
+
+    if (emailInput && submitBtn) {
+      emailInput.value = prefillEmail;
+      submitBtn.click();
+    }
+  }
+});
+</script>

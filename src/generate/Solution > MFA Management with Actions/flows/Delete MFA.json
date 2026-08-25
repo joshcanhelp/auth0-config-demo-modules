@@ -1,0 +1,18 @@
+{
+  "name": "Delete MFA",
+  "actions": [
+    {
+      "id": "custom_api_request_DDjb",
+      "alias": "Delete MFA factors",
+      "type": "AUTH0",
+      "action": "SEND_REQUEST",
+      "allow_failure": false,
+      "mask_output": false,
+      "params": {
+        "connection_id": "Forms Connector",
+        "method": "DELETE",
+        "pathname": "/api/v2/users/{{context.user.user_id}}/authentication-methods"
+      }
+    }
+  ]
+}

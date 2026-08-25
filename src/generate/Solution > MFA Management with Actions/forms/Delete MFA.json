@@ -1,0 +1,88 @@
+{
+  "name": "Change MFA",
+  "languages": {
+    "primary": "en"
+  },
+  "nodes": [
+    {
+      "id": "step_F0nO",
+      "type": "STEP",
+      "coordinates": {
+        "x": 279,
+        "y": 5
+      },
+      "alias": "New step",
+      "config": {
+        "components": [
+          {
+            "id": "image_lTu9",
+            "category": "BLOCK",
+            "type": "IMAGE",
+            "config": {
+              "src": "{{fields.logo_url}}",
+              "position": "CENTER",
+              "height": 150
+            }
+          },
+          {
+            "id": "custom_HOLw",
+            "category": "FIELD",
+            "type": "CUSTOM",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "schema": {},
+              "code": "function customInput(context) {\n  // Accessing parameters on the root of the function does NOT work\n  // const { defaultValue } = context.custom.getParams();\n  // console.log(defaultValue); // undefined\n\n  function buildInput() {\n\n    const config = context.custom.getParams();\n    // const mfa_factor = \"{{context.user.app_metadata}}\";\n    const { the_action, the_metadata } = config; // access your param value\n    const input = document.createElement('p');\n    if(the_action==='set_mfa_none' && the_metadata?.mfa_challenge_factor){\n\t\t\tinput.textContent = 'Are you sure you want to delete your current MFA factor?';\n    } else {\n    \tinput.textContent = 'Are you sure you want to delete your current MFA factor and add a new one?';  \n    }\n\n    console.log(`customInput.buildInput() the_action:'${the_action}', mfa:'${the_metadata?.mfa_challenge_factor}' called`);    \n    console.dir(config, { depth: null })\n\n    return input;\n  }\n\n  return {\n    init() {\n      console.log('customInput.Init() called');\n      return buildInput();\n    },\n\n    getValue() {\n\t\t\tconsole.log('customInput.getValue() called');\n      // return input.value;\n\t\t\treturn input;\n    }\n  };\n}",
+              "params": {
+                "the_action": "{{vars._action}}",
+                "the_metadata": "{{context.user.app_metadata}}"
+              }
+            }
+          },
+          {
+            "id": "next_button_nULh",
+            "category": "BLOCK",
+            "type": "NEXT_BUTTON",
+            "config": {
+              "text": "Yes"
+            }
+          }
+        ],
+        "next_node": "flow_x9SY"
+      }
+    },
+    {
+      "id": "flow_x9SY",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 895,
+        "y": 54
+      },
+      "alias": "Delete MFA",
+      "config": {
+        "flow_id": "Delete MFA",
+        "next_node": "$ending"
+      }
+    }
+  ],
+  "start": {
+    "hidden_fields": [
+      {
+        "key": "logo_url",
+        "value": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png"
+      }
+    ],
+    "next_node": "step_F0nO",
+    "coordinates": {
+      "x": -303,
+      "y": 77
+    }
+  },
+  "ending": {
+    "resume_flow": true,
+    "coordinates": {
+      "x": 1311,
+      "y": 53
+    }
+  }
+}

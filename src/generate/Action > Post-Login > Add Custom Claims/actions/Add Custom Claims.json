@@ -1,0 +1,15 @@
+{
+  "name": "Add Custom Claims",
+  "code": "./actions/Add Custom Claims/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true
+}

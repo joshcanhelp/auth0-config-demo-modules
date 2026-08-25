@@ -1,0 +1,42 @@
+{
+  "login-id": [
+    {
+      "login-id": [
+        {
+          "name": "form-footer-end",
+          "template": "partials/login-id/login-id/form-footer-end.liquid"
+        }
+      ]
+    }
+  ],
+  "login-password": [
+    {
+      "login-password": [
+        {
+          "name": "form-footer-end",
+          "template": "partials/login-password/login-password/form-footer-end.liquid"
+        }
+      ]
+    }
+  ],
+  "signup-id": [
+    {
+      "signup-id": [
+        {
+          "name": "form-footer-end",
+          "template": "partials/signup-id/signup-id/form-footer-end.liquid"
+        }
+      ]
+    }
+  ],
+  "signup-password": [
+    {
+      "signup-password": [
+        {
+          "name": "form-content-end",
+          "template": "partials/signup-password/signup-password/form-content-end.liquid"
+        }
+      ]
+    }
+  ]
+}

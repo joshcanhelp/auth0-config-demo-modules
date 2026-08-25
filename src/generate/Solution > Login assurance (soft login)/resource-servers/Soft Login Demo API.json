@@ -1,0 +1,20 @@
+{
+  "id": "6a0b9aadf231ee3a1bce3373",
+  "name": "Soft Login Demo API",
+  "identifier": "https://demo.example.com/api",
+  "allow_offline_access": true,
+  "skip_consent_for_verifiable_first_party_clients": true,
+  "subject_type_authorization": {
+    "client": {
+      "policy": "deny_all"
+    },
+    "user": {
+      "policy": "allow_all"
+    }
+  },
+  "token_lifetime": 120,
+  "token_lifetime_for_web": 120,
+  "signing_alg": "RS256",
+  "scopes": [],
+  "enforce_policies": false
+}

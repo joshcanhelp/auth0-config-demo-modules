@@ -1,0 +1,63 @@
+{
+  "is_token_endpoint_ip_header_trusted": false,
+  "name": "Soft Login Disabled",
+  "callbacks": [
+    "http://localhost:6789/callback",
+    "http://localhost:5173/callback",
+    "http://localhost:2684/callback/Vvn3PnYJ27E02BmBB7pizUlcrr0vE488"
+  ],
+  "allowed_logout_urls": [
+    "http://localhost:6789",
+    "http://localhost:5173",
+    "http://localhost:2684"
+  ],
+  "oidc_conformant": true,
+  "refresh_token": {
+    "expiration_type": "expiring",
+    "token_lifetime": 14400,
+    "idle_token_lifetime": 1800,
+    "infinite_idle_token_lifetime": false,
+    "infinite_token_lifetime": false,
+    "leeway": 0,
+    "rotation_type": "rotating"
+  },
+  "cross_origin_authentication": false,
+  "is_first_party": true,
+  "sso_disabled": false,
+  "allowed_clients": [],
+  "native_social_login": {
+    "apple": {
+      "enabled": false
+    },
+    "facebook": {
+      "enabled": false
+    }
+  },
+  "client_metadata": {
+    "soft_login_enabled": "true"
+  },
+  "sso": true,
+  "allowed_origins": [
+    "http://localhost:6789",
+    "http://localhost:5173",
+    "http://localhost:2684"
+  ],
+  "client_id": "Vvn3PnYJ27E02BmBB7pizUlcrr0vE488",
+  "jwt_configuration": {
+    "alg": "RS256",
+    "lifetime_in_seconds": 900,
+    "secret_encoded": false
+  },
+  "client_aliases": [],
+  "token_endpoint_auth_method": "none",
+  "app_type": "spa",
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "web_origins": [
+    "http://localhost:6789",
+    "http://localhost:5173"
+  ],
+  "custom_login_page_on": true
+}

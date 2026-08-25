@@ -1,0 +1,25 @@
+{
+  "name": "Vonage Custom Phone Provider",
+  "code": "./actions/Vonage Custom Phone Provider/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [
+    {
+      "name": "VONAGE_API_KEY"
+    },
+    {
+      "name": "VONAGE_API_SECRET"
+    },
+    {
+      "name": "VONAGE_API_SECRET"
+    }
+  ],
+  "supported_triggers": [
+    {
+      "id": "custom-phone-provider",
+      "version": "v1"
+    }
+  ],
+  "deployed": true
+}

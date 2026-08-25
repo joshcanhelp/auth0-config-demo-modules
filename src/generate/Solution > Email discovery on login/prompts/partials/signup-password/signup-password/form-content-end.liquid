@@ -1,0 +1,59 @@
+<div id="ps-additional-signup-fields" hidden>
+  <div class="ulp-field">
+    <label for="first-name">First Name *</label>
+    <input type="text" name="ulp-first-name" id="first-name" aria-required="true" required>
+    <div class="ulp-error-info" data-ulp-validation-function="">First Name is Required</div>
+  </div>
+  <div class="ulp-field">
+    <label for="last-name">Last Name *</label>
+    <input type="text" name="ulp-last-name" id="last-name" aria-required="true" required>
+    <div class="ulp-error-info" data-ulp-validation-function="">Last Name is Required</div>
+  </div>
+</div>
+
+<input type="hidden" name="ulp-email-exists" id="ulp-email-exists" value="">
+
+<style>
+  .ulp-alternate-action {
+    display: none;
+  }
+</style>
+
+<script> 
+  var psLog = (message) => { console.log(message) }
+</script>
+
+<script>
+window.psLog("Loading email discovery ...");
+document.addEventListener("DOMContentLoaded", async function () {
+  const emailInput = document.querySelector('[name="email"]');
+  if (!emailInput) {
+    window.psLog("No email input found. Exiting ...");
+    return;
+  }
+  const emailValue = emailInput.value;
+
+  emailInput.parentElement.parentElement.hidden = true;
+  const description = document.querySelector("header > h1 ~ div > p").innerText;
+  if (!description.includes(emailValue)) {
+    // TODO: Clunky and prone to breakage if the markup changes. Consider a more robust approach.
+    document.querySelector("header > h1 ~ div > p").innerText = description + " " + emailValue;
+    emailInput.parentElement.hidden = false;
+  }
+
+  const exists = localStorage.getItem("exists_in_mdm") === "true";
+  window.psLog(`Email ${emailValue} exists: ${exists}`);
+
+  document.querySelector("#ulp-email-exists").value = exists ? "true" : "false";
+  
+  const additionalFields = document.querySelector("#ps-additional-signup-fields");
+  if (!exists) {
+    additionalFields.hidden = false;
+    additionalFields.querySelectorAll('[data-ulp-validation-function]').forEach((el) => {
+      el.setAttribute("data-ulp-validation-function", "ulpRequiredFunction");
+    });
+  } else {
+    additionalFields.remove();
+  }
+});
+</script>
