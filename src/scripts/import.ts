@@ -24,7 +24,7 @@ if (tenantType === "PULL") {
   process.exit(1);
 }
 
-const { TENANT_DOMAIN, M2M_CLIENT_ID, M2M_CLIENT_SECRET, PORT, APP_URL } =
+const { TENANT_DOMAIN, M2M_CLIENT_ID, M2M_CLIENT_SECRET, PORT, APP_URL, DEPLOYED_APP_URL } =
   process.env;
 
 if (!TENANT_DOMAIN || !M2M_CLIENT_ID || !M2M_CLIENT_SECRET) {
@@ -295,6 +295,10 @@ async function importClients(): Promise<void> {
 
       if (APP_URL) {
         client = applyUrls(client, buildAppUrls(APP_URL.replace(/\/$/, ""), clientId));
+      }
+
+      if (DEPLOYED_APP_URL) {
+        client = applyUrls(client, buildAppUrls(DEPLOYED_APP_URL.replace(/\/$/, ""), clientId));
       }
 
       writeFileSync(
