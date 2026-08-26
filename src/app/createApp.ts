@@ -33,6 +33,7 @@ declare module "express-session" {
   interface SessionData {
     pkceVerifier?: string;
     oauthState?: string;
+    auth0UserId?: string;
   }
 }
 

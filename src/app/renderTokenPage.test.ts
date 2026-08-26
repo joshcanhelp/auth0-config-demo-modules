@@ -45,7 +45,11 @@ const backendEnv = { CLIENT_ID_web456_SECRET: "a-secret" };
 function makeReqRes(client: Auth0Client) {
   const req = {
     query: { code: "auth-code", state: "some-state" },
-    session: { oauthState: "some-state", pkceVerifier: "verifier" },
+    session: {
+      oauthState: "some-state",
+      pkceVerifier: "verifier",
+      userId: undefined as string | undefined,
+    },
   };
   const res = {
     locals: {
@@ -120,6 +124,42 @@ describe("renderTokenPage", () => {
       const html = res.send.mock.calls[0][0] as string;
       expect(html).toContain("user123");
       expect(html).toContain("Token Response");
+    });
+
+    it("stores sub from idTokenClaims in session.userId", async () => {
+      vi.mocked(handleCallback).mockResolvedValue({
+        tokens: {},
+        idTokenClaims: { sub: "auth0|abc" },
+        rawAccessToken: undefined,
+        decodedState: {},
+      });
+
+      const { req, res } = makeReqRes(backendClient);
+      await renderTokenPage({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+
+      expect(req.session.userId).toBe("auth0|abc");
+    });
+
+    it("does not set session.userId when idTokenClaims has no sub", async () => {
+      vi.mocked(handleCallback).mockResolvedValue({
+        tokens: {},
+        idTokenClaims: null,
+        rawAccessToken: undefined,
+        decodedState: {},
+      });
+
+      const { req, res } = makeReqRes(backendClient);
+      await renderTokenPage({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+
+      expect(req.session.userId).toBeUndefined();
     });
   });
 });

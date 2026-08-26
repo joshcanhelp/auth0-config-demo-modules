@@ -24,10 +24,7 @@
     }
   }
 
-  function renderTokens(tokenResponse) {
-    const idClaims = tokenResponse.id_token
-      ? decodeJwtPayload(tokenResponse.id_token)
-      : null;
+  function renderTokens(tokenResponse, idClaims) {
     const atParts = tokenResponse.access_token
       ? tokenResponse.access_token.split(".")
       : [];
@@ -117,9 +114,15 @@
       return;
     }
 
-    // Step 5: Decode and display tokens
+    // Step 5: Decode tokens, store userId, and display
     try {
-      renderTokens(tokenResponse);
+      const idClaims = tokenResponse.id_token
+        ? decodeJwtPayload(tokenResponse.id_token)
+        : null;
+      if (idClaims && idClaims.sub) {
+        localStorage.setItem("auth0_user_id", String(idClaims.sub));
+      }
+      renderTokens(tokenResponse, idClaims);
       addStep("Decode and display tokens", true);
     } catch (err) {
       addStep("Decode and display tokens", false, String(err));

@@ -1,7 +1,5 @@
 import { buildDashboardUrl } from "./buildDashboardUrl.js";
 import type { TenantConfig } from "../types.js";
-import { buildLogoutUrl } from "./buildLogoutUrl.js";
-import { resolveBaseUrl } from "./updateClientUrls.js";
 
 interface PageOptions {
   title: string;
@@ -20,12 +18,7 @@ export function pageLayout({
   maxWidth = "900px",
 }: PageOptions): string {
   const dashboardUrl = buildDashboardUrl(tenantConfig.tenantDomain);
-  const logoutUrl = buildLogoutUrl({
-    loginDomain: tenantConfig.loginDomain,
-    returnTo: resolveBaseUrl(process.env),
-  });
-  const navLinks: string[] = [];
-  if (logoutUrl) navLinks.push(`<a href="${logoutUrl}">Logout</a>`);
+  const navLinks: string[] = [`<a href="/logout">Logout</a>`];
   if (dashboardUrl)
     navLinks.push(
       `<a href="${dashboardUrl}" target="_blank" rel="noopener noreferrer">Dashboard</a>`

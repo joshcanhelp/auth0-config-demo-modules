@@ -59,6 +59,11 @@ export async function renderTokenPage({
     authenticationApi: response.locals.authenticationApi!,
   });
 
+  const sub = (idTokenClaims as Record<string, unknown> | null)?.sub;
+  if (typeof sub === "string") {
+    request.session.auth0UserId = sub;
+  }
+
   const accessTokenClaims =
     rawAccessToken && rawAccessToken.split(".").length === 3
       ? decodeJwtPayload(rawAccessToken)

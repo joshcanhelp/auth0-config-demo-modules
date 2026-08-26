@@ -2,6 +2,7 @@ import { createApp } from "./src/app/createApp.js";
 import { selectTenant } from "./src/scripts/utils/selectTenant.js";
 import { handleCreateUser } from "./src/app/handleCreateUser.js";
 import { handleLoginRedirect } from "./src/app/handleLoginRedirect.js";
+import { handleLogout } from "./src/app/handleLogout.js";
 import { handleSearchUsers } from "./src/app/handleSearchUsers.js";
 import { renderClientListPage } from "./src/app/renderClientListPage.js";
 import { renderClientPage } from "./src/app/renderClientPage.js";
@@ -24,6 +25,10 @@ app.get("/", (_request, response) => {
 
 app.get("/client/:clientId", anyClientMiddleware, (_request, response) => {
   return renderClientPage({ response, env: process.env });
+});
+
+app.get("/logout", (request, response) => {
+  return handleLogout({ request, response, env: process.env });
 });
 
 app.get("/login/:clientId", loginableClientMiddleware, (request, response) => {
