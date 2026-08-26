@@ -36,14 +36,16 @@ describe("buildAuthorizeUrl", () => {
     expect(url).toContain(encodeURIComponent("http://localhost:3000/callback/abc123"));
   });
 
-  it("generates PKCE and returns the code verifier", () => {
-    const { url, codeVerifier } = buildAuthorizeUrl(
+  it("generates PKCE and returns the code verifier and challenge", () => {
+    const { url, codeVerifier, codeChallenge } = buildAuthorizeUrl(
       client,
       "login.example.com",
       "http://localhost:3000"
     );
     expect(typeof codeVerifier).toBe("string");
     expect(codeVerifier.length).toBeGreaterThan(0);
+    expect(typeof codeChallenge).toBe("string");
+    expect(codeChallenge.length).toBeGreaterThan(0);
     expect(url).toContain("code_challenge=");
   });
 

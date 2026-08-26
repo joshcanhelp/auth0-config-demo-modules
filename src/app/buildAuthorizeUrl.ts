@@ -7,6 +7,7 @@ export interface AuthorizeResult {
   url: string;
   state: string;
   codeVerifier: string;
+  codeChallenge: string;
 }
 
 export interface AuthorizeOptions {
@@ -54,5 +55,6 @@ export function buildAuthorizeUrl(
     url: `https://${loginDomain}/authorize?${params}`,
     state: encodedState,
     codeVerifier: pkce.verifier,
+    codeChallenge: pkce.challenge,
   };
 }

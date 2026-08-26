@@ -181,6 +181,11 @@ function renderLoginPage(
     </div>`
       : `<button type="submit">Login</button>`;
 
+  const frontendNote =
+    method === "frontend"
+      ? `<p><em>This app uses frontend login. The authorization code exchange happens in the browser - no client secret is used.</em></p>`
+      : "";
+
   return pageLayout({
     title: `${client.name} — ${tenantConfig.friendlyName}`,
     tenantConfig,
@@ -201,6 +206,7 @@ function renderLoginPage(
     <dt>Grants</dt><dd>${client.grant_types.join(", ")}</dd>
     <dt>Login method</dt><dd>${method}</dd>
   </dl>
+  ${frontendNote}
   ${grantsSection}
   <form method="get" action="/login/${client.client_id}">
     ${connectionSelect}
