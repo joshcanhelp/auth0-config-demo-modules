@@ -44,6 +44,9 @@ export async function handleCallback(params: CallbackParams): Promise<CallbackRe
 
   const sessionState = params.session.oauthState ?? "";
   const codeVerifier = params.session.pkceVerifier ?? "";
+
+  console.log("Current session: ", params.session);
+  
   params.session.oauthState = undefined;
   params.session.pkceVerifier = undefined;
 
