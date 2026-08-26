@@ -1,8 +1,8 @@
 /**
-* Handler to be executed while processing events in an Event Stream.
-* @param {Event} event - Details about the incoming event.
-* @param {EventStreamAPI} api - Methods and utilities to define event stream processing.
-*/
+ * Handler to be executed while processing events in an Event Stream.
+ * @param {Event} event - Details about the incoming event.
+ * @param {EventStreamAPI} api - Methods and utilities to define event stream processing.
+ */
 exports.onExecuteEventStream = async (event, api) => {
   const webhookUrl = event.secrets.SLACK_WEBHOOK_URL;
 

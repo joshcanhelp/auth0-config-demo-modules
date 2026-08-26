@@ -6,10 +6,10 @@ The portion of the user profile we’re concerned with is:
 
 ```json
 {
-	"enrolled_mfa_factors": ["email"],
-	"mfa_challenge_factor": null,
-	"email": "person@example.com",
-	"email_verified": true,
+  "enrolled_mfa_factors": ["email"],
+  "mfa_challenge_factor": null,
+  "email": "person@example.com",
+  "email_verified": true
 }
 ```
 
@@ -23,28 +23,28 @@ In this case (and the remaining scenarios), we’re going to send the user to th
 
 // Step 1
 exports.onExecutePostLogin = async (event, api) => {
-	// Look for existing factors
-		// Challenge with existing verified email
+  // Look for existing factors
+  // Challenge with existing verified email
 };
 
 // Step 2
 exports.onExecutePostLogin = async (event, api) => {
-	// Look for existing app OTP or phone factors
-		// No existing factors to delete
+  // Look for existing app OTP or phone factors
+  // No existing factors to delete
 };
 
 // Step 3
 exports.onExecutePostLogin = async (event, api) => {
-	// Nothing to enroll, email is ready for MFA
+  // Nothing to enroll, email is ready for MFA
 };
 
 // Step 4
 exports.onExecutePostLogin = async (event, api) => {
-	// Verify the user has the factor
-		// Email is verified so it appears in the list
+  // Verify the user has the factor
+  // Email is verified so it appears in the list
 
-	// Set metadata flag
-	api.user.setAppMetadata("mfa_challenge_factor", "email");
+  // Set metadata flag
+  api.user.setAppMetadata("mfa_challenge_factor", "email");
 };
 ```
 
@@ -54,10 +54,10 @@ Resulting user:
 
 ```json
 {
-	"enrolled_mfa_factors": ["email"],
-	"mfa_challenge_factor": "email",
-	"email": "person@example.com",
-	"email_verified": true,
+  "enrolled_mfa_factors": ["email"],
+  "mfa_challenge_factor": "email",
+  "email": "person@example.com",
+  "email_verified": true
 }
 ```
 
@@ -71,30 +71,30 @@ Now, after reading an article about the security implications of using email as 
 
 // Step 1
 exports.onExecutePostLogin = async (event, api) => {
-	// Look for existing factors
-		// Challenge with email
-		api.authentication.challengeWith({type: "email"});
+  // Look for existing factors
+  // Challenge with email
+  api.authentication.challengeWith({ type: "email" });
 };
 
 // Step 2
 exports.onExecutePostLogin = async (event, api) => {
-	// Look for existing app OTP or phone factors
-		// No existing factors to delete
+  // Look for existing app OTP or phone factors
+  // No existing factors to delete
 };
 
 // Step 3
 exports.onExecutePostLogin = async (event, api) => {
-	// Enroll phone factor
-	api.authentication.enrollWith({type: "phone"});
+  // Enroll phone factor
+  api.authentication.enrollWith({ type: "phone" });
 };
 
 // Step 4
 exports.onExecutePostLogin = async (event, api) => {
-	// Verify the user has the factor
-		// Phone was enrolled so it appears in the list
+  // Verify the user has the factor
+  // Phone was enrolled so it appears in the list
 
-	// Set metadata flag
-	api.user.setAppMetadata("mfa_challenge_factor", "phone");
+  // Set metadata flag
+  api.user.setAppMetadata("mfa_challenge_factor", "phone");
 };
 ```
 
@@ -108,10 +108,10 @@ Resulting user is below.
 
 ```json
 {
-	"enrolled_mfa_factors": ["email", "phone"],
-	"mfa_challenge_factor": "phone",
-	"email": "person@example.com",
-	"email_verified": true,
+  "enrolled_mfa_factors": ["email", "phone"],
+  "mfa_challenge_factor": "phone",
+  "email": "person@example.com",
+  "email_verified": true
 }
 ```
 
@@ -123,31 +123,31 @@ Now the user wants to set MFA to OTP app. The process is similar to the phone en
 
 // Step 1
 exports.onExecutePostLogin = async (event, api) => {
-	// Look for existing factors
-		// Challenge with phone
-		api.authentication.challengeWith({type: "phone"});
+  // Look for existing factors
+  // Challenge with phone
+  api.authentication.challengeWith({ type: "phone" });
 };
 
 // Step 2
 exports.onExecutePostLogin = async (event, api) => {
-	// Look for existing app OTP or phone factors
-		// Render MFA factor delete form
-		api.prompt.render('delete_mfa_form_id');
+  // Look for existing app OTP or phone factors
+  // Render MFA factor delete form
+  api.prompt.render("delete_mfa_form_id");
 };
 
 // Step 3
 exports.onExecutePostLogin = async (event, api) => {
-	// Enroll OTP application
-	api.authentication.enrollWith({type: "otp"});
+  // Enroll OTP application
+  api.authentication.enrollWith({ type: "otp" });
 };
 
 // Step 4
 exports.onExecutePostLogin = async (event, api) => {
-	// Verify the user has the factor
-		// OTP app was enrolled so it appears in the list
+  // Verify the user has the factor
+  // OTP app was enrolled so it appears in the list
 
-	// Set metadata flag
-	api.user.setAppMetadata("mfa_challenge_factor", "otp");
+  // Set metadata flag
+  api.user.setAppMetadata("mfa_challenge_factor", "otp");
 };
 ```
 
@@ -155,10 +155,10 @@ Resulting user:
 
 ```json
 {
-	"enrolled_mfa_factors": ["email", "otp"],
-	"mfa_challenge_factor": "otp",
-	"email": "person@example.com",
-	"email_verified": true,
+  "enrolled_mfa_factors": ["email", "otp"],
+  "mfa_challenge_factor": "otp",
+  "email": "person@example.com",
+  "email_verified": true
 }
 ```
 
@@ -169,7 +169,7 @@ If the user wants to change their email, it would change the profile email as we
 // URL parameter "change_email"
 
 exports.onExecutePostLogin = async (event, api) => {
-	// Form for new email and verification
+  // Form for new email and verification
 };
 ```
 
@@ -177,10 +177,10 @@ Resulting user:
 
 ```json
 {
-	"enrolled_mfa_factors": ["email", "phone"],
-	"mfa_challenge_factor": "otp",
-	"email": "new-email-address@example.com",
-	"email_verified": true,
+  "enrolled_mfa_factors": ["email", "phone"],
+  "mfa_challenge_factor": "otp",
+  "email": "new-email-address@example.com",
+  "email_verified": true
 }
 ```
 

@@ -58,7 +58,11 @@ if (!TENANT_DOMAIN || !M2M_CLIENT_ID || !M2M_CLIENT_SECRET) {
 
 const showScopes = process.argv.includes("--show-scopes");
 
-const data = await getClientCredentialsTokenResponse(TENANT_DOMAIN, M2M_CLIENT_ID, M2M_CLIENT_SECRET);
+const data = await getClientCredentialsTokenResponse(
+  TENANT_DOMAIN,
+  M2M_CLIENT_ID,
+  M2M_CLIENT_SECRET
+);
 
 console.log(data.access_token);
 

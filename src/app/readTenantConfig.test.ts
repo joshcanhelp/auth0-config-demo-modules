@@ -77,7 +77,11 @@ describe("readTenantConfig", () => {
       JSON.stringify([
         { domain: "login2.example.com", is_default: false, status: "ready" },
         { domain: "login.example.com", is_default: true, status: "ready" },
-        { domain: "login3.example.com", is_default: false, status: "pending_verification" },
+        {
+          domain: "login3.example.com",
+          is_default: false,
+          status: "pending_verification",
+        },
       ])
     );
 

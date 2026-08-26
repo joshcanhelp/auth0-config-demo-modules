@@ -22,7 +22,8 @@ export function createFileCache(cacheFile: string): TokenCache {
     write(accessToken, expiresAt) {
       writeFileSync(
         cacheFile,
-        JSON.stringify({ access_token: accessToken, expires_at: expiresAt }, null, 2) + "\n"
+        JSON.stringify({ access_token: accessToken, expires_at: expiresAt }, null, 2) +
+          "\n"
       );
     },
     clear() {

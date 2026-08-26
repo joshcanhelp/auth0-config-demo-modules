@@ -44,7 +44,9 @@ export async function createApp(tenantDir: string) {
 
   const deployedUrl = process.env.DEPLOYED_APP_URL?.replace(/\/$/, "");
   const localUrlsChanged = updateAllClientUrls(TENANT_DIR, baseUrl);
-  const deployedUrlsChanged = deployedUrl ? updateAllClientUrls(TENANT_DIR, deployedUrl) : false;
+  const deployedUrlsChanged = deployedUrl
+    ? updateAllClientUrls(TENANT_DIR, deployedUrl)
+    : false;
 
   if (localUrlsChanged || deployedUrlsChanged) {
     console.warn(
@@ -83,7 +85,7 @@ export async function createApp(tenantDir: string) {
   }
 
   app.use(express.urlencoded({ extended: true }));
-  
+
   const sessionOpts = {
     secret: sessionSecret,
     resave: false,

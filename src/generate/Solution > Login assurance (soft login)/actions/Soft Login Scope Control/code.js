@@ -85,7 +85,9 @@ exports.onExecutePostLogin = async (event, api) => {
 
     const secondsSinceLastLogin = NOW_SECONDS - lastLoginInSeconds;
     const withinFullSessionWindow = secondsSinceLastLogin < MAX_FULL_SESSION_SECONDS;
-    const lastRefreshInSeconds = Math.floor(new Date(lastExchangedAt || 0).getTime() / 1000);
+    const lastRefreshInSeconds = Math.floor(
+      new Date(lastExchangedAt || 0).getTime() / 1000
+    );
     const lastActivityInSeconds = Math.max(lastLoginInSeconds, lastRefreshInSeconds);
     const secondsSinceLastActivity = NOW_SECONDS - lastActivityInSeconds;
     const withinActivityWindow = secondsSinceLastActivity < MAX_IDLE_SECONDS;
@@ -105,4 +107,4 @@ exports.onExecutePostLogin = async (event, api) => {
     // This should never be reached because the RT expirations should stop refresh.
     logLine("Skipping assurance level claims.");
   }
-}
+};

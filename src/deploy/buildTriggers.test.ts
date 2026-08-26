@@ -8,11 +8,7 @@ const testDir = "./test-tenant-buildtriggers";
 const actionsDir = join(testDir, "actions");
 const triggersJsonPath = join(testDir, "triggers", "triggers.json");
 
-function writeAction(
-  name: string,
-  triggerId: string,
-  deployed: boolean = true
-): void {
+function writeAction(name: string, triggerId: string, deployed: boolean = true): void {
   writeFileSync(
     join(actionsDir, `${name}.json`),
     JSON.stringify({
@@ -23,7 +19,10 @@ function writeAction(
   );
 }
 
-function readTriggersJson(): Record<string, Array<{ action_name: string; display_name: string }>> {
+function readTriggersJson(): Record<
+  string,
+  Array<{ action_name: string; display_name: string }>
+> {
   return JSON.parse(readFileSync(triggersJsonPath, "utf-8"));
 }
 

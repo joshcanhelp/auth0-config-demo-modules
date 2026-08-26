@@ -1,8 +1,8 @@
 /**
-* Handler to be executed while sending a phone notification
-* @param {Event} event - Details about the user and the context in which they are logging in.
-* @param {CustomPhoneProviderAPI} api - Methods and utilities to help change the behavior of sending a phone notification.
-*/
+ * Handler to be executed while sending a phone notification
+ * @param {Event} event - Details about the user and the context in which they are logging in.
+ * @param {CustomPhoneProviderAPI} api - Methods and utilities to help change the behavior of sending a phone notification.
+ */
 exports.onExecuteSendPhoneMessage = async (event, api) => {
   const response = await fetch("https://rest.nexmo.com/sms/json", {
     method: "POST",

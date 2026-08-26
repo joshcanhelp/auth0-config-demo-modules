@@ -50,13 +50,7 @@
   "client_aliases": [],
   "token_endpoint_auth_method": "none",
   "app_type": "spa",
-  "grant_types": [
-    "authorization_code",
-    "refresh_token"
-  ],
-  "web_origins": [
-    "http://localhost:6789",
-    "http://localhost:5173"
-  ],
+  "grant_types": ["authorization_code", "refresh_token"],
+  "web_origins": ["http://localhost:6789", "http://localhost:5173"],
   "custom_login_page_on": true
 }

@@ -50,14 +50,9 @@ const tmpDir = mkdtempSync(join(tmpdir(), "aid-refresh-"));
 try {
   await withRetryOnInsufficientScope(
     () =>
-      getClientCredentialsToken(
-        TENANT_DOMAIN!,
-        M2M_CLIENT_ID!,
-        M2M_CLIENT_SECRET!,
-        {
-          cache,
-        }
-      ),
+      getClientCredentialsToken(TENANT_DOMAIN!, M2M_CLIENT_ID!, M2M_CLIENT_SECRET!, {
+        cache,
+      }),
     () => cache.clear(),
     (token) =>
       dump({

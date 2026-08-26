@@ -44,6 +44,10 @@ export async function handleCreateUser({
 
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   response.send(
-    renderCreateUserPage(clientId, { dbResult, emailResult, linkResult, loginResult }, tenantConfig)
+    renderCreateUserPage(
+      clientId,
+      { dbResult, emailResult, linkResult, loginResult },
+      tenantConfig
+    )
   );
 }

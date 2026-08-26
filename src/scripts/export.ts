@@ -12,9 +12,12 @@ import { confirmPrompt, selectPrompt } from "./utils/selectPrompt.js";
 import { selectTenant } from "./utils/selectTenant.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
-const entityFlag = entityFlagIndex !== -1 ? (process.argv[entityFlagIndex + 1] ?? null) : null;
+const entityFlag =
+  entityFlagIndex !== -1 ? (process.argv[entityFlagIndex + 1] ?? null) : null;
 
-const tenantFlagUsed = process.argv.some((a) => a === "--tenant" || a.startsWith("--tenant="));
+const tenantFlagUsed = process.argv.some(
+  (a) => a === "--tenant" || a.startsWith("--tenant=")
+);
 
 const { tenantDir: outputdir } = await selectTenant();
 
@@ -59,7 +62,10 @@ function dirToAssetType(dir: string): AssetTypes {
 }
 
 const dirOptions = readdirSync(outputdir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "_static")
+  .filter(
+    (entry) =>
+      entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "_static"
+  )
   .map((entry) => ({ label: entry.name, value: dirToAssetType(entry.name) }));
 
 const allAssets: AssetTypes[] = ["tenant", ...dirOptions.map((o) => o.value)];

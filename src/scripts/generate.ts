@@ -1,5 +1,12 @@
 import process from "node:process";
-import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from "node:fs";
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  copyFileSync,
+} from "node:fs";
 import { join } from "node:path";
 
 import { selectPrompt } from "./utils/selectPrompt.js";
@@ -136,7 +143,10 @@ if (entityType === "prompt-partials") {
   if (subDirs.length === 1) {
     partialName = subDirs[0].name;
   } else {
-    const subDirOptions = subDirs.map((entry) => ({ label: entry.name, value: entry.name }));
+    const subDirOptions = subDirs.map((entry) => ({
+      label: entry.name,
+      value: entry.name,
+    }));
     partialName = await selectPrompt("Select a partial:", subDirOptions);
   }
 

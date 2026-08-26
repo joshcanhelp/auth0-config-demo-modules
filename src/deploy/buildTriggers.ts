@@ -25,7 +25,9 @@ export function buildTriggers(tenantDir: string): boolean {
   const byTrigger = new Map<string, string[]>();
 
   for (const file of readdirSync(actionsDir).filter((f) => f.endsWith(".json"))) {
-    const action = JSON.parse(readFileSync(join(actionsDir, file), "utf-8")) as ActionJson;
+    const action = JSON.parse(
+      readFileSync(join(actionsDir, file), "utf-8")
+    ) as ActionJson;
 
     if (action.deployed === false) continue;
 
@@ -33,7 +35,7 @@ export function buildTriggers(tenantDir: string): boolean {
       if (["event-stream", "custom-token-exchange"].includes(trigger.id)) {
         continue;
       }
-      
+
       if (!byTrigger.has(trigger.id)) {
         byTrigger.set(trigger.id, []);
       }

@@ -1,5 +1,12 @@
 import process from "node:process";
-import { readdirSync, readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdtempSync,
+  rmSync,
+  existsSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -15,7 +22,8 @@ import type { AppUrls } from "../app/updateClientUrls.js";
 import { selectTenant } from "./utils/selectTenant.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
-const entityFlag = entityFlagIndex !== -1 ? (process.argv[entityFlagIndex + 1] ?? null) : null;
+const entityFlag =
+  entityFlagIndex !== -1 ? (process.argv[entityFlagIndex + 1] ?? null) : null;
 
 const { tenantDir, tenantType } = await selectTenant();
 
@@ -91,14 +99,9 @@ const cache = createFileCache(`${tenantDir}/.management-token.json`);
 function withToken(fn: (token: string) => Promise<void>): Promise<void> {
   return withRetryOnInsufficientScope(
     () =>
-      getClientCredentialsToken(
-        TENANT_DOMAIN!,
-        M2M_CLIENT_ID!,
-        M2M_CLIENT_SECRET!,
-        {
-          cache,
-        }
-      ),
+      getClientCredentialsToken(TENANT_DOMAIN!, M2M_CLIENT_ID!, M2M_CLIENT_SECRET!, {
+        cache,
+      }),
     () => cache.clear(),
     fn
   );
@@ -133,7 +136,13 @@ async function importActions(): Promise<void> {
 
   const newActionNames = new Set(
     localFiles
-      .map((f) => JSON.parse(readFileSync(join(actionsDir, f), "utf-8")) as Record<string, unknown>)
+      .map(
+        (f) =>
+          JSON.parse(readFileSync(join(actionsDir, f), "utf-8")) as Record<
+            string,
+            unknown
+          >
+      )
       .filter((a) => !a.id)
       .map((a) => a.name as string)
   );
@@ -183,9 +192,10 @@ async function importActions(): Promise<void> {
 
       const actionId = exported.id as string;
       const localFile = localFiles.find((f) => {
-        const content = JSON.parse(
-          readFileSync(join(actionsDir, f), "utf-8")
-        ) as Record<string, unknown>;
+        const content = JSON.parse(readFileSync(join(actionsDir, f), "utf-8")) as Record<
+          string,
+          unknown
+        >;
         return content.name === exported.name;
       });
 
@@ -294,7 +304,10 @@ async function importClients(): Promise<void> {
       client = applyUrls(client, buildAppUrls(`http://localhost:${PORT}`, clientId));
 
       if (DEPLOYED_APP_URL) {
-        client = applyUrls(client, buildAppUrls(DEPLOYED_APP_URL.replace(/\/$/, ""), clientId));
+        client = applyUrls(
+          client,
+          buildAppUrls(DEPLOYED_APP_URL.replace(/\/$/, ""), clientId)
+        );
       }
 
       writeFileSync(
