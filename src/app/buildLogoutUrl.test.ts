@@ -16,13 +16,20 @@ const client: Auth0Client = {
 
 describe("buildLogoutUrl", () => {
   it("builds a valid OIDC logout URL", () => {
-    const url = buildLogoutUrl(client, "login.example.com", "http://localhost:3000");
-    expect(url).toContain("https://login.example.com/oidc/logout");
+    const url = buildLogoutUrl({
+      client,
+      loginDomain: "login.example.com",
+    });
+    expect(url).toContain("https://login.example.com/v2/logout");
     expect(url).toContain("client_id=abc123");
   });
 
   it("includes the returnTo URL", () => {
-    const url = buildLogoutUrl(client, "login.example.com", "http://localhost:3000");
+    const url = buildLogoutUrl({
+      client,
+      loginDomain: "login.example.com",
+      returnTo: "http://localhost:3000",
+    });
     expect(url).toContain(encodeURIComponent("http://localhost:3000"));
   });
 });

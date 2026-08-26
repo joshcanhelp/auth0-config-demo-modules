@@ -90,6 +90,7 @@ describe("selectTenant", () => {
       await selectTenant();
       expect(mockDotenvConfig).toHaveBeenCalledWith({
         path: "./tenants/tenant-a-PUSH/.env",
+        quiet: true,
       });
     });
 
@@ -161,6 +162,7 @@ describe("selectTenant", () => {
       await selectTenant();
       expect(mockDotenvConfig).toHaveBeenCalledWith({
         path: "./tenants/tenant-a-PUSH/.env",
+        quiet: true,
       });
     });
 
