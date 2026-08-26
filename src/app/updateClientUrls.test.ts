@@ -28,13 +28,13 @@ afterEach(() => {
 
 describe("resolveBaseUrl", () => {
   it("uses DEPLOYED_APP_URL when set", () => {
-    expect(resolveBaseUrl({ DEPLOYED_APP_URL: "https://myapp.onrender.com" })).toBe(
+    expect(resolveBaseUrl({ APP_URL: "https://myapp.onrender.com" })).toBe(
       "https://myapp.onrender.com"
     );
   });
 
   it("strips trailing slash from DEPLOYED_APP_URL", () => {
-    expect(resolveBaseUrl({ DEPLOYED_APP_URL: "https://myapp.onrender.com/" })).toBe(
+    expect(resolveBaseUrl({ APP_URL: "https://myapp.onrender.com/" })).toBe(
       "https://myapp.onrender.com"
     );
   });
