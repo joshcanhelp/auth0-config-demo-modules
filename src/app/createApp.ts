@@ -91,8 +91,7 @@ export async function createApp(tenantDir: string) {
     cookie: { secure: baseUrl.startsWith("https://") },
   };
 
-  console.log("Using session options: ", sessionOpts);
-
+  app.set("trust proxy", 1);
   app.use(session(sessionOpts));
 
   app.use((_req: Request, res: Response, next: NextFunction) => {
