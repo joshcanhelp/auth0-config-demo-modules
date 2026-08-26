@@ -83,14 +83,17 @@ export async function createApp(tenantDir: string) {
   }
 
   app.use(express.urlencoded({ extended: true }));
-  app.use(
-    session({
-      secret: sessionSecret,
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: baseUrl.startsWith("https://") },
-    })
-  );
+  
+  const sessionOpts = {
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: baseUrl.startsWith("https://") },
+  };
+
+  console.log("Using session options: ", sessionOpts);
+
+  app.use(session(sessionOpts));
 
   app.use((_req: Request, res: Response, next: NextFunction) => {
     res.locals.auth0Domain = tenantConfig.tenantDomain;
