@@ -1,5 +1,7 @@
 import type { Auth0Client } from "../types.js";
 
+const VALID_APP_TYPES = new Set(["native", "spa", "regular_web", "non_interactive"]);
+
 const REQUIRED_FIELDS: (keyof Auth0Client)[] = [
   "client_id",
   "name",
@@ -29,6 +31,12 @@ export function validateClient(
     if (client[field] === undefined || client[field] === null) {
       errors.push(`Missing required field: ${field}`);
     }
+  }
+
+  if (client.app_type && !VALID_APP_TYPES.has(client.app_type)) {
+    errors.push(
+      `Invalid app_type "${client.app_type}". Must be one of: ${[...VALID_APP_TYPES].join(", ")}`
+    );
   }
 
   const isNonInteractive = client.app_type === "non_interactive";
@@ -86,6 +94,10 @@ export function validateClient(
   }
 
   if (client.app_type === "regular_web") {
+    if (client.allowed_origins?.length > 0) {
+      errors.push("regular_web app_type must not have allowed_origins");
+    }
+
     if (client.token_endpoint_auth_method !== "client_secret_post") {
       errors.push(
         `regular_web app_type must have token_endpoint_auth_method: "client_secret_post"`
