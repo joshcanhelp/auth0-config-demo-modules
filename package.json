@@ -13,7 +13,7 @@
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write ./src"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -29,6 +29,7 @@
     "vitest": "^3.0.0"
   },
   "dependencies": {
+    "auth0": "^6.3.0",
     "auth0-deploy-cli": "file:../auth0-deploy-cli",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
