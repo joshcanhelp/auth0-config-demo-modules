@@ -96,10 +96,7 @@ describe("updateAllClientUrls", () => {
       app_type: "spa",
       allowed_origins: [],
     };
-    writeFileSync(
-      join(testDir, "clients", "SPA App.json"),
-      JSON.stringify(spaClient)
-    );
+    writeFileSync(join(testDir, "clients", "SPA App.json"), JSON.stringify(spaClient));
 
     updateAllClientUrls(testDir, "http://localhost:3000");
 
