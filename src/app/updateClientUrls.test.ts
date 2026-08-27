@@ -73,6 +73,40 @@ describe("updateAllClientUrls", () => {
 
     expect(updated.callbacks).toContain("http://localhost:3000/callback/abc123");
     expect(updated.allowed_logout_urls).toContain("http://localhost:3000");
+  });
+
+  it("does not add allowed_origins for regular_web clients", () => {
+    writeFileSync(
+      join(testDir, "clients", "Test App.json"),
+      JSON.stringify(clientFixture)
+    );
+
+    updateAllClientUrls(testDir, "http://localhost:3000");
+
+    const updated = JSON.parse(
+      readFileSync(join(testDir, "clients", "Test App.json"), "utf-8")
+    ) as Auth0Client;
+
+    expect(updated.allowed_origins).not.toContain("http://localhost:3000");
+  });
+
+  it("adds allowed_origins for spa clients", () => {
+    const spaClient = {
+      ...clientFixture,
+      app_type: "spa",
+      allowed_origins: [],
+    };
+    writeFileSync(
+      join(testDir, "clients", "SPA App.json"),
+      JSON.stringify(spaClient)
+    );
+
+    updateAllClientUrls(testDir, "http://localhost:3000");
+
+    const updated = JSON.parse(
+      readFileSync(join(testDir, "clients", "SPA App.json"), "utf-8")
+    ) as Auth0Client;
+
     expect(updated.allowed_origins).toContain("http://localhost:3000");
   });
 

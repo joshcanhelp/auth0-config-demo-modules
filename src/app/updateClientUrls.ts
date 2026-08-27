@@ -61,7 +61,9 @@ function ensureUrls(client: Auth0Client, appUrls: AppUrls): Auth0Client {
       client.allowed_logout_urls || [],
       appUrls.logoutUrl
     ),
-    allowed_origins: addIfMissing(client.allowed_origins || [], appUrls.origin),
+    ...(client.app_type !== "regular_web" && {
+      allowed_origins: addIfMissing(client.allowed_origins || [], appUrls.origin),
+    }),
   };
 }
 
