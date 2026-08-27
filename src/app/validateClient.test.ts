@@ -129,6 +129,23 @@ describe("validateClient", () => {
     expect(errors[0]).toContain("spa");
   });
 
+  it("returns an error for an invalid app_type", () => {
+    const client = { ...validClient, app_type: "unknown_type" };
+    const errors = validateClient(client, { CLIENT_ID_abc123_SECRET: "secret" });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("unknown_type");
+  });
+
+  it("returns an error for regular_web with allowed_origins", () => {
+    const client = {
+      ...validClient,
+      allowed_origins: ["https://example.com"],
+    };
+    const errors = validateClient(client, { CLIENT_ID_abc123_SECRET: "secret" });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("allowed_origins");
+  });
+
   it("passes for regular_web without allowed_origins", () => {
     const { allowed_origins: _, ...withoutOrigins } = validClient;
     expect(
