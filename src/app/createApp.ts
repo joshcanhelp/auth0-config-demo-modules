@@ -87,6 +87,7 @@ export async function createApp(tenantDir: string) {
   }
 
   app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
 
   const sessionOpts = {
     secret: sessionSecret,

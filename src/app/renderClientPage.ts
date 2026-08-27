@@ -157,7 +157,8 @@ function renderSelfServiceSection(
   }
 
   return `<h2>Self-Service</h2>
-  <p><a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a></p>`;
+  <p><a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a></p>
+  <p><a href="/change-password-link/${client.client_id}"><button>Change Password (link)</button></a></p>`;
 }
 
 function renderLoginPage(
