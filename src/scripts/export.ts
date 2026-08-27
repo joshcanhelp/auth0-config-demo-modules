@@ -91,7 +91,11 @@ if (entityFlag !== null) {
   ];
 
   const selected = await selectPrompt("Select an entity to export:", options);
-  includedOnly = selected === "__all__" ? allAssets : [selected as AssetTypes];
+  if (selected === "__all__") {
+    includedOnly = dirOptions.length > 0 ? allAssets : undefined;
+  } else {
+    includedOnly = [selected as AssetTypes];
+  }
 }
 
 const cache = createFileCache(`${outputdir}/.management-token.json`);
@@ -131,7 +135,7 @@ const grantsDir = join(outputdir, "grants");
 const clientsDir = join(outputdir, "clients");
 
 if (grantsExported && existsSync(grantsDir) && existsSync(clientsDir)) {
-  const localClientIds = new Set(
+  const localClientNames = new Set(
     readdirSync(clientsDir)
       .filter((f) => f.endsWith(".json"))
       .map((f) => {
@@ -139,9 +143,9 @@ if (grantsExported && existsSync(grantsDir) && existsSync(clientsDir)) {
           string,
           unknown
         >;
-        return content.client_id as string | undefined;
+        return content.name as string | undefined;
       })
-      .filter((id): id is string => Boolean(id))
+      .filter((name): name is string => Boolean(name))
   );
 
   for (const file of readdirSync(grantsDir).filter((f) => f.endsWith(".json"))) {
@@ -149,7 +153,7 @@ if (grantsExported && existsSync(grantsDir) && existsSync(clientsDir)) {
       string,
       unknown
     >;
-    if (!localClientIds.has(grant.client_id as string)) {
+    if (!localClientNames.has(grant.client_id as string)) {
       rmSync(join(grantsDir, file));
       console.log(`[export] Removed grant ${file} - client not in local clients.`);
     }
