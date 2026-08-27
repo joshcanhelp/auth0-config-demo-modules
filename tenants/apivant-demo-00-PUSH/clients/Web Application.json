@@ -1,6 +1,6 @@
 {
   "is_token_endpoint_ip_header_trusted": false,
-  "name": "Default App",
+  "name": "Web Application",
   "is_first_party": true,
   "oidc_conformant": true,
   "cross_origin_authentication": true,
@@ -16,7 +16,7 @@
   },
   "allowed_clients": [],
   "callbacks": [
-    "http://localhost:8268/callback/8HXiQSqeMgxrE44HdfSxHzM33EgEaySi"
+    "http://localhost:2748/callback/8HXiQSqeMgxrE44HdfSxHzM33EgEaySi"
   ],
   "logo_uri": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png",
   "native_social_login": {
@@ -28,8 +28,7 @@
     }
   },
   "allowed_logout_urls": [
-    "http://localhost:8268/#logout",
-    "http://localhost:8268"
+    "http://localhost:2748"
   ],
   "initiate_login_uri": "https://apivant.io/login/",
   "client_metadata": {
@@ -37,9 +36,7 @@
   },
   "sso": true,
   "description": "This is the default app for the tenant. It is used for testing and development purposes.",
-  "allowed_origins": [
-    "http://localhost:8268"
-  ],
+  "allowed_origins": [],
   "client_id": "8HXiQSqeMgxrE44HdfSxHzM33EgEaySi",
   "jwt_configuration": {
     "alg": "RS256",

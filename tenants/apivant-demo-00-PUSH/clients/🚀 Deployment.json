@@ -37,5 +37,8 @@
   "grant_types": [
     "client_credentials"
   ],
-  "custom_login_page_on": true
+  "custom_login_page_on": true,
+  "client_metadata": {
+    "hide_from_demo": "true"
+  }
 }

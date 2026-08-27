@@ -14,12 +14,8 @@
     "idle_token_lifetime": 2592000,
     "rotation_type": "non-rotating"
   },
-  "allowed_logout_urls": [
-    "http://localhost:8268"
-  ],
-  "callbacks": [
-    "http://localhost:8268/callback/wAgZaA8QA2OESaNA0SsW0K4uClnCpItu"
-  ],
+  "allowed_logout_urls": [],
+  "callbacks": [],
   "allowed_clients": [],
   "logo_uri": "https://identicons.dev/identicons/mono/png/icon-auth0-logo-dark.png",
   "native_social_login": {
@@ -31,9 +27,7 @@
     }
   },
   "sso": true,
-  "allowed_origins": [
-    "http://localhost:8268"
-  ],
+  "allowed_origins": [],
   "client_id": "wAgZaA8QA2OESaNA0SsW0K4uClnCpItu",
   "jwt_configuration": {
     "alg": "RS256",
@@ -46,5 +40,8 @@
   "grant_types": [
     "client_credentials"
   ],
-  "custom_login_page_on": true
+  "custom_login_page_on": true,
+  "client_metadata": {
+    "hide_from_demo": "true"
+  }
 }
