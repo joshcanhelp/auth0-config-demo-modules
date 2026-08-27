@@ -4,16 +4,16 @@
   "type": "module",
   "scripts": {
     "start": "tsx serve.ts",
-    "export": "tsx modules/scripts/export.ts",
-    "generate": "tsx modules/scripts/generate.ts",
-    "import": "tsx modules/scripts/import.ts",
-    "refresh": "tsx modules/scripts/refresh.ts",
-    "deploy-ulp": "tsx modules/scripts/deploy-ulp.ts",
+    "export": "tsx src/scripts/export.ts",
+    "generate": "tsx src/scripts/generate.ts",
+    "import": "tsx src/scripts/import.ts",
+    "refresh": "tsx src/scripts/refresh.ts",
+    "watch": "tsx src/scripts/watch.ts",
+    "deploy-ulp": "tsx src/scripts/deploy-ulp.ts",
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "watch": "tsx modules/scripts/watch.ts"
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
