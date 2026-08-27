@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "shields": [
+    "block",
+    "user_notification"
+  ],
+  "mode": "count_per_identifier_and_ip",
+  "form_submission_behavior": "auto_submit",
+  "allowlist": [],
+  "max_attempts": 10
+}

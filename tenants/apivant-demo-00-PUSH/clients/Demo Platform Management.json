@@ -1,0 +1,29 @@
+{
+  "is_token_endpoint_ip_header_trusted": false,
+  "name": "Demo Platform Management",
+  "cross_origin_authentication": false,
+  "is_first_party": true,
+  "sso_disabled": false,
+  "oidc_conformant": false,
+  "refresh_token": {
+    "expiration_type": "non-expiring",
+    "leeway": 0,
+    "infinite_token_lifetime": true,
+    "infinite_idle_token_lifetime": true,
+    "token_lifetime": 2592000,
+    "idle_token_lifetime": 1296000,
+    "rotation_type": "non-rotating"
+  },
+  "client_id": "nSjarbtks2QvEZ9IMu9gECt6AbofcwAI",
+  "jwt_configuration": {
+    "lifetime_in_seconds": 36000,
+    "secret_encoded": false
+  },
+  "grant_types": [
+    "authorization_code",
+    "implicit",
+    "refresh_token",
+    "client_credentials"
+  ],
+  "custom_login_page_on": true
+}

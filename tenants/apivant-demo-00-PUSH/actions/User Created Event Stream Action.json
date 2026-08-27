@@ -1,0 +1,31 @@
+{
+  "id": "068ea780-9c59-47fb-a891-8b5095920d5a",
+  "name": "User Created Event Stream Action",
+  "code": "./actions/User Created Event Stream Action/code.js",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [
+    {
+      "name": "auth0",
+      "version": "4.8.0"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "AUTH0_DOMAIN"
+    },
+    {
+      "name": "MGMT_CLIENT_ID"
+    },
+    {
+      "name": "MGMT_CLIENT_SECRET"
+    }
+  ],
+  "supported_triggers": [
+    {
+      "id": "event-stream",
+      "version": "v1"
+    }
+  ],
+  "deployed": true
+}

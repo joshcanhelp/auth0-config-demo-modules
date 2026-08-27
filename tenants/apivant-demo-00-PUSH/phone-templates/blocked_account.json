@@ -1,0 +1,12 @@
+{
+  "type": "blocked_account",
+  "disabled": false,
+  "content": {
+    "syntax": "liquid",
+    "body": {
+      "text": "We detected suspicious activity on your account from the ip {{user.source_ip}}{% if user.city %} from {{user.city}}, {{user.country}}{% elsif user.country %} from {{user.country}}{% endif %}. Logins from this IP have been blocked on your account. If this is your IP, please reset your password to unblock your account. Otherwise, disregard this message.",
+      "voice": "We detected suspicious activity on your account from the ip {{user.source_ip}}{% if user.city %} from {{user.city}}, {{user.country}}{% elsif user.country %} from {{user.country}}{% endif %}. Logins from this IP have been blocked on your account. If this is your IP, please reset your password to unblock your account. Otherwise, disregard this message."
+    },
+    "from": ""
+  }
+}

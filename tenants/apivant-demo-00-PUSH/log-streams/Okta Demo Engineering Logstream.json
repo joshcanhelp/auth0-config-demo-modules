@@ -1,0 +1,49 @@
+{
+  "id": "lst_0000000000021862",
+  "name": "Okta Demo Engineering Logstream",
+  "type": "http",
+  "sink": {
+    "httpContentFormat": "JSONARRAY",
+    "httpEndpoint": "https://logs.oktademo.stream/logs/customer-identity?source=apivant-demo-00",
+    "httpCustomHeaders": []
+  },
+  "filters": [
+    {
+      "type": "category",
+      "name": "auth.login.success"
+    },
+    {
+      "type": "category",
+      "name": "auth.silent_auth.success"
+    },
+    {
+      "type": "category",
+      "name": "auth.token_exchange.success"
+    },
+    {
+      "type": "category",
+      "name": "user.success"
+    },
+    {
+      "type": "category",
+      "name": "user.notification"
+    },
+    {
+      "type": "category",
+      "name": "auth.signup.success"
+    },
+    {
+      "type": "category",
+      "name": "management.success"
+    },
+    {
+      "type": "category",
+      "name": "auth.logout.success"
+    },
+    {
+      "type": "category",
+      "name": "other"
+    }
+  ],
+  "isPriority": false
+}

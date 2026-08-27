@@ -1,0 +1,68 @@
+{
+  "id": "con_TaofFXiSkIcHrUya",
+  "options": {
+    "mfa": {
+      "active": true,
+      "return_enroll_settings": true
+    },
+    "import_mode": false,
+    "passwordPolicy": null,
+    "passkey_options": {
+      "challenge_ui": "both",
+      "local_enrollment_enabled": true,
+      "progressive_enrollment_enabled": true
+    },
+    "password_history": {
+      "size": 5,
+      "enable": false
+    },
+    "strategy_version": 2,
+    "password_dictionary": {
+      "enable": false,
+      "dictionary": []
+    },
+    "authentication_methods": {
+      "passkey": {
+        "enabled": false
+      },
+      "password": {
+        "enabled": true,
+        "api_behavior": "required",
+        "signup_behavior": "allow"
+      },
+      "email_otp": {
+        "enabled": false
+      },
+      "phone_otp": {
+        "enabled": false
+      }
+    },
+    "brute_force_protection": true,
+    "password_no_personal_info": {
+      "enable": false
+    },
+    "password_complexity_options": {
+      "min_length": 1
+    },
+    "enabledDatabaseCustomization": false
+  },
+  "strategy": "auth0",
+  "name": "Username-Password-Authentication",
+  "is_domain_connection": false,
+  "authentication": {
+    "active": true
+  },
+  "connected_accounts": {
+    "active": false
+  },
+  "realms": [
+    "Username-Password-Authentication"
+  ],
+  "enabled_clients": [
+    "🚀 Deployment",
+    "Auth0 Actions Connector",
+    "Auth0 Forms Connector",
+    "Default App",
+    "Demo Platform Management"
+  ]
+}

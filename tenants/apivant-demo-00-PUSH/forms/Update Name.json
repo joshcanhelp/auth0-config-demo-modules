@@ -1,0 +1,77 @@
+{
+  "id": "ap_hsRgyn7BCtSZWf3jXzGVp8",
+  "name": "Update Name",
+  "languages": {
+    "primary": "en"
+  },
+  "nodes": [
+    {
+      "id": "step_4iwC",
+      "type": "STEP",
+      "coordinates": {
+        "x": 331,
+        "y": -215
+      },
+      "alias": "Profile details",
+      "config": {
+        "components": [
+          {
+            "id": "rich_text_hPsU",
+            "category": "BLOCK",
+            "type": "RICH_TEXT",
+            "config": {
+              "content": "<h2>This you?</h2>"
+            }
+          },
+          {
+            "id": "name",
+            "category": "FIELD",
+            "type": "TEXT",
+            "label": "Name",
+            "required": true,
+            "sensitive": false,
+            "config": {
+              "multiline": false,
+              "default_value": "{{context.user.name}}"
+            }
+          },
+          {
+            "id": "next_button_YKS2",
+            "category": "BLOCK",
+            "type": "NEXT_BUTTON",
+            "config": {
+              "text": "Continue"
+            }
+          }
+        ],
+        "next_node": "flow_NLtw"
+      }
+    },
+    {
+      "id": "flow_NLtw",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 1035,
+        "y": -107
+      },
+      "config": {
+        "flow_id": "update_name",
+        "next_node": "$ending"
+      }
+    }
+  ],
+  "start": {
+    "next_node": "step_4iwC",
+    "coordinates": {
+      "x": -221,
+      "y": -46
+    }
+  },
+  "ending": {
+    "resume_flow": true,
+    "coordinates": {
+      "x": 1728,
+      "y": 61
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "con_yKMEW80wplzU4jrm",
+  "options": {
+    "email": true,
+    "scope": [
+      "email",
+      "profile"
+    ],
+    "profile": true
+  },
+  "strategy": "google-oauth2",
+  "name": "google-oauth2",
+  "is_domain_connection": false,
+  "authentication": {
+    "active": true
+  },
+  "connected_accounts": {
+    "active": false
+  },
+  "enabled_clients": [
+    "🚀 Deployment",
+    "Auth0 Actions Connector",
+    "Auth0 Forms Connector",
+    "Default App",
+    "Demo Platform Management"
+  ]
+}

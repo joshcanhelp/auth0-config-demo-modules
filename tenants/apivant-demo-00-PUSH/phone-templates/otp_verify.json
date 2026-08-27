@@ -1,0 +1,12 @@
+{
+  "type": "otp_verify",
+  "disabled": false,
+  "content": {
+    "syntax": "liquid",
+    "body": {
+      "text": "{{ code | escape }} is your verification code for {{ friendly_name | escape }}",
+      "voice": "Hello. Your verification code for {{ friendly_name | escape }} is {{ pause }} {{ code | escape }}. I repeat, your verification code is {{ pause }} {{ code | escape }}"
+    },
+    "from": ""
+  }
+}

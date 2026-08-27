@@ -1,0 +1,30 @@
+{
+  "enabled_locales": [
+    "en"
+  ],
+  "flags": {
+    "enable_client_connections": false,
+    "revoke_refresh_token_grant": false,
+    "mfa_show_factor_list_on_enrollment": true,
+    "disable_clickjack_protection_headers": false
+  },
+  "friendly_name": "Apivant",
+  "idle_session_lifetime": 0.03333333333333333,
+  "picture_url": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png",
+  "sandbox_version": "22",
+  "session_lifetime": 8760,
+  "support_email": "help@anthropicidentity.com",
+  "support_url": "https://anthropicidentity.com/login-help",
+  "oidc_logout": {
+    "rp_logout_end_session_endpoint_discovery": true
+  },
+  "customize_mfa_in_postlogin_action": true,
+  "universal_login": {
+    "colors": {
+      "page_background": "#fff",
+      "primary": "#206ef6"
+    }
+  },
+  "resource_parameter_profile": "audience",
+  "client_id_metadata_document_supported": false
+}

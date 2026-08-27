@@ -1,0 +1,20 @@
+{
+  "id": "af_o335JsCvDKyNnV22ffBeb7",
+  "name": "update_name",
+  "actions": [
+    {
+      "id": "updateUser_j0M1",
+      "type": "AUTH0",
+      "action": "UPDATE_USER",
+      "allow_failure": false,
+      "mask_output": false,
+      "params": {
+        "connection_id": "Auth0 Forms Connector",
+        "user_id": "{{context.user.user_id}}",
+        "changes": {
+          "name": "{{fields.name}}"
+        }
+      }
+    }
+  ]
+}
