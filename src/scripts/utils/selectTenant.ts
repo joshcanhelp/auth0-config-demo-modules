@@ -48,7 +48,9 @@ export async function selectTenant(): Promise<TenantPaths> {
 
   let tenantName: string;
 
-  if (tenantFlag) {
+  if (options.length === 1 && !tenantFlag) {
+    tenantName = options[0].value;
+  } else if (tenantFlag) {
     const match = options.find((o) => stripSuffix(o.value) === tenantFlag);
     if (!match) {
       console.error(`No tenant directory found matching "--tenant ${tenantFlag}"`);
@@ -66,7 +68,7 @@ export async function selectTenant(): Promise<TenantPaths> {
 
   const tenantType = resolveTenantType(tenantName);
 
-  if (!tenantFlag) {
+  if (!tenantFlag && options.length > 1) {
     const domain = process.env.TENANT_DOMAIN;
     const confirmed = await confirmPrompt(
       `Target: ${tenantName} (${domain ?? "no domain configured"})\nContinue?`
