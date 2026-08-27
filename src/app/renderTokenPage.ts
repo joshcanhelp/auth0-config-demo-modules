@@ -64,6 +64,11 @@ export async function renderTokenPage({
     request.session.auth0UserId = sub;
   }
 
+  const email = (idTokenClaims as Record<string, unknown> | null)?.email;
+  if (typeof email === "string") {
+    request.session.auth0UserEmail = email;
+  }
+
   const accessTokenClaims =
     rawAccessToken && rawAccessToken.split(".").length === 3
       ? decodeJwtPayload(rawAccessToken)

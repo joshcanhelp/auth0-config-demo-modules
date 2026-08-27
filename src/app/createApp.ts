@@ -34,6 +34,7 @@ declare module "express-session" {
     pkceVerifier?: string;
     oauthState?: string;
     auth0UserId?: string;
+    auth0UserEmail?: string;
   }
 }
 

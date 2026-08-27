@@ -122,6 +122,9 @@
       if (idClaims && idClaims.sub) {
         localStorage.setItem("auth0_user_id", String(idClaims.sub));
       }
+      if (idClaims && idClaims.email) {
+        localStorage.setItem("auth0_user_email", String(idClaims.email));
+      }
       renderTokens(tokenResponse, idClaims);
       addStep("Decode and display tokens", true);
     } catch (err) {

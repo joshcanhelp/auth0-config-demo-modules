@@ -49,6 +49,7 @@ function makeReqRes(client: Auth0Client) {
       oauthState: "some-state",
       pkceVerifier: "verifier",
       auth0UserId: undefined as string | undefined,
+      auth0UserEmail: undefined as string | undefined,
     },
   };
   const res = {
@@ -159,7 +160,43 @@ describe("renderTokenPage", () => {
         env: backendEnv,
       });
 
-      expect(req.session.userId).toBeUndefined();
+      expect(req.session.auth0UserId).toBeUndefined();
+    });
+
+    it("stores email from idTokenClaims in session.auth0UserEmail", async () => {
+      vi.mocked(handleCallback).mockResolvedValue({
+        tokens: {},
+        idTokenClaims: { sub: "auth0|abc", email: "user@example.com" },
+        rawAccessToken: undefined,
+        decodedState: {},
+      });
+
+      const { req, res } = makeReqRes(backendClient);
+      await renderTokenPage({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+
+      expect(req.session.auth0UserEmail).toBe("user@example.com");
+    });
+
+    it("does not set session.auth0UserEmail when idTokenClaims has no email", async () => {
+      vi.mocked(handleCallback).mockResolvedValue({
+        tokens: {},
+        idTokenClaims: { sub: "auth0|abc" },
+        rawAccessToken: undefined,
+        decodedState: {},
+      });
+
+      const { req, res } = makeReqRes(backendClient);
+      await renderTokenPage({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+
+      expect(req.session.auth0UserEmail).toBeUndefined();
     });
   });
 });

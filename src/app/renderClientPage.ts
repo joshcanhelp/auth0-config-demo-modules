@@ -3,7 +3,7 @@ import { detectLoginMethod } from "./detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
 import { clientHasScope, readGrants } from "./readGrants.js";
 import type { ClientGrant } from "./readGrants.js";
-import type { Auth0Client, Connection, TenantConfig } from "../types.js";
+import type { Auth0Client, Connection, LoginMethod, TenantConfig } from "../types.js";
 import type { SchemaField, PrimitiveField } from "../utils/tenantUserSchema.js";
 import { readTenantConfig } from "./readTenantConfig.js";
 import { readConnections } from "./readConnections.js";
@@ -145,13 +145,29 @@ function renderM2MPage(
   });
 }
 
+function renderSelfServiceSection(
+  client: Auth0Client,
+  connections: Connection[]
+): string {
+  const dbConnections = getDatabaseConnections(connections);
+
+  if (dbConnections.length === 0) {
+    return `<h2>Self-Service</h2>
+  <p>No database connection is configured for this client. Self-service features require a database connection.</p>`;
+  }
+
+  return `<h2>Self-Service</h2>
+  <p><a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a></p>`;
+}
+
 function renderLoginPage(
   client: Auth0Client,
   tenantConfig: TenantConfig,
   connections: Connection[],
-  grants: ClientGrant[]
+  grants: ClientGrant[],
+  loginMethod: LoginMethod
 ): string {
-  const method = detectLoginMethod(client, {} as NodeJS.ProcessEnv);
+  const method = loginMethod;
 
   const connectionOptions = connections
     .map((c) => `<option value="${c.name}">${c.name} (${c.strategy})</option>`)
@@ -215,7 +231,8 @@ function renderLoginPage(
       <textarea id="extra_params" name="extra_params" placeholder="screen_hint=signup&#10;prompt=login"></textarea>
     </div>
     ${loginButtons}
-  </form>`,
+  </form>
+  ${renderSelfServiceSection(client, connections)}`,
   });
 }
 
@@ -240,12 +257,14 @@ export function renderClientPage({
       )
     );
   }
+  const loginMethod = detectLoginMethod(response.locals.client!, env);
   return response.send(
     renderLoginPage(
       response.locals.client!,
       tenantConfig,
       connections,
-      response.locals.grants
+      response.locals.grants,
+      loginMethod
     )
   );
 }
