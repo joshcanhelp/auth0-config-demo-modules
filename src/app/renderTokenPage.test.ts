@@ -48,7 +48,7 @@ function makeReqRes(client: Auth0Client) {
     session: {
       oauthState: "some-state",
       pkceVerifier: "verifier",
-      userId: undefined as string | undefined,
+      auth0UserId: undefined as string | undefined,
     },
   };
   const res = {
@@ -141,7 +141,7 @@ describe("renderTokenPage", () => {
         env: backendEnv,
       });
 
-      expect(req.session.userId).toBe("auth0|abc");
+      expect(req.session.auth0UserId).toBe("auth0|abc");
     });
 
     it("does not set session.userId when idTokenClaims has no sub", async () => {
