@@ -123,10 +123,12 @@ function applyUrls(
       (client.allowed_logout_urls as string[]) ?? [],
       urls.logoutUrl
     ),
-    allowed_origins: addIfMissing(
-      (client.allowed_origins as string[]) ?? [],
-      urls.origin
-    ),
+    ...(client.app_type !== "regular_web" && {
+      allowed_origins: addIfMissing(
+        (client.allowed_origins as string[]) ?? [],
+        urls.origin
+      ),
+    }),
   };
 }
 
