@@ -42,7 +42,7 @@ export async function renderCallbackPage({
     hr { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }`,
         body: `
   <h1>Logging in to ${client.name}</h1>
-  <p><a href="/">&larr; Back to app list</a></p>
+  <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>
   <div id="steps"></div>
   <div id="tokens"></div>
   <script id="spa-callback-config" type="application/json">${callbackConfig}</script>
@@ -85,7 +85,7 @@ export async function renderCallbackPage({
       styles: `pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }`,
       body: `
   <h1>Logged in to ${client.name}</h1>
-  <p><a href="/">&larr; Back to app list</a></p>
+  <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>
   <h2>ID Token Claims</h2>
   <pre>${JSON.stringify(idTokenClaims, null, 2)}</pre>
   ${accessTokenSection}

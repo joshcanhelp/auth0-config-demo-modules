@@ -18,7 +18,7 @@ export function pageLayout({
   maxWidth = "900px",
 }: PageOptions): string {
   const dashboardUrl = buildDashboardUrl(tenantConfig.tenantDomain);
-  const navLinks: string[] = [`<a href="/logout">Logout</a>`];
+  const navLinks: string[] = [`<a href="/">Home</a>`, `<a href="/logout">Logout</a>`];
   if (dashboardUrl)
     navLinks.push(
       `<a href="${dashboardUrl}" target="_blank" rel="noopener noreferrer">Dashboard</a>`
