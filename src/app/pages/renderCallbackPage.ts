@@ -11,7 +11,7 @@ import { readTenantConfig } from "./../readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
-export async function renderTokenPage({
+export async function renderCallbackPage({
   request,
   response,
   env,

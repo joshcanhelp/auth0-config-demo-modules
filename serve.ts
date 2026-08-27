@@ -5,7 +5,7 @@ import { handleChangePasswordLink } from "./src/app/handleChangePasswordLink.js"
 import { handleLoginRedirect } from "./src/app/handleLoginRedirect.js";
 import { renderClientListPage } from "./src/app/pages/renderClientListPage.js";
 import { renderClientPage } from "./src/app/pages/renderClientPage.js";
-import { renderTokenPage } from "./src/app/pages/renderCallbackPage.js";
+import { renderCallbackPage } from "./src/app/pages/renderCallbackPage.js";
 import { resolveBaseUrl } from "./src/app/updateClientUrls.js";
 import { handleLogout } from "./src/app/handleLogout.js";
 
@@ -55,7 +55,7 @@ app.get("/logout", (request, response) => {
 });
 
 app.get("/callback/:clientId", loginableClientMiddleware, async (request, response) => {
-  return renderTokenPage({ request, response, env: process.env });
+  return renderCallbackPage({ request, response, env: process.env });
 });
 
 const port = process.env.PORT ?? "3000";
