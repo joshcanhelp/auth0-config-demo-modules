@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { Response, Request } from "express";
 
 import { detectLoginMethod } from "../detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
@@ -8,6 +8,7 @@ import type { Auth0Client, Connection, LoginMethod, TenantConfig } from "../../t
 import type { SchemaField, PrimitiveField } from "../../utils/tenantUserSchema.js";
 import { readTenantConfig } from "../readTenantConfig.js";
 import { readConnections } from "../readConnections.js";
+import { SessionData } from "express-session";
 
 function getDatabaseConnections(connections: Connection[]): Connection[] {
   return connections.filter((c) => c.strategy === "auth0");
@@ -65,7 +66,7 @@ function renderGrantsSection(grants: ClientGrant[]): string {
     </ul>`;
 }
 
-function renderM2MPage(
+function renderM2MClientPage(
   client: Auth0Client,
   tenantConfig: TenantConfig,
   connections: Connection[],
@@ -148,26 +149,36 @@ function renderM2MPage(
 
 function renderSelfServiceSection(
   client: Auth0Client,
-  connections: Connection[]
+  connections: Connection[],
+  session?: SessionData
 ): string {
   const dbConnections = getDatabaseConnections(connections);
+  const header = "<h2>Self-Service</h2>";
+  const noUserError = "No user in context. Login to see self-service options.";
 
   if (dbConnections.length === 0) {
-    return `<h2>Self-Service</h2>
-  <p>No database connection is configured for this client. Self-service features require a database connection.</p>`;
+    return `${header}<p>No database connection is configured for this client. Self-service features require a database connection.</p>`;
   }
 
-  return `<h2>Self-Service</h2>
-  <p><a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a></p>
-  <p><a href="/change-password-link/${client.client_id}"><button>Change Password (link)</button></a></p>`;
+  if (client.app_type === "regular_web" && !session?.auth0UserId) {
+    return `${header}<p>${noUserError}</p>`;
+  }
+
+  return `${header}
+  <div id="client-self-service-actions">
+    <p><a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a></p>
+    <p><a href="/change-password-link/${client.client_id}"><button>Change Password (link)</button></a></p>
+  </div>
+  <script>if (!localStorage.getItem("auth0_user_id")) document.getElementById("client-self-service-actions").innerHTML = "<p>${noUserError}</p>"</script>`;
 }
 
-function renderLoginPage(
+function renderLoginClientPage(
   client: Auth0Client,
   tenantConfig: TenantConfig,
   connections: Connection[],
   grants: ClientGrant[],
-  loginMethod: LoginMethod
+  loginMethod: LoginMethod,
+  session?: SessionData
 ): string {
   const method = loginMethod;
 
@@ -234,23 +245,26 @@ function renderLoginPage(
     </div>
     ${loginButtons}
   </form>
-  ${renderSelfServiceSection(client, connections)}`,
+  ${renderSelfServiceSection(client, connections, session)}`,
   });
 }
 
 export function renderClientPage({
+  request,
   response,
   env,
 }: {
+  request: Request;
   response: Response;
   env: NodeJS.ProcessEnv;
 }) {
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   const connections = readConnections(response.locals.tenantDataDir);
+
   if (response.locals.client!.app_type === "non_interactive") {
     const grants = readGrants(response.locals.tenantDataDir);
     return response.send(
-      renderM2MPage(
+      renderM2MClientPage(
         response.locals.client!,
         tenantConfig,
         connections,
@@ -259,14 +273,16 @@ export function renderClientPage({
       )
     );
   }
+
   const loginMethod = detectLoginMethod(response.locals.client!, env);
   return response.send(
-    renderLoginPage(
+    renderLoginClientPage(
       response.locals.client!,
       tenantConfig,
       connections,
       response.locals.grants,
-      loginMethod
+      loginMethod,
+      request.session
     )
   );
 }

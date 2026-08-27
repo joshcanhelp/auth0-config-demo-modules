@@ -36,7 +36,7 @@ describe("validateClient", () => {
   });
 
   it("passes for a valid non_interactive client with client_credentials and secret", () => {
-    const client = {
+    const client: Auth0Client = {
       ...validClient,
       app_type: "non_interactive",
       grant_types: ["client_credentials"],
@@ -45,7 +45,7 @@ describe("validateClient", () => {
   });
 
   it("returns an error for non_interactive without the secret env var", () => {
-    const client = {
+    const client: Auth0Client = {
       ...validClient,
       app_type: "non_interactive",
       grant_types: ["client_credentials"],
@@ -56,14 +56,14 @@ describe("validateClient", () => {
   });
 
   it("returns an error when non_interactive has grant_types other than client_credentials", () => {
-    const client = { ...validClient, app_type: "non_interactive" };
+    const client: Auth0Client = { ...validClient, app_type: "non_interactive" };
     const errors = validateClient(client, { CLIENT_ID_abc123_SECRET: "secret" });
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain("non_interactive");
   });
 
   it("returns errors when non_interactive has callbacks, logout URLs, or origins", () => {
-    const client = {
+    const client: Auth0Client = {
       ...validClient,
       app_type: "non_interactive",
       grant_types: ["client_credentials"],
@@ -88,7 +88,7 @@ describe("validateClient", () => {
   });
 
   it("passes for spa with only authorization_code", () => {
-    const client = {
+    const client: Auth0Client = {
       ...validClient,
       app_type: "spa",
       grant_types: ["authorization_code"],
@@ -97,7 +97,7 @@ describe("validateClient", () => {
   });
 
   it("passes for spa with authorization_code and refresh_token", () => {
-    const client = {
+    const client: Auth0Client = {
       ...validClient,
       app_type: "spa",
       grant_types: ["authorization_code", "refresh_token"],
@@ -119,7 +119,7 @@ describe("validateClient", () => {
   });
 
   it("returns an error for spa with disallowed grant types", () => {
-    const client = {
+    const client: Auth0Client = {
       ...validClient,
       app_type: "spa",
       grant_types: ["authorization_code", "client_credentials"],
@@ -131,7 +131,9 @@ describe("validateClient", () => {
 
   it("returns an error for an invalid app_type", () => {
     const client = { ...validClient, app_type: "unknown_type" };
-    const errors = validateClient(client, { CLIENT_ID_abc123_SECRET: "secret" });
+    const errors = validateClient(client as Auth0Client, {
+      CLIENT_ID_abc123_SECRET: "secret",
+    });
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain("unknown_type");
   });

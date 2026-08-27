@@ -25,7 +25,7 @@ export async function renderTokenPage({
 
   if (detectLoginMethod(client, env) === "frontend") {
     const spaCallbackScript = readFileSync(
-      join(dir, "browser", "spaCallback.js"),
+      join(dir, "..", "browser", "spaCallback.js"),
       "utf-8"
     );
     const callbackConfig = JSON.stringify({

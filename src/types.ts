@@ -1,6 +1,8 @@
 import type { Client } from "auth0-deploy-cli/lib/tools/auth0/handlers/clients.js";
 import type { Connection as DeployConnection } from "auth0-deploy-cli/lib/tools/auth0/handlers/connections.js";
 
+export type Auth0ClientType = "regular_web" | "spa" | "native" | "non_interactive";
+
 // Required fields from the Deploy CLI's Client type.
 // app_type and token_endpoint_auth_method are widened to string because values
 // are read from JSON files, not from a typed API response.
@@ -21,7 +23,7 @@ export type Auth0Client = Omit<
   "app_type" | "token_endpoint_auth_method"
 > &
   Pick<Client, "logo_uri" | "client_metadata"> & {
-    app_type: string;
+    app_type: Auth0ClientType;
     token_endpoint_auth_method: string;
   };
 

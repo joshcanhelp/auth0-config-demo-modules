@@ -3,9 +3,9 @@ import { selectTenant } from "./src/scripts/utils/selectTenant.js";
 import { handleChangePasswordEmail } from "./src/app/handleChangePasswordEmail.js";
 import { handleChangePasswordLink } from "./src/app/handleChangePasswordLink.js";
 import { handleLoginRedirect } from "./src/app/handleLoginRedirect.js";
-import { renderClientListPage } from "./src/app/renderClientListPage.js";
-import { renderClientPage } from "./src/app/renderClientPage.js";
-import { renderTokenPage } from "./src/app/renderTokenPage.js";
+import { renderClientListPage } from "./src/app/pages/renderClientListPage.js";
+import { renderClientPage } from "./src/app/pages/renderClientPage.js";
+import { renderTokenPage } from "./src/app/pages/renderCallbackPage.js";
 import { resolveBaseUrl } from "./src/app/updateClientUrls.js";
 import { handleLogout } from "./src/app/handleLogout.js";
 
@@ -18,8 +18,8 @@ app.get("/", (_request, response) => {
   return renderClientListPage({ response, env: process.env });
 });
 
-app.get("/client/:clientId", anyClientMiddleware, (_request, response) => {
-  return renderClientPage({ response, env: process.env });
+app.get("/client/:clientId", anyClientMiddleware, (request, response) => {
+  return renderClientPage({ request, response, env: process.env });
 });
 
 app.get(

@@ -195,7 +195,7 @@ export async function handleChangePasswordLink({
         maxWidth: "700px",
         body: `${backLink}
   <h1>Change Password Link - ${client.name}</h1>
-  <p>No <code>bff_client_id</code> found in client metadata. Add a BFF client ID to use this feature for SPA/native clients.</p>`,
+  <p style="color: #cf222e">✗ No <code>bff_client_id</code> found in client metadata.</p>`,
       })
     );
   }
