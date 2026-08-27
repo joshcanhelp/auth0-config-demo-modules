@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 
 import { preprocessFormBody } from "./preprocessFormBody.js";
 import { readTenantConfig } from "./readTenantConfig.js";
-import { renderCreateUserPage } from "./renderCreateUserPage.js";
+import { renderCreateUserPage } from "./pages/renderCreateUserPage.js";
 import type { TenantUserBody } from "../types.js";
 
 export async function handleCreateUser({

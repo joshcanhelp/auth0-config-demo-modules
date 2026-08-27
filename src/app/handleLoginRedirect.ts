@@ -5,7 +5,7 @@ import type { Request, Response } from "express";
 
 import { buildAuthorizeUrl } from "./buildAuthorizeUrl.js";
 import { detectLoginMethod } from "./detectLoginMethod.js";
-import { pageLayout } from "./pageLayout.js";
+import { pageLayout } from "./pages/pageLayout.js";
 import { readTenantConfig } from "./readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));

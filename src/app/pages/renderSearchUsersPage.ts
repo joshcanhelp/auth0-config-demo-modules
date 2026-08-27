@@ -1,5 +1,5 @@
 import { pageLayout } from "./pageLayout.js";
-import type { Auth0Client, TenantConfig } from "../types.js";
+import type { Auth0Client, TenantConfig } from "../../types.js";
 
 function renderUserRows(users: Record<string, unknown>[]): string {
   if (users.length === 0) {

@@ -1,12 +1,13 @@
 import type { Response } from "express";
-import { detectLoginMethod } from "./detectLoginMethod.js";
+
+import { detectLoginMethod } from "../detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
-import { clientHasScope, readGrants } from "./readGrants.js";
-import type { ClientGrant } from "./readGrants.js";
-import type { Auth0Client, Connection, LoginMethod, TenantConfig } from "../types.js";
-import type { SchemaField, PrimitiveField } from "../utils/tenantUserSchema.js";
-import { readTenantConfig } from "./readTenantConfig.js";
-import { readConnections } from "./readConnections.js";
+import { clientHasScope, readGrants } from "../readGrants.js";
+import type { ClientGrant } from "../readGrants.js";
+import type { Auth0Client, Connection, LoginMethod, TenantConfig } from "../../types.js";
+import type { SchemaField, PrimitiveField } from "../../utils/tenantUserSchema.js";
+import { readTenantConfig } from "../readTenantConfig.js";
+import { readConnections } from "../readConnections.js";
 
 function getDatabaseConnections(connections: Connection[]): Connection[] {
   return connections.filter((c) => c.strategy === "auth0");

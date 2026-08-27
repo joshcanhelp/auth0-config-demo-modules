@@ -1,9 +1,10 @@
-import { detectLoginMethod } from "./detectLoginMethod.js";
-import { pageLayout } from "./pageLayout.js";
-import type { Auth0Client } from "../types.js";
 import type { Response } from "express";
-import { readClients } from "./readClients.js";
-import { readTenantConfig } from "./readTenantConfig.js";
+
+import { detectLoginMethod } from "../detectLoginMethod.js";
+import { pageLayout } from "./pageLayout.js";
+import type { Auth0Client } from "../../types.js";
+import { readClients } from "../readClients.js";
+import { readTenantConfig } from "../readTenantConfig.js";
 
 export function renderClientListPage({
   response: res,

@@ -1,5 +1,5 @@
 import { pageLayout } from "./pageLayout.js";
-import type { TenantConfig } from "../types.js";
+import type { TenantConfig } from "../../types.js";
 
 export function renderCreateUserPage(
   clientId: string,

@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
 import { buildLogoutUrl } from "./buildLogoutUrl.js";
-import { pageLayout } from "./pageLayout.js";
+import { pageLayout } from "./pages/pageLayout.js";
 import { readTenantConfig } from "./readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));

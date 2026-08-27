@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 
 import { readTenantConfig } from "./readTenantConfig.js";
-import { renderSearchUsersPage } from "./renderSearchUsersPage.js";
+import { renderSearchUsersPage } from "./pages/renderSearchUsersPage.js";
 
 export async function handleSearchUsers({
   request,

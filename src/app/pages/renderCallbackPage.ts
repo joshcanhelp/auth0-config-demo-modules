@@ -3,11 +3,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
-import { decodeJwtPayload } from "../utils/jwt.js";
-import { handleCallback } from "./handleCallback.js";
-import { detectLoginMethod } from "./detectLoginMethod.js";
+import { decodeJwtPayload } from "../../utils/jwt.js";
+import { handleCallback } from "./../handleCallback.js";
+import { detectLoginMethod } from "./../detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
-import { readTenantConfig } from "./readTenantConfig.js";
+import { readTenantConfig } from "./../readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 

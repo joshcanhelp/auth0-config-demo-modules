@@ -1,5 +1,5 @@
-import { buildDashboardUrl } from "./buildDashboardUrl.js";
-import type { TenantConfig } from "../types.js";
+import { buildDashboardUrl } from "../buildDashboardUrl.js";
+import type { TenantConfig } from "../../types.js";
 
 interface PageOptions {
   title: string;
