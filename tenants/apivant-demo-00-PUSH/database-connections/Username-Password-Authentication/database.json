@@ -59,10 +59,8 @@
     "Username-Password-Authentication"
   ],
   "enabled_clients": [
-    "🚀 Deployment",
-    "Auth0 Actions Connector",
-    "Auth0 Forms Connector",
-    "Default App",
-    "Demo Platform Management"
+    "Mobile Application",
+    "Single-Page Application",
+    "Web Application"
   ]
 }
