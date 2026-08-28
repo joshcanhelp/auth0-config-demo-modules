@@ -13,7 +13,8 @@
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint .",
-    "format": "prettier --write ./src"
+    "format": "prettier --write ./src",
+    "build-deploy": "rm -rf ./auth0-config-demo-modules && rm -rf ./auth0-deploy-cli && git clone https://github.com/joshcanhelp/auth0-config-demo-modules.git && git clone -b josh-main https://github.com/joshcanhelp/auth0-deploy-cli.git && npm install ./auth0-config-demo-modules && npm ci"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
