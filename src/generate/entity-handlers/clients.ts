@@ -34,7 +34,10 @@ function isValidFilename(name: string): boolean {
   return !/[/\\:*?"<>|]/.test(name);
 }
 
-export async function handleClient(templateDir: string, tenantDir: string): Promise<void> {
+export async function handleClient(
+  templateDir: string,
+  tenantDir: string
+): Promise<void> {
   const jsonFiles = readdirSync(templateDir).filter((f) => f.endsWith(".json"));
 
   if (jsonFiles.length === 0) {
@@ -64,6 +67,10 @@ export async function handleClient(templateDir: string, tenantDir: string): Prom
   }
 
   const description = await textPrompt("Description (press Enter to skip)");
+  const logoUriInput = await textPrompt("Logo image URL (press Enter for default)");
+  const logo_uri =
+    logoUriInput ||
+    "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png";
   const hideFromDemo = await confirmPrompt("Hide from demo clients?");
   const promote = await confirmPrompt("Promote to higher environments?");
 
@@ -80,8 +87,19 @@ export async function handleClient(templateDir: string, tenantDir: string): Prom
 
   const appType = template.app_type as string | undefined;
 
+  const deployedUrl = process.env.DEPLOYED_APP_URL?.replace(/\/$/, "");
+  const initiate_login_uri =
+    deployedUrl ?? (template.initiate_login_uri as string | undefined) ?? "";
+
   const output = applyUrlsForAppType(
-    { ...template, name, ...(description && { description }), client_metadata },
+    {
+      ...template,
+      name,
+      ...(description && { description }),
+      logo_uri,
+      initiate_login_uri,
+      client_metadata,
+    },
     appType ?? ""
   );
 
