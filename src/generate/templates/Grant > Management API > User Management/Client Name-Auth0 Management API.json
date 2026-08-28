@@ -1,0 +1,12 @@
+{
+  "client_id": "",
+  "audience": "https://{{TENANT_DOMAIN}}/api/v2/",
+  "scope": [
+    "read:users",
+    "update:users",
+    "create:users",
+    "delete:users",
+    "create:user_tickets"
+  ],
+  "subject_type": "client"
+}
