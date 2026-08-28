@@ -1,6 +1,5 @@
 import process from "node:process";
-import { readdirSync, readFileSync, rmSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { readdirSync } from "node:fs";
 
 import { dump } from "auth0-deploy-cli";
 import { AssetTypes } from "auth0-deploy-cli/lib/types.js";
@@ -129,33 +128,3 @@ await withRetryOnInsufficientScope(
       },
     })
 );
-
-const grantsExported = !includedOnly || includedOnly.includes("clientGrants");
-const grantsDir = join(outputdir, "grants");
-const clientsDir = join(outputdir, "clients");
-
-if (grantsExported && existsSync(grantsDir) && existsSync(clientsDir)) {
-  const localClientNames = new Set(
-    readdirSync(clientsDir)
-      .filter((f) => f.endsWith(".json"))
-      .map((f) => {
-        const content = JSON.parse(readFileSync(join(clientsDir, f), "utf-8")) as Record<
-          string,
-          unknown
-        >;
-        return content.name as string | undefined;
-      })
-      .filter((name): name is string => Boolean(name))
-  );
-
-  for (const file of readdirSync(grantsDir).filter((f) => f.endsWith(".json"))) {
-    const grant = JSON.parse(readFileSync(join(grantsDir, file), "utf-8")) as Record<
-      string,
-      unknown
-    >;
-    if (!localClientNames.has(grant.client_id as string)) {
-      rmSync(join(grantsDir, file));
-      console.log(`[export] Removed grant ${file} - client not in local clients.`);
-    }
-  }
-}
