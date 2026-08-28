@@ -14,13 +14,9 @@
     "idle_token_lifetime": 2592000,
     "rotation_type": "non-rotating"
   },
-  "allowed_logout_urls": ["http://localhost:3456", "http://localhost:2684"],
-  "callbacks": [
-    "http://localhost:3456",
-    "http://localhost:2684/callback/lnXQ5t9igap609GrOqQp2FORdrLFgEgP"
-  ],
-  "allowed_origins": ["http://localhost:3456", "http://localhost:2684"],
-  "client_id": "lnXQ5t9igap609GrOqQp2FORdrLFgEgP",
+  "allowed_logout_urls": [],
+  "callbacks": [],
+  "allowed_origins": [],
   "jwt_configuration": {
     "alg": "RS256",
     "lifetime_in_seconds": 36000,
@@ -29,6 +25,6 @@
   "token_endpoint_auth_method": "none",
   "app_type": "spa",
   "grant_types": ["implicit"],
-  "web_origins": ["http://localhost:3456"],
+  "web_origins": [],
   "custom_login_page_on": true
 }

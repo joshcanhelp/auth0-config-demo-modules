@@ -4,7 +4,7 @@
   "is_token_endpoint_ip_header_trusted": false,
   "is_first_party": true,
   "oidc_conformant": true,
-  "cross_origin_authentication": true,
+  "cross_origin_authentication": false,
   "sso_disabled": false,
   "refresh_token": {
     "expiration_type": "non-expiring",
@@ -17,7 +17,6 @@
   },
   "allowed_clients": [],
   "callbacks": [],
-  "logo_uri": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png",
   "native_social_login": {
     "apple": {
       "enabled": false
