@@ -55,6 +55,8 @@ function dirToAssetType(dir: string): AssetTypes {
       return "guardianFactors";
     case "action-modules":
       return "actionModules";
+    case "risk-assessment":
+      return "riskAssessment";
     default:
       return dir as AssetTypes;
   }
