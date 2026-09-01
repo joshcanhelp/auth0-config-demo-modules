@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../aid-demo-petsmart"
+		},
+		{
+			"path": "../aid-demo-discounttire"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../auth0-deploy-cli"
+		}
+	]
+}
