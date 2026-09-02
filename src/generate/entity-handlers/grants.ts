@@ -17,7 +17,8 @@ function readClients(clientsDir: string): ClientEntry[] {
         string,
         unknown
       >;
-      if (typeof client.name !== "string" || typeof client.client_id !== "string") return [];
+      if (typeof client.name !== "string" || typeof client.client_id !== "string")
+        return [];
       return [{ name: client.name, client_id: client.client_id }];
     });
 }
