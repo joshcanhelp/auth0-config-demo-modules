@@ -4,7 +4,8 @@ import { readdirSync } from "node:fs";
 import dotenv from "dotenv";
 
 import { selectPrompt } from "./utils/selectPrompt.js";
-import { getClientCredentialsTokenResponse } from "../auth0/clientCredentials.js";
+import { getClientCredentialsToken } from "../auth0/clientCredentials.js";
+import { createFileCache } from "./utils/fileCache.js";
 
 const TENANTS_DIR = "./tenants";
 
@@ -46,7 +47,8 @@ if (tenantFlag) {
   tenantName = await selectPrompt("Select a tenant:", options);
 }
 
-const envFile = `${TENANTS_DIR}/${tenantName}/.env`;
+const tenantDir = `${TENANTS_DIR}/${tenantName}`;
+const envFile = `${tenantDir}/.env`;
 dotenv.config({ path: envFile, quiet: true });
 
 const { TENANT_DOMAIN, M2M_CLIENT_ID, M2M_CLIENT_SECRET } = process.env;
@@ -58,16 +60,21 @@ if (!TENANT_DOMAIN || !M2M_CLIENT_ID || !M2M_CLIENT_SECRET) {
 
 const showScopes = process.argv.includes("--show-scopes");
 
-const data = await getClientCredentialsTokenResponse(
+const cache = createFileCache(`${tenantDir}/.management-token.json`);
+const accessToken = await getClientCredentialsToken(
   TENANT_DOMAIN,
   M2M_CLIENT_ID,
-  M2M_CLIENT_SECRET
+  M2M_CLIENT_SECRET,
+  { cache }
 );
 
-console.log(data.access_token);
+console.log(accessToken);
 
 if (showScopes) {
-  const scopes = data.scope ? data.scope.split(" ").sort() : [];
+  const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64").toString()) as {
+    scope?: string;
+  };
+  const scopes = payload.scope ? payload.scope.split(" ").sort() : [];
   console.log(`\nScopes (${scopes.length}):`);
   for (const scope of scopes) {
     console.log(`  ${scope}`);
