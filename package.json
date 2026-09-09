@@ -9,6 +9,7 @@
     "import": "tsx src/scripts/import.ts",
     "refresh": "tsx src/scripts/refresh.ts",
     "watch": "tsx src/scripts/watch.ts",
+    "validate": "tsx src/validate/run.ts",
     "deploy-ulp": "tsx src/scripts/deploy-ulp.ts",
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
@@ -31,7 +32,9 @@
   },
   "dependencies": {
     "auth0": "^6.3.0",
+    "chalk": "^4.1.2",
     "auth0-deploy-cli": "file:../auth0-deploy-cli",
+    "auth0-checkmate": "file:../auth0-checkmate",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
