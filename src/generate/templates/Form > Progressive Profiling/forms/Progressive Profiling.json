@@ -1,0 +1,216 @@
+{
+  "id": "ap_dcLAcEMXfi1xfHZ5qsfoct",
+  "name": "Progressive Profiling For Discount Tire",
+  "languages": {
+    "primary": "en"
+  },
+  "nodes": [
+    {
+      "id": "step_4iwC",
+      "type": "STEP",
+      "coordinates": {
+        "x": 486,
+        "y": -384
+      },
+      "alias": "Profile details",
+      "config": {
+        "components": [
+          {
+            "id": "image_M8QS",
+            "category": "BLOCK",
+            "type": "IMAGE",
+            "config": {
+              "src": "https://cdn.discounttire.com/sys-master/images/hc5/h31/8808331083806/DT_logo.svg",
+              "position": "CENTER",
+              "height": 150
+            }
+          },
+          {
+            "id": "rich_text_hPsU",
+            "category": "BLOCK",
+            "type": "RICH_TEXT",
+            "config": {
+              "content": "<h2>Speed Up Checkout</h2><p>Add your details now to make your online purchase experience quick and easy.</p>"
+            }
+          },
+          {
+            "id": "rich_text_Ca3X",
+            "category": "BLOCK",
+            "type": "RICH_TEXT",
+            "config": {
+              "content": "<p>Your info is never shared with third parties.</p>"
+            }
+          },
+          {
+            "id": "address_line_1",
+            "category": "FIELD",
+            "type": "TEXT",
+            "label": "Address Line 1",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "multiline": false
+            }
+          },
+          {
+            "id": "address_line_2",
+            "category": "FIELD",
+            "type": "CUSTOM",
+            "label": "+ add address line 2 (optional)",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "schema": {},
+              "code": "function addressLine2() {\n  const wrap = document.createElement('div');\n\n  const toggle = document.createElement('a');\n  toggle.href = '#';\n  toggle.className = 'dt-add-line2';\n  toggle.textContent = 'address line 2 (optional)';\n\n  const input = document.createElement('input');\n  input.type = 'text';\n  input.placeholder = 'Address Line 2';\n  input.className = 'dt-line2-input';\n  input.hidden = true;\n\n  toggle.addEventListener('click', (e) => {\n    e.preventDefault();\n    input.hidden = false;\n    toggle.hidden = true;\n    input.focus();\n  });\n\n  wrap.appendChild(toggle);\n  wrap.appendChild(input);\n\n  return {\n    init() { return wrap; },\n    block() { input.disabled = true; },\n    unblock() { input.disabled = false; },\n    getValue() { return input.hidden ? '' : input.value; }\n  };\n}",
+              "css": ".dt-add-line2 {\n  display: inline-block;\n  color: #0057b8;\n  font-size: 13px;\n  text-decoration: none;\n  margin-bottom: 8px;\n}\n.dt-line2-input {\n  width: 100%;\n  padding: 10px 12px;\n  border: 1px solid #ccc;\n  border-radius: 2px;\n  box-sizing: border-box;\n}"
+            }
+          },
+          {
+            "id": "zip",
+            "category": "FIELD",
+            "type": "TEXT",
+            "label": "Zip Code",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "multiline": false
+            }
+          },
+          {
+            "id": "city",
+            "category": "FIELD",
+            "type": "TEXT",
+            "label": "City",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "multiline": false
+            }
+          },
+          {
+            "id": "state",
+            "category": "FIELD",
+            "type": "TEXT",
+            "label": "State",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "multiline": false,
+              "default_value": "{{fields.state}}"
+            }
+          },
+          {
+            "id": "country",
+            "category": "FIELD",
+            "type": "DROPDOWN",
+            "label": "Country",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "multiple": false,
+              "default_value": "United States",
+              "placeholder": "United States",
+              "options": [
+                {
+                  "label": "United States",
+                  "value": "United States"
+                },
+                {
+                  "label": "Canada",
+                  "value": "Canada"
+                }
+              ]
+            }
+          },
+          {
+            "id": "next_button_YKS2",
+            "category": "BLOCK",
+            "type": "NEXT_BUTTON",
+            "config": {
+              "text": "SAVE & FINISH"
+            }
+          },
+          {
+            "id": "jump_button_GNFr",
+            "category": "BLOCK",
+            "type": "JUMP_BUTTON",
+            "config": {
+              "text": "SKIP FOR NOW",
+              "next_node": "$ending",
+              "style": {
+                "background_color": "#cf202f"
+              }
+            }
+          },
+          {
+            "id": "url_khNj",
+            "category": "FIELD",
+            "type": "URL",
+            "required": false,
+            "sensitive": false,
+            "config": {
+              "placeholder": "PRIVACY & DATA POLICY"
+            }
+          }
+        ],
+        "next_node": "flow_NLtw"
+      }
+    },
+    {
+      "id": "flow_NLtw",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 1246,
+        "y": -19
+      },
+      "config": {
+        "flow_id": "Update user_metadata",
+        "next_node": "$ending"
+      }
+    },
+    {
+      "id": "router_MO3B",
+      "type": "ROUTER",
+      "coordinates": {
+        "x": 65,
+        "y": -76
+      },
+      "alias": "Check missing data",
+      "config": {
+        "rules": [
+          {
+            "id": "id_1559412864263",
+            "alias": "Missing Address",
+            "condition": {
+              "operands": [
+                {
+                  "operands": [
+                    "{{context.user.user_metadata.address}}"
+                  ],
+                  "operator": "HAS_NO_VALUE"
+                }
+              ],
+              "operator": "AND"
+            },
+            "next_node": "step_4iwC"
+          }
+        ],
+        "fallback": "step_4iwC"
+      }
+    }
+  ],
+  "start": {
+    "next_node": "router_MO3B",
+    "coordinates": {
+      "x": -221,
+      "y": -46
+    }
+  },
+  "ending": {
+    "resume_flow": true,
+    "coordinates": {
+      "x": 1728,
+      "y": 61
+    }
+  }
+}
