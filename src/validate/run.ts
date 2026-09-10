@@ -9,6 +9,7 @@ import { selectTenant } from "../scripts/utils/selectTenant.js";
 import { selectPrompt } from "../scripts/utils/selectPrompt.js";
 import { validateClients, TENANT_TAGS } from "./entity-handlers/clients.js";
 import type { TenantTag } from "./entity-handlers/clients.js";
+import { validateActions } from "./entity-handlers/actions.js";
 import type { Finding, FindingLevel } from "./types.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
@@ -28,7 +29,7 @@ const tenantTag = tenantTagFlag as TenantTag | undefined;
 
 const { tenantDir } = await selectTenant();
 
-const SUPPORTED_ENTITIES = ["clients"] as const;
+const SUPPORTED_ENTITIES = ["clients", "actions"] as const;
 type SupportedEntity = (typeof SUPPORTED_ENTITIES)[number];
 
 function getEntityFiles(entity: SupportedEntity): string[] {
@@ -80,6 +81,18 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
     );
     console.log(`Validating ${clients.length} client(s)...`);
     return validateClients(clients, tenantTag);
+  }
+
+  if (entity === "actions") {
+    const actions = files.map((f) => {
+      const action = JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"));
+      if (typeof action.code === "string" && action.code.startsWith("./")) {
+        action.code = readFileSync(join(tenantDir, action.code), "utf-8");
+      }
+      return action;
+    });
+    console.log(`Validating ${actions.length} action(s)...`);
+    return validateActions(actions, tenantTag);
   }
 
   return [];
