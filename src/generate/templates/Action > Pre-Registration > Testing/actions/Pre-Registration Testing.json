@@ -7,7 +7,7 @@
   "secrets": [],
   "supported_triggers": [
     {
-      "id": "pre-registration",
+      "id": "pre-user-registration",
       "version": "v2"
     }
   ],

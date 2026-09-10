@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { selectTenant } from "../scripts/utils/selectTenant.js";
 import { selectPrompt } from "../scripts/utils/selectPrompt.js";
+import { handleAction } from "./entity-handlers/actions.js";
 import { handleClient } from "./entity-handlers/clients.js";
 import { handleGrant } from "./entity-handlers/grants.js";
 
@@ -26,7 +27,9 @@ const selected = await selectPrompt("Select a template:", templates);
 const [type] = selected.split(" > ");
 const templateDir = join(TEMPLATES_DIR, selected);
 
-if (type === "Client") {
+if (type === "Action") {
+  await handleAction(templateDir, tenantDir);
+} else if (type === "Client") {
   await handleClient(templateDir, tenantDir);
 } else if (type === "Grant") {
   await handleGrant(templateDir, tenantDir);
