@@ -28,13 +28,13 @@
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^3.0.0"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "auth0": "^6.3.0",
-    "chalk": "^4.1.2",
-    "auth0-deploy-cli": "file:../auth0-deploy-cli",
     "auth0-checkmate": "file:../auth0-checkmate",
+    "auth0-deploy-cli": "file:../auth0-deploy-cli",
+    "chalk": "^4.1.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
