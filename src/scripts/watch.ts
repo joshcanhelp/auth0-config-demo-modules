@@ -32,6 +32,7 @@ const DEBOUNCE_MS = 500;
 // "tenant" is used for tenant.json which has no subdirectory.
 const DIR_TO_ASSET: Record<string, string> = {
   "actions": "actions",
+  "action-modules": "actionModules",
   "branding": "branding",
   "clients": "clients",
   "connections": "connections",
