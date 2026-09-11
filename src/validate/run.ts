@@ -20,8 +20,13 @@ const tenantTagFlagIndex = process.argv.indexOf("--tenant-tag");
 const tenantTagFlag =
   tenantTagFlagIndex !== -1 ? (process.argv[tenantTagFlagIndex + 1] ?? null) : null;
 
-if (tenantTagFlag !== null && !(TENANT_TAGS as readonly string[]).includes(tenantTagFlag)) {
-  console.error(`Invalid --tenant-tag "${tenantTagFlag}". Valid options: ${TENANT_TAGS.join(", ")}`);
+if (
+  tenantTagFlag !== null &&
+  !(TENANT_TAGS as readonly string[]).includes(tenantTagFlag)
+) {
+  console.error(
+    `Invalid --tenant-tag "${tenantTagFlag}". Valid options: ${TENANT_TAGS.join(", ")}`
+  );
   process.exit(1);
 }
 
@@ -69,7 +74,8 @@ if (entityFlag !== null) {
     ...availableEntities.map((e) => ({ label: e, value: e })),
   ];
   const selected = await selectPrompt("Select an entity to validate:", options);
-  selectedEntities = selected === "__all__" ? availableEntities : [selected as SupportedEntity];
+  selectedEntities =
+    selected === "__all__" ? availableEntities : [selected as SupportedEntity];
 }
 
 async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
@@ -77,7 +83,8 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
 
   if (entity === "clients") {
     const clients = files.map(
-      (f) => JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8")) as Management.Client
+      (f) =>
+        JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8")) as Management.Client
     );
     console.log(`Validating ${clients.length} client(s)...`);
     return validateClients(clients, tenantTag);
@@ -104,7 +111,9 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
   return [];
 }
 
-const findings: Finding[] = (await Promise.all(selectedEntities.map(loadAndValidate))).flat();
+const findings: Finding[] = (
+  await Promise.all(selectedEntities.map(loadAndValidate))
+).flat();
 
 const LEVEL_ORDER: Record<FindingLevel, number> = {
   critical: 0,
@@ -145,5 +154,7 @@ console.log("");
 
 for (const finding of sorted) {
   const color = LEVEL_COLOR[finding.level];
-  console.log(color(`[${finding.level.toUpperCase()}] ${finding.clientName} - ${finding.message}`));
+  console.log(
+    color(`[${finding.level.toUpperCase()}] ${finding.clientName} - ${finding.message}`)
+  );
 }

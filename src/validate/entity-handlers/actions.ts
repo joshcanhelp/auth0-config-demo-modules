@@ -7,15 +7,28 @@ const _require = createRequire(import.meta.url);
 
 // checkActionsRuntime returns a flat array of items directly.
 // checkActionsHardCodedValues and checkUserEnumeration return nested { name, report } arrays.
-type CheckmateFlatItem = { name: string; field: string; status: string; value?: string | number };
-type CheckmateReportItem = { field: string; status: string; value?: string; variableName?: string; line?: string | number };
+type CheckmateFlatItem = {
+  name: string;
+  field: string;
+  status: string;
+  value?: string | number;
+};
+type CheckmateReportItem = {
+  field: string;
+  status: string;
+  value?: string;
+  variableName?: string;
+  line?: string | number;
+};
 type CheckmateNestedReport = { name: string; report: CheckmateReportItem[] };
 
 type CheckmateFlatResult = { details: CheckmateFlatItem[] };
 type CheckmateNestedResult = { details: CheckmateNestedReport[] };
 
 type CheckmateFlatFn = (options: { actions: unknown[] }) => Promise<CheckmateFlatResult>;
-type CheckmateNestedFn = (options: { actions: unknown[] }) => Promise<CheckmateNestedResult>;
+type CheckmateNestedFn = (options: {
+  actions: unknown[];
+}) => Promise<CheckmateNestedResult>;
 
 const checkActionsRuntime = _require(
   "auth0-checkmate/analyzer/lib/actions/checkActionsRuntime.js"
@@ -47,7 +60,10 @@ function parseActionName(fullName: string): { actionName: string; trigger: strin
 // Action modules only have code + name - no triggers or runtime.
 // Only the hardcoded values check applies; the others either crash on missing fields
 // or filter by trigger type and would produce no results anyway.
-export async function validateActionModules(modules: unknown[], tenantTag?: TenantTag): Promise<Finding[]> {
+export async function validateActionModules(
+  modules: unknown[],
+  _tenantTag?: TenantTag
+): Promise<Finding[]> {
   const findings: Finding[] = [];
 
   // Adapt to minimum shape checkActionsHardCodedValues expects for name formatting
@@ -78,7 +94,10 @@ export async function validateActionModules(modules: unknown[], tenantTag?: Tena
   return findings;
 }
 
-export async function validateActions(actions: unknown[], tenantTag?: TenantTag): Promise<Finding[]> {
+export async function validateActions(
+  actions: unknown[],
+  _tenantTag?: TenantTag
+): Promise<Finding[]> {
   const findings: Finding[] = [];
 
   const [runtimeResult, hardcodedResult, userEnumResult] = await Promise.all([

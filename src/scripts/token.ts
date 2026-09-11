@@ -71,7 +71,9 @@ const accessToken = await getClientCredentialsToken(
 console.log(accessToken);
 
 if (showScopes) {
-  const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64").toString()) as {
+  const payload = JSON.parse(
+    Buffer.from(accessToken.split(".")[1], "base64").toString()
+  ) as {
     scope?: string;
   };
   const scopes = payload.scope ? payload.scope.split(" ").sort() : [];
