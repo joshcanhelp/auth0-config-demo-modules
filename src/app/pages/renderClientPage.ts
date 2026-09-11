@@ -2,7 +2,7 @@ import type { Response, Request } from "express";
 
 import { detectLoginMethod } from "../detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
-import { clientHasScope, readGrants } from "../readGrants.js";
+import { clientHasScope, getClientGrants, readGrants } from "../readGrants.js";
 import type { ClientGrant } from "../readGrants.js";
 import type { Auth0Client, Connection, LoginMethod, TenantConfig } from "../../types.js";
 import type { SchemaField, PrimitiveField } from "../../utils/tenantUserSchema.js";
@@ -262,7 +262,8 @@ export function renderClientPage({
   const connections = readConnections(response.locals.tenantDataDir);
 
   if (response.locals.client!.app_type === "non_interactive") {
-    const grants = readGrants(response.locals.tenantDataDir);
+    const allGrants = readGrants(response.locals.tenantDataDir);
+    const grants = getClientGrants(allGrants, response.locals.client!.client_id);
     return response.send(
       renderM2MClientPage(
         response.locals.client!,
