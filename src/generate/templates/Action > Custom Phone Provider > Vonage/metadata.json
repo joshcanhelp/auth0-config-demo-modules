@@ -1,6 +1,4 @@
 {
-  "name": "Vonage Custom Phone Provider",
-  "code": "./actions/Vonage Custom Phone Provider/code.js",
   "runtime": "node22",
   "status": "built",
   "dependencies": [],

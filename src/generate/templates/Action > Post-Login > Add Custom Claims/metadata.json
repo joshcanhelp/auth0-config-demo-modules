@@ -1,6 +1,4 @@
 {
-  "name": "Add Custom Claims",
-  "code": "./actions/Add Custom Claims/code.js",
   "runtime": "node22",
   "status": "built",
   "dependencies": [],

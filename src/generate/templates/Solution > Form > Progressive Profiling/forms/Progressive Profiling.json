@@ -184,9 +184,7 @@
             "condition": {
               "operands": [
                 {
-                  "operands": [
-                    "{{context.user.user_metadata.address}}"
-                  ],
+                  "operands": ["{{context.user.user_metadata.address}}"],
                   "operator": "HAS_NO_VALUE"
                 }
               ],
