@@ -1,0 +1,18 @@
+{
+  "id": "af_c5e8B5cktf1Pxdp1WatysZ",
+  "name": "New email field to var",
+  "actions": [
+    {
+      "id": "store_shared_variable_Z8tQ",
+      "type": "FLOW",
+      "action": "STORE_VARS",
+      "allow_failure": false,
+      "mask_output": false,
+      "params": {
+        "vars": {
+          "email": "{{fields.new_email}}"
+        }
+      }
+    }
+  ]
+}
