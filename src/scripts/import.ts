@@ -53,6 +53,8 @@ const DIR_TO_ASSET: Record<string, AssetTypes> = {
   "custom-domains": "customDomains",
   "database-connections": "databases",
   "event-streams": "eventStreams",
+  "flows": "flows",
+  "forms": "forms",
   "grants": "clientGrants",
   "prompts": "prompts",
   "themes": "themes",
@@ -130,6 +132,212 @@ function applyUrls(
       ),
     }),
   };
+}
+
+async function importFlows(): Promise<void> {
+  const flowsDir = join(tenantDir, "flows");
+
+  if (!existsSync(flowsDir)) {
+    return;
+  }
+
+  const localFiles = readdirSync(flowsDir).filter((f) => f.endsWith(".json"));
+
+  const newFlowNames = new Set(
+    localFiles
+      .map(
+        (f) =>
+          JSON.parse(readFileSync(join(flowsDir, f), "utf-8")) as Record<string, unknown>
+      )
+      .filter((f) => !f.id)
+      .map((f) => f.name as string)
+  );
+
+  if (newFlowNames.size === 0) {
+    return;
+  }
+
+  await withToken((token) =>
+    deploy({
+      input_file: tenantDir,
+      config: {
+        AUTH0_DOMAIN: TENANT_DOMAIN!,
+        AUTH0_ACCESS_TOKEN: token,
+        AUTH0_INCLUDED_ONLY: ["flows"],
+      },
+    })
+  );
+
+  const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
+
+  try {
+    await withToken((token) =>
+      dump({
+        output_folder: tmpDir,
+        format: "directory",
+        export_ids: true,
+        config: {
+          AUTH0_DOMAIN: TENANT_DOMAIN!,
+          AUTH0_ACCESS_TOKEN: token,
+          AUTH0_INCLUDED_ONLY: ["flows"],
+        },
+      })
+    );
+
+    const tmpFlowsDir = join(tmpDir, "flows");
+    const exportedFiles = readdirSync(tmpFlowsDir).filter((f) => f.endsWith(".json"));
+
+    for (const exportedFile of exportedFiles) {
+      const exported = JSON.parse(
+        readFileSync(join(tmpFlowsDir, exportedFile), "utf-8")
+      ) as Record<string, unknown>;
+
+      if (!newFlowNames.has(exported.name as string)) {
+        continue;
+      }
+
+      const flowId = exported.id as string;
+      const flowName = exported.name as string;
+
+      const localFile = localFiles.find((f) => {
+        const content = JSON.parse(readFileSync(join(flowsDir, f), "utf-8")) as Record<
+          string,
+          unknown
+        >;
+        return content.name === flowName;
+      });
+
+      if (!localFile) continue;
+
+      const localFlow = JSON.parse(
+        readFileSync(join(flowsDir, localFile), "utf-8")
+      ) as Record<string, unknown>;
+
+      writeFileSync(
+        join(flowsDir, localFile),
+        JSON.stringify({ id: flowId, ...localFlow }, null, 2) + "\n"
+      );
+      console.log(`[import] Created flow: ${flowName} (${flowId})`);
+    }
+  } finally {
+    rmSync(tmpDir, { recursive: true });
+  }
+}
+
+async function importForms(): Promise<void> {
+  const formsDir = join(tenantDir, "forms");
+
+  if (!existsSync(formsDir)) {
+    return;
+  }
+
+  const localFiles = readdirSync(formsDir).filter((f) => f.endsWith(".json"));
+
+  const newFormNames = new Set(
+    localFiles
+      .map(
+        (f) =>
+          JSON.parse(readFileSync(join(formsDir, f), "utf-8")) as Record<string, unknown>
+      )
+      .filter((f) => !f.id)
+      .map((f) => f.name as string)
+  );
+
+  if (newFormNames.size === 0) {
+    return;
+  }
+
+  await withToken((token) =>
+    deploy({
+      input_file: tenantDir,
+      config: {
+        AUTH0_DOMAIN: TENANT_DOMAIN!,
+        AUTH0_ACCESS_TOKEN: token,
+        AUTH0_INCLUDED_ONLY: ["forms"],
+      },
+    })
+  );
+
+  const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
+
+  try {
+    await withToken((token) =>
+      dump({
+        output_folder: tmpDir,
+        format: "directory",
+        export_ids: true,
+        config: {
+          AUTH0_DOMAIN: TENANT_DOMAIN!,
+          AUTH0_ACCESS_TOKEN: token,
+          AUTH0_INCLUDED_ONLY: ["forms"],
+        },
+      })
+    );
+
+    const tmpFormsDir = join(tmpDir, "forms");
+    const exportedFiles = readdirSync(tmpFormsDir).filter((f) => f.endsWith(".json"));
+
+    for (const exportedFile of exportedFiles) {
+      const exported = JSON.parse(
+        readFileSync(join(tmpFormsDir, exportedFile), "utf-8")
+      ) as Record<string, unknown>;
+
+      if (!newFormNames.has(exported.name as string)) {
+        continue;
+      }
+
+      const formId = exported.id as string;
+      const formName = exported.name as string;
+
+      const localFile = localFiles.find((f) => {
+        const content = JSON.parse(readFileSync(join(formsDir, f), "utf-8")) as Record<
+          string,
+          unknown
+        >;
+        return content.name === formName;
+      });
+
+      if (localFile) {
+        const localForm = JSON.parse(
+          readFileSync(join(formsDir, localFile), "utf-8")
+        ) as Record<string, unknown>;
+
+        writeFileSync(
+          join(formsDir, localFile),
+          JSON.stringify({ id: formId, ...localForm }, null, 2) + "\n"
+        );
+      }
+
+      const actionsDir = join(tenantDir, "actions");
+      if (existsSync(actionsDir)) {
+        const actionJsonFiles = readdirSync(actionsDir).filter((f) =>
+          f.endsWith(".json")
+        );
+        const placeholder = `%%FORM:${formName}%%`;
+
+        for (const actionJsonFile of actionJsonFiles) {
+          const action = JSON.parse(
+            readFileSync(join(actionsDir, actionJsonFile), "utf-8")
+          ) as Record<string, unknown>;
+
+          const codePath = join(tenantDir, action.code as string);
+          if (!existsSync(codePath)) continue;
+
+          const code = readFileSync(codePath, "utf-8");
+          if (!code.includes(placeholder)) continue;
+
+          writeFileSync(codePath, code.replaceAll(placeholder, formId));
+          console.log(
+            `[import] Patched %%FORM:${formName}%% → ${formId} in: ${codePath}`
+          );
+        }
+      }
+
+      console.log(`[import] Created form: ${formName} (${formId})`);
+    }
+  } finally {
+    rmSync(tmpDir, { recursive: true });
+  }
 }
 
 async function importActions(): Promise<void> {
@@ -334,7 +542,15 @@ async function importClients(): Promise<void> {
   );
 }
 
-const specialTypes = new Set(["actions", "clients"]);
+const specialTypes = new Set(["actions", "clients", "flows", "forms"]);
+
+if (selectedTypes.includes("flows")) {
+  await importFlows();
+}
+
+if (selectedTypes.includes("forms")) {
+  await importForms();
+}
 
 if (selectedTypes.includes("actions")) {
   await importActions();
