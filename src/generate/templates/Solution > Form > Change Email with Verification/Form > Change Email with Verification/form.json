@@ -1,0 +1,182 @@
+{
+  "languages": {
+    "primary": "en"
+  },
+  "nodes": [
+    {
+      "id": "step_qJEB",
+      "type": "STEP",
+      "coordinates": {
+        "x": 422,
+        "y": -100
+      },
+      "alias": "Email verification",
+      "config": {
+        "components": [
+          {
+            "id": "image_VyeK",
+            "category": "BLOCK",
+            "type": "IMAGE",
+            "config": {
+              "src": "{{vars.logo_url}}",
+              "position": "CENTER",
+              "height": 150
+            }
+          },
+          {
+            "id": "rich_text_Cqas",
+            "category": "BLOCK",
+            "type": "RICH_TEXT",
+            "config": {
+              "content": "<h2>Verify your email</h2><p>Please enter the 6-digit verification code that was sent to <strong>{{vars.email}}</strong>. The code is valid for 5 minutes.</p>"
+            }
+          },
+          {
+            "id": "verification_code",
+            "category": "FIELD",
+            "type": "NUMBER",
+            "label": "Verification code",
+            "required": true,
+            "sensitive": false
+          },
+          {
+            "id": "next_button_BtEe",
+            "category": "BLOCK",
+            "type": "NEXT_BUTTON",
+            "config": {
+              "text": "Continue"
+            }
+          },
+          {
+            "id": "resend_button_7eih",
+            "category": "BLOCK",
+            "type": "RESEND_BUTTON",
+            "config": {
+              "active_text": "Didn't receive the code?",
+              "button_text": "Resend",
+              "waiting_text": "Resend in {{remaining_seconds}} seconds",
+              "text_alignment": "CENTER",
+              "flow_id": "Generate OTP & Send email",
+              "max_attempts": 3,
+              "waiting_time": 60
+            }
+          }
+        ],
+        "next_node": "flow_hq3b"
+      }
+    },
+    {
+      "id": "flow_hq3b",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 982,
+        "y": 52
+      },
+      "config": {
+        "flow_id": "Verify OTP & Update user",
+        "next_node": "$ending"
+      }
+    },
+    {
+      "id": "flow_3Qle",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 45,
+        "y": 50
+      },
+      "config": {
+        "flow_id": "Generate OTP & Send email",
+        "next_node": "step_qJEB"
+      }
+    },
+    {
+      "id": "step_4Wuq",
+      "type": "STEP",
+      "coordinates": {
+        "x": -962,
+        "y": -477
+      },
+      "alias": "Email verification",
+      "config": {
+        "components": [
+          {
+            "id": "image_7VsI",
+            "category": "BLOCK",
+            "type": "IMAGE",
+            "config": {
+              "src": "{{vars.logo_url}}",
+              "position": "CENTER",
+              "height": 150
+            }
+          },
+          {
+            "id": "rich_text_qhNL",
+            "category": "BLOCK",
+            "type": "RICH_TEXT",
+            "config": {
+              "content": "<h2>Change your email</h2><p>Your current email is <strong>{{context.user.email}}</strong>. Enter a new email below to verify and change it.</p>"
+            }
+          },
+          {
+            "id": "new_email",
+            "category": "FIELD",
+            "type": "EMAIL",
+            "label": "New Email",
+            "required": true,
+            "sensitive": false
+          },
+          {
+            "id": "next_button_oE6x",
+            "category": "BLOCK",
+            "type": "NEXT_BUTTON",
+            "config": {
+              "text": "Continue"
+            }
+          },
+          {
+            "id": "previous_button_dGJw",
+            "category": "BLOCK",
+            "type": "PREVIOUS_BUTTON",
+            "config": {
+              "text": "Cancel"
+            }
+          }
+        ],
+        "next_node": "flow_K6oR"
+      }
+    },
+    {
+      "id": "flow_K6oR",
+      "type": "FLOW",
+      "coordinates": {
+        "x": -309,
+        "y": -31
+      },
+      "alias": "New flow",
+      "config": {
+        "flow_id": "New email field to var",
+        "next_node": "flow_3Qle"
+      }
+    }
+  ],
+  "start": {
+    "hidden_fields": [
+      {
+        "key": "logo_url",
+        "value": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png"
+      }
+    ],
+    "next_node": "step_4Wuq",
+    "coordinates": {
+      "x": -1389,
+      "y": -212
+    }
+  },
+  "ending": {
+    "resume_flow": true,
+    "coordinates": {
+      "x": 1357,
+      "y": 29
+    }
+  }
+}

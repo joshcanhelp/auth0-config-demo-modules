@@ -1,6 +1,7 @@
 node_modules
 .claude
 aid-config-demo.code-workspace
+.management-token.json
 
 auth0-config-demo-modules
 auth0-deploy-cli

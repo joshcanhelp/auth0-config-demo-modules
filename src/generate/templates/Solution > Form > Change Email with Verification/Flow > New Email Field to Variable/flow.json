@@ -1,0 +1,16 @@
+{
+  "actions": [
+    {
+      "id": "new_email_field_to_var_for_email_change",
+      "type": "FLOW",
+      "action": "STORE_VARS",
+      "allow_failure": false,
+      "mask_output": false,
+      "params": {
+        "vars": {
+          "email": "{{fields.new_email}}"
+        }
+      }
+    }
+  ]
+}

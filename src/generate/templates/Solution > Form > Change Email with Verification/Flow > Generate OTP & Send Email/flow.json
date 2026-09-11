@@ -1,0 +1,30 @@
+{
+  "actions": [
+    {
+      "id": "generate_otp_for_email_change",
+      "type": "OTP",
+      "action": "GENERATE_CODE",
+      "allow_failure": false,
+      "mask_output": false,
+      "params": {
+        "reference": "{{context.user.email}}",
+        "length": 6
+      }
+    },
+    {
+      "id": "send_email_otp_for_email_change",
+      "type": "AUTH0",
+      "action": "SEND_EMAIL",
+      "allow_failure": false,
+      "mask_output": false,
+      "params": {
+        "to": "{{vars.email}}",
+        "subject": "Verify Your Email Address",
+        "body": "Your verification code: {{custom_vars.code}}",
+        "custom_vars": {
+          "code": "{{actions.generate_otp.code}}"
+        }
+      }
+    }
+  ]
+}
