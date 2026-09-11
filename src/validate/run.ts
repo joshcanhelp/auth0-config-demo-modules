@@ -9,7 +9,7 @@ import { selectTenant } from "../scripts/utils/selectTenant.js";
 import { selectPrompt } from "../scripts/utils/selectPrompt.js";
 import { validateClients, TENANT_TAGS } from "./entity-handlers/clients.js";
 import type { TenantTag } from "./entity-handlers/clients.js";
-import { validateActions } from "./entity-handlers/actions.js";
+import { validateActions, validateActionModules } from "./entity-handlers/actions.js";
 import type { Finding, FindingLevel } from "./types.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
@@ -29,7 +29,7 @@ const tenantTag = tenantTagFlag as TenantTag | undefined;
 
 const { tenantDir } = await selectTenant();
 
-const SUPPORTED_ENTITIES = ["clients", "actions"] as const;
+const SUPPORTED_ENTITIES = ["clients", "actions", "action-modules"] as const;
 type SupportedEntity = (typeof SUPPORTED_ENTITIES)[number];
 
 function getEntityFiles(entity: SupportedEntity): string[] {
@@ -83,16 +83,22 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
     return validateClients(clients, tenantTag);
   }
 
-  if (entity === "actions") {
-    const actions = files.map((f) => {
-      const action = JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"));
-      if (typeof action.code === "string" && action.code.startsWith("./")) {
-        action.code = readFileSync(join(tenantDir, action.code), "utf-8");
+  if (entity === "actions" || entity === "action-modules") {
+    const items = files.map((f) => {
+      const item = JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"));
+      if (typeof item.code === "string" && item.code.startsWith("./")) {
+        item.code = readFileSync(join(tenantDir, item.code), "utf-8");
       }
-      return action;
+      return item;
     });
-    console.log(`Validating ${actions.length} action(s)...`);
-    return validateActions(actions, tenantTag);
+
+    if (entity === "actions") {
+      console.log(`Validating ${items.length} action(s)...`);
+      return validateActions(items, tenantTag);
+    } else {
+      console.log(`Validating ${items.length} action module(s)...`);
+      return validateActionModules(items, tenantTag);
+    }
   }
 
   return [];

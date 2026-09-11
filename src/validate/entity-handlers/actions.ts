@@ -29,7 +29,7 @@ const checkUserEnumeration = _require(
   "auth0-checkmate/analyzer/lib/actions/checkUserEnumeration.js"
 ) as CheckmateNestedFn;
 
-// Skipped checks:
+// Skipped checks for actions:
 // - checkDependencies: makes external HTTP calls to check npm vulnerability databases
 // - checkPasswordResetMFA: requires database data ({ actions, databases }) in addition to actions
 
@@ -42,6 +42,40 @@ function parseActionName(fullName: string): { actionName: string; trigger: strin
     };
   }
   return { actionName: fullName, trigger: "" };
+}
+
+// Action modules only have code + name - no triggers or runtime.
+// Only the hardcoded values check applies; the others either crash on missing fields
+// or filter by trigger type and would produce no results anyway.
+export async function validateActionModules(modules: unknown[], tenantTag?: TenantTag): Promise<Finding[]> {
+  const findings: Finding[] = [];
+
+  // Adapt to minimum shape checkActionsHardCodedValues expects for name formatting
+  const adapted = (modules as Array<{ name: string; code: string }>).map((m) => ({
+    ...m,
+    supported_triggers: [{ id: "action-module", version: "v1" }],
+  }));
+
+  const result = await checkActionsHardCodedValues({ actions: adapted });
+
+  for (const actionReport of result.details) {
+    const { actionName } = parseActionName(actionReport.name);
+    for (const r of actionReport.report) {
+      if (r.status !== "red") continue;
+      switch (r.field) {
+        case "hard_coded_value_detected":
+          findings.push({
+            code: "actions_hard_coded_value_detected",
+            level: "important",
+            clientName: actionName,
+            message: `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
+          });
+          break;
+      }
+    }
+  }
+
+  return findings;
 }
 
 export async function validateActions(actions: unknown[], tenantTag?: TenantTag): Promise<Finding[]> {
