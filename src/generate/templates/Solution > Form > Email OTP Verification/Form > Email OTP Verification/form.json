@@ -90,62 +90,6 @@
       }
     },
     {
-      "id": "step_4Wuq",
-      "type": "STEP",
-      "coordinates": {
-        "x": -962,
-        "y": -477
-      },
-      "alias": "Email verification",
-      "config": {
-        "components": [
-          {
-            "id": "image_7VsI",
-            "category": "BLOCK",
-            "type": "IMAGE",
-            "config": {
-              "src": "{{vars.logo_url}}",
-              "position": "CENTER",
-              "height": 150
-            }
-          },
-          {
-            "id": "rich_text_qhNL",
-            "category": "BLOCK",
-            "type": "RICH_TEXT",
-            "config": {
-              "content": "<h2>Change your email</h2><p>Your current email is <strong>{{context.user.email}}</strong>. Enter a new email below to verify and change it.</p>"
-            }
-          },
-          {
-            "id": "new_email",
-            "category": "FIELD",
-            "type": "EMAIL",
-            "label": "New Email",
-            "required": true,
-            "sensitive": false
-          },
-          {
-            "id": "next_button_oE6x",
-            "category": "BLOCK",
-            "type": "NEXT_BUTTON",
-            "config": {
-              "text": "Continue"
-            }
-          },
-          {
-            "id": "previous_button_dGJw",
-            "category": "BLOCK",
-            "type": "PREVIOUS_BUTTON",
-            "config": {
-              "text": "Cancel"
-            }
-          }
-        ],
-        "next_node": "flow_K6oR"
-      }
-    },
-    {
       "id": "flow_K6oR",
       "type": "FLOW",
       "coordinates": {
@@ -166,7 +110,7 @@
         "value": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png"
       }
     ],
-    "next_node": "step_4Wuq",
+    "next_node": "flow_K6oR",
     "coordinates": {
       "x": -1389,
       "y": -212
