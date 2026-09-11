@@ -17,6 +17,7 @@ function applyUrlsForAppType(
     return rest;
   }
 
+  // Make sure the callbacks from our testing app(s) are included
   const localUrl = `http://localhost:${process.env.PORT ?? "3000"}`;
   const deployedUrl = process.env.DEPLOYED_APP_URL?.replace(/\/$/, "");
   const baseUrls = [localUrl, ...(deployedUrl ? [deployedUrl] : [])];

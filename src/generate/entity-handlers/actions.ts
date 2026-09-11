@@ -1,5 +1,11 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { basename, join } from "node:path";
 import process from "node:process";
 
 import { textPrompt } from "../../scripts/utils/textPrompt.js";
@@ -9,23 +15,31 @@ function isValidFilename(name: string): boolean {
   return !/[/\\:*?"<>|]/.test(name);
 }
 
-export async function handleAction(templateDir: string, tenantDir: string): Promise<void> {
-  const actionsTemplateDir = join(templateDir, "actions");
+function deriveDefaultName(templateDir: string): string {
+  const parts = basename(templateDir).split(" > ");
+  const trigger = parts[1] ?? "";
+  const subname = parts.slice(2).join(" > ");
+  return `[${trigger}] ${subname}`;
+}
 
-  if (!existsSync(actionsTemplateDir)) {
-    console.error("No actions directory found in template.");
+export async function handleAction(
+  templateDir: string,
+  tenantDir: string
+): Promise<void> {
+  const metadataPath = join(templateDir, "metadata.json");
+  const codePath = join(templateDir, "code.js");
+
+  if (!existsSync(metadataPath)) {
+    console.error(`No metadata.json found in template: ${templateDir}`);
     process.exit(1);
   }
 
-  const jsonFiles = readdirSync(actionsTemplateDir).filter((f) => f.endsWith(".json"));
-
-  if (jsonFiles.length === 0) {
-    console.error("No action JSON found in template actions directory.");
+  if (!existsSync(codePath)) {
+    console.error(`No code.js found in template: ${templateDir}`);
     process.exit(1);
   }
 
-  const templateFileName = jsonFiles[0]!;
-  const defaultName = templateFileName.replace(/\.json$/, "");
+  const defaultName = deriveDefaultName(templateDir);
   const nameInput = await textPrompt(`Action name (default: ${defaultName})`);
   const name = nameInput || defaultName;
 
@@ -44,17 +58,19 @@ export async function handleAction(templateDir: string, tenantDir: string): Prom
     process.exit(1);
   }
 
-  const template = JSON.parse(
-    readFileSync(join(actionsTemplateDir, templateFileName), "utf-8")
-  ) as Record<string, unknown>;
+  const {
+    name: _name,
+    code: _code,
+    ...metadata
+  } = JSON.parse(readFileSync(metadataPath, "utf-8")) as Record<string, unknown>;
+  void _name;
+  void _code;
 
-  const templateCodeDir = join(actionsTemplateDir, defaultName);
-  const templateCodePath = join(templateCodeDir, "code.js");
-
-  if (!existsSync(templateCodePath)) {
-    console.error(`No code.js found at: ${templateCodePath}`);
-    process.exit(1);
-  }
+  const output = {
+    ...metadata,
+    name,
+    code: `./actions/${name}/code.js`,
+  };
 
   if (!existsSync(actionsDir)) {
     mkdirSync(actionsDir, { recursive: true });
@@ -62,14 +78,8 @@ export async function handleAction(templateDir: string, tenantDir: string): Prom
 
   mkdirSync(outputCodeDir, { recursive: true });
 
-  const output = {
-    ...template,
-    name,
-    code: `./actions/${name}/code.js`,
-  };
-
   writeFileSync(outputJsonPath, JSON.stringify(output, null, 2) + "\n");
-  copyFileSync(templateCodePath, outputCodePath);
+  copyFileSync(codePath, outputCodePath);
 
   console.log(`\nCreated: ${outputJsonPath}`);
   console.log(`Created: ${outputCodePath}`);
