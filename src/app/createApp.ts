@@ -83,7 +83,7 @@ export async function createApp(tenantDir: string) {
   const app = express();
   const staticDir = path.join(TENANT_DIR, "_static");
   if (existsSync(staticDir)) {
-    app.use(express.static(staticDir));
+    app.use("/static", express.static(staticDir));
   }
 
   app.use(express.urlencoded({ extended: true }));
