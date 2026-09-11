@@ -9,9 +9,9 @@ exports.onExecutePostLogin = async (event, api) => {
 
   const { action = "" } = event.request.query;
 
-  if (action === "change_email") {
+  if (action === "verify_email") {
     console.log(`[${event.transaction?.id ?? "<no TID>"}] Render Change Email Form...`);
-    api.prompt.render("%%FORM:Change Email with Verification%%");
+    api.prompt.render("%%FORM:Email OTP Verification%%");
   }
 };
 

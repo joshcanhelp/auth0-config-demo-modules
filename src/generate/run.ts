@@ -8,6 +8,7 @@ import { selectPrompt } from "../scripts/utils/selectPrompt.js";
 import { handleAction } from "./entity-handlers/actions.js";
 import { handleClient } from "./entity-handlers/clients.js";
 import { handleGrant } from "./entity-handlers/grants.js";
+import { handleSolution } from "./entity-handlers/solutions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, "templates");
@@ -29,6 +30,8 @@ const templateDir = join(TEMPLATES_DIR, selected);
 
 if (type === "Action") {
   await handleAction(templateDir, tenantDir);
+} else if (type === "Solution") {
+  await handleSolution(templateDir, tenantDir);
 } else if (type === "Client") {
   await handleClient(templateDir, tenantDir);
 } else if (type === "Grant") {

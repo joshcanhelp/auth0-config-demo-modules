@@ -36,7 +36,7 @@
             "allow_failure": false,
             "mask_output": false,
             "params": {
-              "connection_id": "Auth0 Forms Connector",
+              "connection_id": "Forms Connector",
               "user_id": "{{context.user.user_id}}",
               "changes": {
                 "email": "{{vars.email}}",

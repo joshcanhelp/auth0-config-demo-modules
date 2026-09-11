@@ -15,17 +15,14 @@ function isValidFilename(name: string): boolean {
   return !/[/\\:*?"<>|]/.test(name);
 }
 
-function deriveDefaultName(templateDir: string): string {
+export function deriveActionName(templateDir: string): string {
   const parts = basename(templateDir).split(" > ");
   const trigger = parts[1] ?? "";
   const subname = parts.slice(2).join(" > ");
   return `[${trigger}] ${subname}`;
 }
 
-export async function handleAction(
-  templateDir: string,
-  tenantDir: string
-): Promise<void> {
+export function writeAction(templateDir: string, tenantDir: string, name: string): void {
   const metadataPath = join(templateDir, "metadata.json");
   const codePath = join(templateDir, "code.js");
 
@@ -36,15 +33,6 @@ export async function handleAction(
 
   if (!existsSync(codePath)) {
     console.error(`No code.js found in template: ${templateDir}`);
-    process.exit(1);
-  }
-
-  const defaultName = deriveDefaultName(templateDir);
-  const nameInput = await textPrompt(`Action name (default: ${defaultName})`);
-  const name = nameInput || defaultName;
-
-  if (!isValidFilename(name)) {
-    console.error(`Invalid name for a filename: "${name}"`);
     process.exit(1);
   }
 
@@ -61,10 +49,12 @@ export async function handleAction(
   const {
     name: _name,
     code: _code,
+    id: _id,
     ...metadata
   } = JSON.parse(readFileSync(metadataPath, "utf-8")) as Record<string, unknown>;
   void _name;
   void _code;
+  void _id;
 
   const output = {
     ...metadata,
@@ -81,6 +71,22 @@ export async function handleAction(
   writeFileSync(outputJsonPath, JSON.stringify(output, null, 2) + "\n");
   copyFileSync(codePath, outputCodePath);
 
-  console.log(`\nCreated: ${outputJsonPath}`);
+  console.log(`Created: ${outputJsonPath}`);
   console.log(`Created: ${outputCodePath}`);
+}
+
+export async function handleAction(
+  templateDir: string,
+  tenantDir: string
+): Promise<void> {
+  const defaultName = deriveActionName(templateDir);
+  const nameInput = await textPrompt(`Action name (default: ${defaultName})`);
+  const name = nameInput || defaultName;
+
+  if (!isValidFilename(name)) {
+    console.error(`Invalid name for a filename: "${name}"`);
+    process.exit(1);
+  }
+
+  writeAction(templateDir, tenantDir, name);
 }

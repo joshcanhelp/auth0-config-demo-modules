@@ -56,7 +56,7 @@
               "button_text": "Resend",
               "waiting_text": "Resend in {{remaining_seconds}} seconds",
               "text_alignment": "CENTER",
-              "flow_id": "Generate OTP & Send email",
+              "flow_id": "Generate OTP & Send Email",
               "max_attempts": 3,
               "waiting_time": 60
             }
@@ -154,7 +154,7 @@
       },
       "alias": "New flow",
       "config": {
-        "flow_id": "New Email Field to Variable",
+        "flow_id": "User Email to Variable",
         "next_node": "flow_3Qle"
       }
     }
