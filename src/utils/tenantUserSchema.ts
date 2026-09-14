@@ -81,13 +81,15 @@ export function getUserSchemaFields(schema: UserSchemaDef): SchemaField[] {
       ];
     }
     if (def.usage !== "editable") return [];
-    return [{
-      kind: def.type,
-      name,
-      label: def.name ?? name.replace(/_/g, " "),
-      formName: name,
-      required: def.required ?? false,
-      description: def.description,
-    }];
+    return [
+      {
+        kind: def.type,
+        name,
+        label: def.name ?? name.replace(/_/g, " "),
+        formName: name,
+        required: def.required ?? false,
+        description: def.description,
+      },
+    ];
   });
 }

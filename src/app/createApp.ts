@@ -8,7 +8,11 @@ import session from "express-session";
 
 import type { TokenCache } from "../auth0/clientCredentials.js";
 import { createMemoryCache } from "../utils/memoryCache.js";
-import { loadTenantUserSchema, getUserSchemaFields, type SchemaField } from "../utils/tenantUserSchema.js";
+import {
+  loadTenantUserSchema,
+  getUserSchemaFields,
+  type SchemaField,
+} from "../utils/tenantUserSchema.js";
 import { createClientMiddleware } from "./clientMiddleware.js";
 import { createM2mClientMiddleware } from "./m2mClientMiddleware.js";
 import { readClients } from "./readClients.js";

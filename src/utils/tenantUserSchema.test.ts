@@ -40,7 +40,9 @@ describe("loadTenantUserSchema", () => {
       `export const userSchema = { email: { type: "email", usage: "editable", required: true } };`
     );
     const schema = await loadTenantUserSchema(dir);
-    expect(schema).toEqual({ email: { type: "email", usage: "editable", required: true } });
+    expect(schema).toEqual({
+      email: { type: "email", usage: "editable", required: true },
+    });
   });
 
   it("returns null when the file has no userSchema export", async () => {
@@ -60,8 +62,22 @@ describe("getUserSchemaFields", () => {
     };
     const fields = getUserSchemaFields(schema);
     expect(fields).toEqual([
-      { kind: "email", name: "email", label: "email", formName: "email", required: true, description: undefined },
-      { kind: "text", name: "name", label: "name", formName: "name", required: false, description: undefined },
+      {
+        kind: "email",
+        name: "email",
+        label: "email",
+        formName: "email",
+        required: true,
+        description: undefined,
+      },
+      {
+        kind: "text",
+        name: "name",
+        label: "name",
+        formName: "name",
+        required: false,
+        description: undefined,
+      },
     ]);
   });
 
@@ -99,7 +115,14 @@ describe("getUserSchemaFields", () => {
       expect(fields[0].name).toBe("app_metadata");
       expect(fields[0].label).toBe("app metadata");
       expect(fields[0].fields).toEqual([
-        { kind: "text", name: "c360_id", label: "c360 id", formName: "app_metadata[c360_id]", required: true, description: undefined },
+        {
+          kind: "text",
+          name: "c360_id",
+          label: "c360 id",
+          formName: "app_metadata[c360_id]",
+          required: true,
+          description: undefined,
+        },
       ]);
     }
   });

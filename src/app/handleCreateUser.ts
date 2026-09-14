@@ -20,7 +20,9 @@ export async function handleCreateUser({
 
   const sendError = (error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
-    response.status(400).send(renderCreateUserPage(clientId, null, tenantConfig, message));
+    response
+      .status(400)
+      .send(renderCreateUserPage(clientId, null, tenantConfig, message));
   };
 
   let body: Record<string, unknown>;
@@ -37,7 +39,10 @@ export async function handleCreateUser({
 
   try {
     dbResult = await api.createUser(body as TenantUserBody);
-    emailResult = await api.createUser({ ...body, connection: "email" } as TenantUserBody);
+    emailResult = await api.createUser({
+      ...body,
+      connection: "email",
+    } as TenantUserBody);
     linkResult = await api.linkUser((dbResult as { user_id: string }).user_id, {
       provider: "email",
       user_id: (emailResult as { user_id: string }).user_id,
