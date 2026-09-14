@@ -20,15 +20,20 @@ export function renderClientListPage({
     .map((client) => {
       const isM2M = client.app_type === "non_interactive";
       const logoHtml = client.logo_uri
-        ? `<img src="${client.logo_uri}" alt="${client.name} logo" height="32" style="vertical-align:middle;margin-right:8px;">`
+        ? `<img src="${client.logo_uri}" alt="${client.name} logo" class="client-list-logo">`
         : "";
-      const actionHtml = isM2M ? "" : `<a href="/login/${client.client_id}">Login</a>`;
+
+      const actionHtml = isM2M
+        ? ""
+        : `<a href="/login/${client.client_id}">Login</a> 
+          <a href="/login/${client.client_id}?extra_params=${encodeURIComponent("screen_hint=signup")}">Signup</a>`;
       const methodHtml = isM2M ? "" : detectLoginMethod(client, env);
+
       return `
       <tr>
         <td>${logoHtml}<a href="/client/${client.client_id}">${client.name}</a></td>
-        <td>${client.app_type}</td>
-        <td>${client.grant_types.join(", ")}</td>
+        <td><code>${client.app_type}</code></td>
+        <td><code>${client.grant_types.join("</code>, <code>")}</code></td>
         <td>${methodHtml}</td>
         <td>${actionHtml}</td>
       </tr>`;
