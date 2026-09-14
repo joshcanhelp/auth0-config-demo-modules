@@ -28,7 +28,7 @@ function renderPrimitiveField(field: PrimitiveField): string {
     ? `\n      <small>${field.description}</small>`
     : "";
   if (field.kind === "boolean") {
-    return `<div>
+    return `<div class="field-wrapper">
       <label><input type="checkbox" name="${field.formName}" value="true"> ${field.label}</label>${description}
     </div>`;
   }
@@ -36,7 +36,7 @@ function renderPrimitiveField(field: PrimitiveField): string {
     field.kind === "email" ? "email" : field.kind === "password" ? "password" : "text";
   const required = field.required ? " required" : "";
   const value = field.required ? ` value="${mockValue(field)}"` : "";
-  return `<div>
+  return `<div class="field-wrapper">
       <label for="${field.formName}">${field.label}${field.required ? " *" : ""}</label>
       <input type="${inputType}" id="${field.formName}" name="${field.formName}"${required}${value}>${description}
     </div>`;
@@ -90,27 +90,29 @@ function renderM2MClientPage(
       .map((c) => `<option value="${c.name}">${c.name}</option>`)
       .join("\n            ");
 
-    createUserSection = clientHasScope(grants, client.client_id, "read:users")
+    createUserSection = clientHasScope(grants, client.client_id, "create:users")
       ? `<h2>Create User</h2>
       <button type="button" onclick="document.getElementById('create-user-dialog').showModal()">
           Create User
         </button>
 
         <dialog id="create-user-dialog">
-          <h2>Create User</h2>
-          <form method="post" action="/create-user/${client.client_id}">
-            <div>
-              <label for="connection">Connection</label>
-              <select id="connection" name="connection" required>
-                ${connectionOptions}
-              </select>
-            </div>
-            ${userSchemaFields.map(renderField).join("\n            ")}
-            <div style="display:flex;gap:1rem;margin-top:1rem;">
-              <button type="submit">Create</button>
-              <button type="button" onclick="document.getElementById('create-user-dialog').close()">Cancel</button>
-            </div>
-          </form>
+          <article>
+            <header><h2>Create User</h2></header>
+            <form id="create-user-form" method="post" action="/create-user/${client.client_id}">
+              <div>
+                <label for="connection">Connection</label>
+                <select id="connection" name="connection" required>
+                  ${connectionOptions}
+                </select>
+              </div>
+              ${userSchemaFields.map(renderField).join("\n              ")}
+            </form>
+            <footer>
+              <button type="button" class="outline secondary" onclick="document.getElementById('create-user-dialog').close()">Cancel</button>
+              <button type="submit" form="create-user-form">Create</button>
+            </footer>
+          </article>
         </dialog>`
       : "";
   }
