@@ -33,11 +33,7 @@ export function handleErrorPage({
     pageLayout({
       title: `Error — ${tenantConfig.friendlyName}`,
       tenantConfig,
-      maxWidth: "700px",
-      styles: `
-    dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; margin: 1rem 0; }
-    dt { font-weight: bold; color: #555; }
-    dd { word-break: break-all; }`,
+
       body: `
   <h1>Something went wrong</h1>
   <dl>

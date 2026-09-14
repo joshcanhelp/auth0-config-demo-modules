@@ -18,8 +18,7 @@ export function renderCreateUserPage(
   return pageLayout({
     title: "Create User",
     tenantConfig,
-    maxWidth: "700px",
-    styles: `pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }`,
+
     body,
   });
 }

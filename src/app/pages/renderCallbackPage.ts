@@ -37,9 +37,6 @@ export async function renderCallbackPage({
       pageLayout({
         title: `Callback - ${client.name}`,
         tenantConfig,
-        styles: `
-    pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }
-    hr { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }`,
         body: `
   <h1>Logging in to ${client.name}</h1>
   <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>
@@ -82,7 +79,6 @@ export async function renderCallbackPage({
     pageLayout({
       title: `Logged in - ${client.name}`,
       tenantConfig,
-      styles: `pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }`,
       body: `
   <h1>Logged in to ${client.name}</h1>
   <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>

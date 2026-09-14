@@ -39,10 +39,6 @@ export function renderClientListPage({
     pageLayout({
       title: `${tenantConfig.friendlyName} — Demo`,
       tenantConfig,
-      styles: `
-    table { border-collapse: collapse; width: 100%; }
-    th, td { text-align: left; padding: 0.5rem 1rem; border-bottom: 1px solid #ddd; }
-    th { background: #f5f5f5; }`,
       body: `
   <div style="display:flex;justify-content:space-between;align-items:baseline;">
     <h1>${tenantConfig.friendlyName}</h1>

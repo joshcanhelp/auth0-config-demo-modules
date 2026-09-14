@@ -12,10 +12,6 @@ import { createManagementApi } from "../auth0/apiManagement.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
-const PAGE_STYLES = `
-  .steps p { margin: 0.25rem 0; }
-  .ticket-link { margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px; word-break: break-all; }`;
-
 interface Step {
   label: string;
   success: boolean;
@@ -172,8 +168,7 @@ export async function handleChangePasswordLink({
       pageLayout({
         title: `Change Password Link - ${client.name}`,
         tenantConfig,
-        maxWidth: "700px",
-        styles: PAGE_STYLES,
+
         body: `${backLink}
   <h1>Change Password Link - ${client.name}</h1>
   <div class="steps">
@@ -192,7 +187,7 @@ export async function handleChangePasswordLink({
       pageLayout({
         title: `Change Password Link - ${client.name}`,
         tenantConfig,
-        maxWidth: "700px",
+
         body: `${backLink}
   <h1>Change Password Link - ${client.name}</h1>
   <p style="color: #cf222e">✗ No <code>bff_client_id</code> found in client metadata.</p>`,
@@ -210,8 +205,7 @@ export async function handleChangePasswordLink({
     pageLayout({
       title: `Change Password Link - ${client.name}`,
       tenantConfig,
-      maxWidth: "700px",
-      styles: PAGE_STYLES,
+
       body: `${backLink}
   <h1>Change Password Link - ${client.name}</h1>
   <div id="status"></div>

@@ -10,13 +10,7 @@ interface PageOptions {
   logoutUrl?: string;
 }
 
-export function pageLayout({
-  title,
-  body,
-  tenantConfig,
-  styles = "",
-  maxWidth = "900px",
-}: PageOptions): string {
+export function pageLayout({ title, body, tenantConfig }: PageOptions): string {
   const dashboardUrl = buildDashboardUrl(tenantConfig.tenantDomain);
   const navLinks: string[] = [`<a href="/">Home</a>`, `<a href="/logout">Logout</a>`];
   if (dashboardUrl)
@@ -33,10 +27,14 @@ export function pageLayout({
 <head>
   <meta charset="UTF-8">
   <title>${title}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
   <style>
-    body { font-family: sans-serif; max-width: ${maxWidth}; margin: 2rem auto; padding: 0 1rem; }
-    a { color: #206ef6; }
-    ${styles}
+    :root { --pico-font-size: 14px; }
+    body { max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+    button, [type="submit"] { padding: 0.4rem 0.9rem; width: auto; }
+    .steps p { margin: 0.25rem 0; }
+    .ticket-link { margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px; word-break: break-all; }
+    pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }
   </style>
 </head>
 <body>

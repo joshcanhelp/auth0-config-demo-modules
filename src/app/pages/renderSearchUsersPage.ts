@@ -29,15 +29,6 @@ export function renderSearchUsersPage(
   return pageLayout({
     title: `User Search — ${client.name}`,
     tenantConfig,
-    styles: `
-    form { display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 1.5rem; }
-    label { font-weight: bold; display: block; margin-bottom: 0.25rem; }
-    input[type="text"] { padding: 0.4rem; font-size: 1rem; width: 400px; }
-    button { padding: 0.4rem 1.25rem; font-size: 1rem; cursor: pointer; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { text-align: left; padding: 0.5rem 1rem; border-bottom: 1px solid #ddd; }
-    th { background: #f5f5f5; }
-    code { font-size: 0.85em; }`,
     body: `
   <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>
   <h1>User Search — ${tenantConfig.friendlyName}</h1>

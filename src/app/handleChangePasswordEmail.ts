@@ -32,7 +32,7 @@ export async function handleChangePasswordEmail({
       pageLayout({
         title: `Change Password - ${client.name}`,
         tenantConfig,
-        maxWidth: "700px",
+
         body: `${backLink}
   <h1>Change Password</h1>
   <p>No database connection is configured for this client. Password change is only supported for database connections.</p>`,
@@ -49,7 +49,7 @@ export async function handleChangePasswordEmail({
         pageLayout({
           title: `Change Password - ${client.name}`,
           tenantConfig,
-          maxWidth: "700px",
+
           body: `${backLink}
   <h1>Change Password</h1>
   <p>No user is logged in. <a href="/login/${client.client_id}">Please login</a> to use this feature.</p>`,
@@ -63,7 +63,7 @@ export async function handleChangePasswordEmail({
         pageLayout({
           title: `Change Password - ${client.name}`,
           tenantConfig,
-          maxWidth: "700px",
+
           body: `${backLink}
   <h1>Change Password</h1>
   <p style="color:#1a7f37;">&#10003; Password change email sent to ${userEmail}. Check your inbox.</p>`,
@@ -74,7 +74,7 @@ export async function handleChangePasswordEmail({
         pageLayout({
           title: `Change Password - ${client.name}`,
           tenantConfig,
-          maxWidth: "700px",
+
           body: `${backLink}
   <h1>Change Password</h1>
   <p style="color:#cf222e;">Failed to send password change email: ${err instanceof Error ? err.message : String(err)}</p>`,
@@ -97,7 +97,7 @@ export async function handleChangePasswordEmail({
     pageLayout({
       title: `Change Password - ${client.name}`,
       tenantConfig,
-      maxWidth: "700px",
+
       body: `${backLink}
   <h1>Change Password - ${client.name}</h1>
   <p id="status"></p>

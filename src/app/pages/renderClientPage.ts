@@ -129,18 +129,7 @@ function renderM2MClientPage(
   return pageLayout({
     title: `${client.name} — ${tenantConfig.friendlyName}`,
     tenantConfig,
-    maxWidth: "700px",
-    styles: `
-    dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; margin: 1rem 0; }
-    dt { font-weight: bold; color: #555; }
-    form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-    fieldset { border: 1px solid #ddd; border-radius: 4px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    legend { font-weight: bold; padding: 0 0.25rem; }
-    label { display: block; font-weight: bold; margin-bottom: 0.25rem; }
-    input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 0.4rem; font-size: 1rem; box-sizing: border-box; }
-    button { padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer; }
-    dialog { padding: 2rem; border: 1px solid #ddd; border-radius: 6px; min-width: 400px; }
-    dialog h2 { margin-top: 0; }`,
+
     body: `
   <p><a href="/">&larr; Back</a></p>
   <h1>${client.name}</h1>
@@ -226,15 +215,7 @@ function renderLoginClientPage(
   return pageLayout({
     title: `${client.name} — ${tenantConfig.friendlyName}`,
     tenantConfig,
-    maxWidth: "700px",
-    styles: `
-    dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; margin: 1rem 0; }
-    dt { font-weight: bold; color: #555; }
-    form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-    label { display: block; font-weight: bold; margin-bottom: 0.25rem; }
-    select, textarea { width: 100%; padding: 0.4rem; font-size: 1rem; box-sizing: border-box; }
-    textarea { font-family: monospace; height: 6rem; }
-    button { align-self: flex-start; padding: 0.5rem 1.5rem; font-size: 1rem; cursor: pointer; }`,
+
     body: `
   <p><a href="/">&larr; Back</a></p>
   <h1>${client.name}</h1>
