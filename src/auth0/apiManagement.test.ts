@@ -81,8 +81,8 @@ describe("createManagementApi", () => {
 
   describe("with tenant userSchema", () => {
     const tenantSchema: UserSchemaDef = {
-      name: { type: "text", usage: "editable" },
-      email: { type: "email", usage: "editable" },
+      name: { type: "text", editable: true },
+      email: { type: "email", editable: true },
     };
     const apiWithSchema = createManagementApi("example.auth0.com", "test-token", {
       userSchema: tenantSchema,

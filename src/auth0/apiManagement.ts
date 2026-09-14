@@ -22,7 +22,7 @@ function filterEditableFields(
           : {};
       const sub: Record<string, unknown> = {};
       for (const [subName, subDef] of Object.entries(groupDef.fields)) {
-        if (subDef.usage !== "editable") continue;
+        if (!subDef.editable) continue;
         const val = groupBody[subName];
         if (val !== undefined) {
           sub[subName] = val;
@@ -31,7 +31,7 @@ function filterEditableFields(
         }
       }
       if (Object.keys(sub).length > 0) result[name] = sub;
-    } else if (def.usage === "editable") {
+    } else if (def.editable) {
       const val = body[name];
       if (val !== undefined) {
         result[name] = val;

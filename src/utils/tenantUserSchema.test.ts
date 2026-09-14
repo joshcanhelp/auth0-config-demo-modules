@@ -37,11 +37,11 @@ describe("loadTenantUserSchema", () => {
     const dir = makeTestDir();
     writeSchema(
       dir,
-      `export const userSchema = { email: { type: "email", usage: "editable", required: true } };`
+      `export const userSchema = { email: { type: "email", editable: true, required: true } };`
     );
     const schema = await loadTenantUserSchema(dir);
     expect(schema).toEqual({
-      email: { type: "email", usage: "editable", required: true },
+      email: { type: "email", editable: true, required: true },
     });
   });
 
@@ -55,10 +55,10 @@ describe("loadTenantUserSchema", () => {
 describe("getUserSchemaFields", () => {
   it("returns only editable primitive fields with correct kinds and required flags", () => {
     const schema: UserSchemaDef = {
-      email: { type: "email", usage: "editable", required: true },
-      name: { type: "text", usage: "editable" },
-      email_verified: { type: "boolean", usage: "login_response" },
-      sub: { type: "text", usage: "internal" },
+      email: { type: "email", editable: true, required: true },
+      name: { type: "text", editable: true },
+      email_verified: { type: "boolean", token_claim: "email_verified" },
+      sub: { type: "text",  },
     };
     const fields = getUserSchemaFields(schema);
     expect(fields).toEqual([
@@ -83,7 +83,7 @@ describe("getUserSchemaFields", () => {
 
   it("uses the name property as label when provided", () => {
     const schema: UserSchemaDef = {
-      given_name: { type: "text", usage: "editable", name: "First name" },
+      given_name: { type: "text", editable: true, name: "First name" },
     };
     const fields = getUserSchemaFields(schema);
     expect(fields[0].kind !== "group" && fields[0].label).toBe("First name");
@@ -91,7 +91,7 @@ describe("getUserSchemaFields", () => {
 
   it("derives label from field key when name is absent", () => {
     const schema: UserSchemaDef = {
-      given_name: { type: "text", usage: "editable" },
+      given_name: { type: "text", editable: true },
     };
     const fields = getUserSchemaFields(schema);
     expect(fields[0].kind !== "group" && fields[0].label).toBe("given name");
@@ -101,10 +101,10 @@ describe("getUserSchemaFields", () => {
     const schema: UserSchemaDef = {
       app_metadata: {
         type: "group",
-        usage: "editable",
+        editable: true,
         fields: {
-          c360_id: { type: "text", usage: "editable", required: true },
-          internal_flag: { type: "boolean", usage: "internal" },
+          c360_id: { type: "text", editable: true, required: true },
+          internal_flag: { type: "boolean" },
         },
       },
     };
@@ -131,9 +131,8 @@ describe("getUserSchemaFields", () => {
     const schema: UserSchemaDef = {
       app_metadata: {
         type: "group",
-        usage: "internal",
         fields: {
-          internal_id: { type: "text", usage: "internal" },
+          internal_id: { type: "text" },
         },
       },
     };
@@ -142,7 +141,7 @@ describe("getUserSchemaFields", () => {
 
   it("returns required false when required is absent", () => {
     const schema: UserSchemaDef = {
-      name: { type: "text", usage: "editable" },
+      name: { type: "text", editable: true },
     };
     const fields = getUserSchemaFields(schema);
     expect(fields[0].kind !== "group" && fields[0].required).toBe(false);

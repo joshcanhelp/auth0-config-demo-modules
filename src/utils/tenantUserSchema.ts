@@ -1,12 +1,12 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-export type FieldUsage = "editable" | "login_response" | "internal";
 export type FieldType = "text" | "email" | "boolean" | "password";
 
 export type PrimitiveFieldDef = {
   type: FieldType;
-  usage: FieldUsage;
+  editable?: boolean;
+  token_claim?: string;
   name?: string;
   required?: boolean;
   description?: string;
@@ -14,7 +14,8 @@ export type PrimitiveFieldDef = {
 
 export type GroupFieldDef = {
   type: "group";
-  usage: FieldUsage;
+  editable?: boolean;
+  token_claim?: string;
   name?: string;
   description?: string;
   fields: Record<string, PrimitiveFieldDef>;
@@ -59,7 +60,7 @@ export function getUserSchemaFields(schema: UserSchemaDef): SchemaField[] {
   return Object.entries(schema).flatMap(([name, def]): SchemaField[] => {
     if (def.type === "group") {
       const editableSubFields: PrimitiveField[] = Object.entries(def.fields)
-        .filter(([, subDef]) => subDef.usage === "editable")
+        .filter(([, subDef]) => subDef.editable)
         .map(([subName, subDef]) => ({
           kind: subDef.type,
           name: subName,
@@ -80,7 +81,7 @@ export function getUserSchemaFields(schema: UserSchemaDef): SchemaField[] {
         },
       ];
     }
-    if (def.usage !== "editable") return [];
+    if (!def.editable) return [];
     return [
       {
         kind: def.type,
