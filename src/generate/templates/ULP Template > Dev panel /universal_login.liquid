@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="{{locale}}" dir="{{dir}}">
+  <head>
+    {%- auth0:head -%}
+  </head>
+  <body class="_widget-auto-layout" data-prompt="{{prompt.name}}" data-screen="{{prompt.screen.name}}">
+    {%- auth0:widget -%}
+
+    <!-- ============================================================
+         Auth0 Dev Panel - remove before going to production
+         ============================================================ -->
+    <style>
+      #a0dp {
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+        font-family: 'Menlo', 'Consolas', 'Monaco', monospace; font-size: 12px;
+        background: #1e1e1e; color: #d4d4d4;
+        border-top: 2px solid #007acc;
+        height: 36px; overflow: hidden;
+        transition: height 0.25s ease;
+      }
+      #a0dp.a0dp-open { height: 50vh; }
+      body { padding-bottom: 36px; }
+      #a0dp-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        height: 36px; padding: 0 12px; background: #252526;
+        border-bottom: 1px solid #3c3c3c; cursor: pointer; user-select: none;
+      }
+      #a0dp-bar:hover { background: #2a2a2a; }
+      #a0dp-title { color: #569cd6; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+      #a0dp-title span { color: #888; font-weight: normal; font-size: 11px; }
+      #a0dp-toggle {
+        background: none; border: 1px solid #444; color: #aaa;
+        padding: 2px 10px; border-radius: 3px; cursor: pointer; font-size: 11px;
+        font-family: inherit;
+      }
+      #a0dp-toggle:hover { border-color: #007acc; color: #fff; }
+      #a0dp-body {
+        height: calc(100% - 36px); display: flex; flex-direction: column; overflow: hidden;
+      }
+      #a0dp-tabs {
+        display: flex; background: #2d2d2d; border-bottom: 1px solid #3c3c3c;
+        padding: 0 8px; gap: 2px;
+      }
+      .a0dp-tab {
+        padding: 6px 14px; cursor: pointer; border-bottom: 2px solid transparent;
+        color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+      }
+      .a0dp-tab:hover { color: #ccc; }
+      .a0dp-tab.active { color: #fff; border-bottom-color: #007acc; }
+      #a0dp-search-wrap { padding: 6px 10px; background: #1e1e1e; border-bottom: 1px solid #2a2a2a; }
+      #a0dp-search {
+        width: 100%; box-sizing: border-box; background: #3c3c3c; border: 1px solid #555;
+        color: #d4d4d4; padding: 4px 8px; border-radius: 3px; font-size: 12px;
+        font-family: inherit; outline: none;
+      }
+      #a0dp-search:focus { border-color: #007acc; }
+      #a0dp-pane-vars, #a0dp-pane-storage {
+        flex: 1; overflow-y: auto; padding: 10px 10px 10px; display: none;
+      }
+      #a0dp-pane-vars.active, #a0dp-pane-storage.active { display: block; }
+      .a0dp-section { margin-bottom: 12px; }
+      .a0dp-section-title {
+        color: #4ec9b0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+        border-bottom: 1px solid #333; padding-bottom: 3px; margin-bottom: 4px;
+      }
+      .a0dp-row {
+        display: flex; gap: 8px; padding: 2px 4px; border-radius: 2px; align-items: baseline;
+      }
+      .a0dp-row:hover { background: #2a2a2a; }
+      .a0dp-row.hidden { display: none; }
+      .a0dp-k { color: #9cdcfe; min-width: 200px; flex-shrink: 0; }
+      .a0dp-v { color: #ce9178; word-break: break-all; }
+      .a0dp-v.empty { color: #555; font-style: italic; }
+      .a0dp-v.obj { color: #dcdcaa; white-space: pre-wrap; }
+      .a0dp-storage-group { margin-bottom: 16px; }
+      .a0dp-storage-title {
+        color: #c586c0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+        border-bottom: 1px solid #333; padding-bottom: 3px; margin-bottom: 4px;
+      }
+      .a0dp-storage-empty { color: #555; font-style: italic; padding: 2px 4px; }
+    </style>
+
+    <div id="a0dp">
+      <div id="a0dp-bar" onclick="(function(){var p=document.getElementById('a0dp');var t=document.getElementById('a0dp-toggle');var open=p.classList.toggle('a0dp-open');t.textContent=open?'▼ Collapse':'▲ Expand';})()">
+        <div id="a0dp-title">
+          Auth0 Dev Panel
+          <span id="a0dp-screen-label"></span>
+        </div>
+        <button id="a0dp-toggle" onclick="event.stopPropagation();(function(){var p=document.getElementById('a0dp');var t=document.getElementById('a0dp-toggle');var open=p.classList.toggle('a0dp-open');t.textContent=open?'▼ Collapse':'▲ Expand';})()">▲ Expand</button>
+      </div>
+      <div id="a0dp-body">
+        <div id="a0dp-tabs">
+          <div class="a0dp-tab active" data-pane="vars" onclick="a0dpTab(this)">Liquid Variables</div>
+          <div class="a0dp-tab" data-pane="storage" onclick="a0dpTab(this)">Browser Storage</div>
+        </div>
+        <div id="a0dp-search-wrap">
+          <input id="a0dp-search" placeholder="Filter variables..." oninput="a0dpFilter(this.value)">
+        </div>
+        <div id="a0dp-pane-vars" class="active"></div>
+        <div id="a0dp-pane-storage"></div>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      const userId = "{{ user.user_id }}";
+      var raw = {
+        // Page
+        "locale":                             "{{ locale | escape }}",
+        "dir":                                "{{ dir | escape }}",
+        "state":                              "{{ state | escape }}",
+        "correlation_id":                     "{{ correlation_id | escape }}",
+        "is_authenticated":                   !!userId,
+        // Prompt
+        "prompt.name":                        "{{ prompt.name | escape }}",
+        "prompt.screen.name":                 "{{ prompt.screen.name | escape }}",
+        // Application
+        "application.id":                     "{{ application.id | escape }}",
+        "application.name":                   "{{ application.name | escape }}",
+        "application.logo_url":               "{{ application.logo_url | escape }}",
+        // Branding
+        "branding.logo_url":                  "{{ branding.logo_url | escape }}",
+        "branding.colors.primary":            "{{ branding.colors.primary | escape }}",
+        "branding.colors.page_background":    "{{ branding.colors.page_background | escape }}",
+        // Tenant
+        "tenant.friendly_name":               "{{ tenant.friendly_name | escape }}",
+        "tenant.support_email":               "{{ tenant.support_email | escape }}",
+        "tenant.support_url":                 "{{ tenant.support_url | escape }}",
+        "tenant.enabled_locales":             "{{ tenant.enabled_locales | escape }}",
+        // Organization
+        "organization.id":                    "{{ organization.id | escape }}",
+        "organization.name":                  "{{ organization.name | escape }}",
+        "organization.display_name":          "{{ organization.display_name | escape }}",
+        // Organization branding
+        "organization.branding.logo_url":     "{{ organization.branding.logo_url | escape }}",
+        "organization.branding.colors.primary":          "{{ organization.branding.colors.primary | escape }}",
+        "organization.branding.colors.page_background":  "{{ organization.branding.colors.page_background | escape }}",
+        // User (available on certain screens only)
+        "user.user_id":                       "{{ user.user_id | escape }}",
+        "user.email":                         "{{ user.email | escape }}",
+        "user.email_verified":                "{{ user.email_verified | escape }}",
+        "user.name":                          "{{ user.name | escape }}",
+        "user.given_name":                    "{{ user.given_name | escape }}",
+        "user.family_name":                   "{{ user.family_name | escape }}",
+        "user.nickname":                      "{{ user.nickname | escape }}",
+        "user.username":                      "{{ user.username | escape }}",
+        "user.picture":                       "{{ user.picture | escape }}",
+        // Custom domain
+        "custom_domain.domain":               "{{ custom_domain.domain | escape }}",
+      };
+
+      // Object/hash variables cannot be serialized directly in Auth0 Liquid templates.
+      // They are noted as "(object - not serializable in template)" in the panel.
+      var objects = {};
+
+      // Sections config: label -> array of keys
+      var sections = [
+        { label: "Page", keys: ["locale","dir","state","correlation_id","is_authenticated"] },
+        { label: "Prompt", keys: ["prompt.name","prompt.screen.name"] },
+        { label: "Application", keys: ["application.id","application.name","application.logo_url"] },
+        { label: "Branding", keys: ["branding.logo_url","branding.colors.primary","branding.colors.page_background"] },
+        { label: "Tenant", keys: ["tenant.friendly_name","tenant.support_email","tenant.support_url","tenant.enabled_locales"] },
+        // { label: "Organization", keys: ["organization.id","organization.name","organization.display_name","organization.branding.logo_url","organization.branding.colors.primary","organization.branding.colors.page_background"] },
+        { label: "User", keys: ["user.user_id","user.email","user.email_verified","user.name","user.given_name","user.family_name","user.nickname","user.username","user.picture"] },
+        { label: "Custom Domain", keys: ["custom_domain.domain"] },
+      ];
+
+      function renderVars() {
+        var pane = document.getElementById('a0dp-pane-vars');
+        var html = '';
+        sections.forEach(function (sec) {
+          html += '<div class="a0dp-section">';
+          html += '<div class="a0dp-section-title">' + sec.label + '</div>';
+          sec.keys.forEach(function (k) {
+            var isObj = objects.hasOwnProperty(k);
+            var val = isObj ? objects[k] : raw[k];
+            var isEmpty = !isObj && (val === '' || val === null || val === undefined);
+            var displayVal = isEmpty
+              ? '<span class="a0dp-v empty">(empty)</span>'
+              : isObj
+                ? '<span class="a0dp-v obj">' + esc(JSON.stringify(val, null, 2)) + '</span>'
+                : '<span class="a0dp-v">' + esc(val) + '</span>';
+            html += '<div class="a0dp-row" data-key="' + k + '">';
+            html += '<span class="a0dp-k">' + esc(k) + '</span>';
+            html += displayVal;
+            html += '</div>';
+          });
+          html += '</div>';
+        });
+        pane.innerHTML = html;
+      }
+
+      function renderStorage() {
+        var pane = document.getElementById('a0dp-pane-storage');
+        var html = '';
+
+        // Cookies
+        html += '<div class="a0dp-storage-group">';
+        html += '<div class="a0dp-storage-title">Cookies</div>';
+        var cookies = document.cookie ? document.cookie.split(';') : [];
+        if (!cookies.length || (cookies.length === 1 && !cookies[0].trim())) {
+          html += '<div class="a0dp-storage-empty">(none)</div>';
+        } else {
+          cookies.forEach(function (c) {
+            var parts = c.trim().split('=');
+            var k = decodeURIComponent(parts[0] || '');
+            var v = decodeURIComponent(parts.slice(1).join('=') || '');
+            html += '<div class="a0dp-row"><span class="a0dp-k">' + esc(k) + '</span><span class="a0dp-v">' + esc(v) + '</span></div>';
+          });
+        }
+        html += '</div>';
+
+        // sessionStorage
+        html += '<div class="a0dp-storage-group">';
+        html += '<div class="a0dp-storage-title">sessionStorage</div>';
+        try {
+          if (!sessionStorage.length) {
+            html += '<div class="a0dp-storage-empty">(empty)</div>';
+          } else {
+            for (var i = 0; i < sessionStorage.length; i++) {
+              var sk = sessionStorage.key(i);
+              var sv = sessionStorage.getItem(sk);
+              html += '<div class="a0dp-row"><span class="a0dp-k">' + esc(sk) + '</span><span class="a0dp-v">' + esc(sv) + '</span></div>';
+            }
+          }
+        } catch (e) {
+          html += '<div class="a0dp-storage-empty">(access denied)</div>';
+        }
+        html += '</div>';
+
+        // localStorage
+        html += '<div class="a0dp-storage-group">';
+        html += '<div class="a0dp-storage-title">localStorage</div>';
+        try {
+          if (!localStorage.length) {
+            html += '<div class="a0dp-storage-empty">(empty)</div>';
+          } else {
+            for (var j = 0; j < localStorage.length; j++) {
+              var lk = localStorage.key(j);
+              var lv = localStorage.getItem(lk);
+              html += '<div class="a0dp-row"><span class="a0dp-k">' + esc(lk) + '</span><span class="a0dp-v">' + esc(lv) + '</span></div>';
+            }
+          }
+        } catch (e) {
+          html += '<div class="a0dp-storage-empty">(access denied)</div>';
+        }
+        html += '</div>';
+
+        pane.innerHTML = html;
+      }
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;');
+      }
+
+      window.a0dpTab = function (el) {
+        document.querySelectorAll('.a0dp-tab').forEach(function (t) { t.classList.remove('active'); });
+        el.classList.add('active');
+        var pane = el.getAttribute('data-pane');
+        document.getElementById('a0dp-pane-vars').classList.toggle('active', pane === 'vars');
+        document.getElementById('a0dp-pane-storage').classList.toggle('active', pane === 'storage');
+        document.getElementById('a0dp-search-wrap').style.display = pane === 'vars' ? '' : 'none';
+        if (pane === 'storage') renderStorage();
+      };
+
+      window.a0dpFilter = function (q) {
+        q = q.toLowerCase();
+        document.querySelectorAll('#a0dp-pane-vars .a0dp-row').forEach(function (row) {
+          var key = row.getAttribute('data-key') || '';
+          row.classList.toggle('hidden', q !== '' && key.toLowerCase().indexOf(q) === -1);
+        });
+      };
+
+      // Set screen label in bar
+      var screenLabel = document.getElementById('a0dp-screen-label');
+      if (screenLabel) {
+        var pn = raw['prompt.name'], sn = raw['prompt.screen.name'];
+        screenLabel.textContent = [pn, sn].filter(Boolean).join(' / ');
+      }
+
+      renderVars();
+    })();
+    </script>
+  </body>
+</html>
