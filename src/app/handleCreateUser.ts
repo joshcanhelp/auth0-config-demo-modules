@@ -33,40 +33,32 @@ export async function handleCreateUser({
   }
 
   let dbResult: Record<string, unknown>;
-  let emailResult: Record<string, unknown>;
-  let linkResult: unknown;
-  let loginResult: unknown;
-
   try {
     dbResult = await api.createUser(body as TenantUserBody);
-    emailResult = await api.createUser({
-      ...body,
-      connection: "email",
-    } as TenantUserBody);
-    linkResult = await api.linkUser((dbResult as { user_id: string }).user_id, {
-      provider: "email",
-      user_id: (emailResult as { user_id: string }).user_id,
-    });
-    loginResult = await response.locals.authenticationApi!.startPasswordless(
-      "email",
-      "link",
-      body.email as string,
-      {
-        client_id: "fjwCjG3YrB9wqQ6ikUllCwy3BTgdCuhi",
-        redirect_uri: "http://localhost:8473/callback/fjwCjG3YrB9wqQ6ikUllCwy3BTgdCuhi",
-        reponse_type: "code",
-        scope: "openid profile email",
-      }
-    );
+
+    // TODO: work this into a solution
+    // emailResult = await api.createUser({
+    //   ...body,
+    //   connection: "email",
+    // } as TenantUserBody);
+    // linkResult = await api.linkUser((dbResult as { user_id: string }).user_id, {
+    //   provider: "email",
+    //   user_id: (emailResult as { user_id: string }).user_id,
+    // });
+    // loginResult = await response.locals.authenticationApi!.startPasswordless(
+    //   "email",
+    //   "link",
+    //   body.email as string,
+    //   {
+    //     client_id: "fjwCjG3YrB9wqQ6ikUllCwy3BTgdCuhi",
+    //     redirect_uri: "http://localhost:8473/callback/fjwCjG3YrB9wqQ6ikUllCwy3BTgdCuhi",
+    //     reponse_type: "code",
+    //     scope: "openid profile email",
+    //   }
+    // );
   } catch (error) {
     return sendError(error);
   }
 
-  response.send(
-    renderCreateUserPage(
-      clientId,
-      { dbResult, emailResult, linkResult, loginResult },
-      tenantConfig
-    )
-  );
+  response.send(renderCreateUserPage(clientId, dbResult, tenantConfig));
 }
