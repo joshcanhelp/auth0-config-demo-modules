@@ -8,7 +8,7 @@ import session from "express-session";
 
 import type { TokenCache } from "../auth0/clientCredentials.js";
 import { createMemoryCache } from "../utils/memoryCache.js";
-import { loadTenantUserSchema, getUserSchemaFields } from "../utils/tenantUserSchema.js";
+import { loadTenantUserSchema, getUserSchemaFields, type SchemaField } from "../utils/tenantUserSchema.js";
 import { createClientMiddleware } from "./clientMiddleware.js";
 import { createM2mClientMiddleware } from "./m2mClientMiddleware.js";
 import { readClients } from "./readClients.js";
@@ -24,6 +24,7 @@ declare module "express-serve-static-core" {
     loginDomain: string;
     baseUrl: string;
     tenantDataDir: string;
+    userSchemaFields: SchemaField[];
     client?: Auth0Client;
     authenticationApi?: ReturnType<typeof createAuthenticationApi>;
   }
@@ -64,7 +65,7 @@ export async function createApp(tenantDir: string) {
     }
   }
 
-  const tenantUserSchema = await loadTenantUserSchema(TENANT_DIR);
+  const tenantUserSchema = await loadTenantUserSchema(projectRoot);
   const tenantUserSchemaFields = tenantUserSchema
     ? getUserSchemaFields(tenantUserSchema)
     : [];
@@ -104,6 +105,7 @@ export async function createApp(tenantDir: string) {
     res.locals.loginDomain = tenantConfig.loginDomain;
     res.locals.baseUrl = baseUrl;
     res.locals.tenantDataDir = TENANT_DIR;
+    res.locals.userSchemaFields = tenantUserSchemaFields;
     next();
   });
 

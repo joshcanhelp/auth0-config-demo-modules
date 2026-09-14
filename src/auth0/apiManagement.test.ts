@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { z } from "zod";
 
 import { createManagementApi } from "./apiManagement.js";
+import type { UserSchemaDef } from "../utils/tenantUserSchema.js";
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
@@ -80,7 +80,10 @@ describe("createManagementApi", () => {
   });
 
   describe("with tenant userSchema", () => {
-    const tenantSchema = z.object({ name: z.string(), email: z.string().email() });
+    const tenantSchema: UserSchemaDef = {
+      name: { type: "text", usage: "editable" },
+      email: { type: "email", usage: "editable" },
+    };
     const apiWithSchema = createManagementApi("example.auth0.com", "test-token", {
       userSchema: tenantSchema,
     });

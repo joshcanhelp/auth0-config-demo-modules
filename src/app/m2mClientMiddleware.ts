@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
-import type { z } from "zod";
 
+import type { UserSchemaDef } from "../utils/tenantUserSchema.js";
 import {
   getClientCredentialsToken,
   type TokenCache,
@@ -19,7 +19,7 @@ declare module "express-serve-static-core" {
 
 export function createM2mClientMiddleware(
   TENANT_DIR: string,
-  tenantUserSchema: z.ZodType | null,
+  tenantUserSchema: UserSchemaDef | null,
   getManagementTokenCache: (clientId: string) => TokenCache,
   requiredScope: string
 ): RequestHandler {

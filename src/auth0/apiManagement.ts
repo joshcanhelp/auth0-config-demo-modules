@@ -1,10 +1,46 @@
-import { z } from "zod";
-
 import { CreateUserSchema, PatchUserSchema } from "./userProfile.js";
 import type { CreateUserBody, PatchUserBody } from "./userProfile.js";
+import type { UserSchemaDef, GroupFieldDef } from "../utils/tenantUserSchema.js";
 
 interface ManagementApiOptions {
-  userSchema?: z.ZodType;
+  userSchema?: UserSchemaDef;
+}
+
+function filterEditableFields(
+  body: Record<string, unknown>,
+  schema: UserSchemaDef,
+  checkRequired = false
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [name, def] of Object.entries(schema)) {
+    if (def.type === "group") {
+      const groupDef = def as GroupFieldDef;
+      const rawGroup = body[name];
+      const groupBody: Record<string, unknown> =
+        typeof rawGroup === "object" && rawGroup !== null
+          ? (rawGroup as Record<string, unknown>)
+          : {};
+      const sub: Record<string, unknown> = {};
+      for (const [subName, subDef] of Object.entries(groupDef.fields)) {
+        if (subDef.usage !== "editable") continue;
+        const val = groupBody[subName];
+        if (val !== undefined) {
+          sub[subName] = val;
+        } else if (checkRequired && subDef.required) {
+          throw new Error(`Missing required field: ${name}[${subName}]`);
+        }
+      }
+      if (Object.keys(sub).length > 0) result[name] = sub;
+    } else if (def.usage === "editable") {
+      const val = body[name];
+      if (val !== undefined) {
+        result[name] = val;
+      } else if (checkRequired && def.required) {
+        throw new Error(`Missing required field: ${name}`);
+      }
+    }
+  }
+  return result;
 }
 
 // https://auth0.com/docs/api/management/v2
@@ -14,9 +50,6 @@ export function createManagementApi(
   options?: ManagementApiOptions
 ) {
   const userSchema = options?.userSchema;
-  const patchUserSchema = userSchema
-    ? (userSchema as z.ZodObject<z.ZodRawShape>).partial()
-    : PatchUserSchema;
   const getApiUrl = (apiPath: string) => `https://${domain}/api/v2${apiPath}`;
 
   const getHeaders = (extra: Record<string, string> = {}) => ({
@@ -88,7 +121,10 @@ export function createManagementApi(
     body: PatchUserBody
   ): Promise<Record<string, unknown>> => {
     const apiPath = `/users/${encodeURIComponent(userId)}`;
-    const validated = patchUserSchema.parse(body);
+    const filtered = userSchema
+      ? filterEditableFields(body as Record<string, unknown>, userSchema)
+      : body;
+    const validated = PatchUserSchema.parse(filtered);
     return handleResponse<Record<string, unknown>>(
       await patchRequest(apiPath, validated),
       apiPath
@@ -100,10 +136,9 @@ export function createManagementApi(
     const apiPath = `/users`;
     let validated: CreateUserBody;
     if (userSchema) {
-      // Validate user profile fields against tenant schema, then require connection separately
       const { connection, ...profileFields } = body as Record<string, unknown>;
-      const validatedProfile = userSchema.parse(profileFields) as Record<string, unknown>;
-      validated = CreateUserSchema.parse({ ...validatedProfile, connection });
+      const filtered = filterEditableFields(profileFields, userSchema, true);
+      validated = CreateUserSchema.parse({ ...filtered, connection });
     } else {
       validated = CreateUserSchema.parse(body);
     }

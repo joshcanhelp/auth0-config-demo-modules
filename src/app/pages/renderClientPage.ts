@@ -24,10 +24,12 @@ function mockValue(field: PrimitiveField): string {
 }
 
 function renderPrimitiveField(field: PrimitiveField): string {
-  const label = field.name.replace(/_/g, " ");
+  const description = field.description
+    ? `\n      <small>${field.description}</small>`
+    : "";
   if (field.kind === "boolean") {
     return `<div>
-      <label><input type="checkbox" name="${field.formName}" value="true"> ${label}</label>
+      <label><input type="checkbox" name="${field.formName}" value="true"> ${field.label}</label>${description}
     </div>`;
   }
   const inputType =
@@ -35,16 +37,19 @@ function renderPrimitiveField(field: PrimitiveField): string {
   const required = field.required ? " required" : "";
   const value = field.required ? ` value="${mockValue(field)}"` : "";
   return `<div>
-      <label for="${field.formName}">${label}${field.required ? " *" : ""}</label>
-      <input type="${inputType}" id="${field.formName}" name="${field.formName}"${required}${value}>
+      <label for="${field.formName}">${field.label}${field.required ? " *" : ""}</label>
+      <input type="${inputType}" id="${field.formName}" name="${field.formName}"${required}${value}>${description}
     </div>`;
 }
 
 function renderField(field: SchemaField): string {
   if (field.kind === "group") {
     const subFields = field.fields.map(renderPrimitiveField).join("\n      ");
+    const description = field.description
+      ? `\n      <small>${field.description}</small>`
+      : "";
     return `<fieldset>
-      <legend>${field.name.replace(/_/g, " ")}</legend>
+      <legend>${field.label}</legend>${description}
       ${subFields}
     </fieldset>`;
   }
@@ -85,7 +90,9 @@ function renderM2MClientPage(
       .map((c) => `<option value="${c.name}">${c.name}</option>`)
       .join("\n            ");
 
-    createUserSection = `<button type="button" onclick="document.getElementById('create-user-dialog').showModal()">
+    createUserSection = clientHasScope(grants, client.client_id, "read:users")
+      ? `<h2>Create User</h2>
+      <button type="button" onclick="document.getElementById('create-user-dialog').showModal()">
           Create User
         </button>
 
@@ -104,17 +111,18 @@ function renderM2MClientPage(
               <button type="button" onclick="document.getElementById('create-user-dialog').close()">Cancel</button>
             </div>
           </form>
-        </dialog>`;
+        </dialog>`
+      : "";
   }
 
   const searchSection = clientHasScope(grants, client.client_id, "read:users")
     ? `<h2>User Search</h2>
   <form method="post" action="/search-users/${client.client_id}">
-    <div>
-      <label for="query">Search query</label>
+    <label for="query">Search query</label>
+    <div style="display:flex;gap:0.5rem;">
       <input type="text" id="query" name="query" placeholder="email:user@example.com">
+      <button type="submit">Search</button>
     </div>
-    <button type="submit">Search</button>
   </form>`
     : "";
 
