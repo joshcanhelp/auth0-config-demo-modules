@@ -9,10 +9,12 @@ export async function handleCreateUser({
   request,
   response,
   env,
+  postCreateAction,
 }: {
   request: Request;
   response: Response;
   env: NodeJS.ProcessEnv;
+  postCreateAction?: (newUser: Record<string, unknown>) => Promise<void>;
 }) {
   const api = response.locals.managementApi!;
   const clientId = response.locals.client!.client_id;
@@ -29,7 +31,8 @@ export async function handleCreateUser({
   try {
     body = preprocessFormBody(request.body as Record<string, unknown>);
   } catch (error) {
-    return sendError(error);
+    sendError(error);
+    return null;
   }
 
   let dbResult: Record<string, unknown>;
@@ -57,7 +60,12 @@ export async function handleCreateUser({
     //   }
     // );
   } catch (error) {
-    return sendError(error);
+    sendError(error);
+    return null;
+  }
+
+  if (postCreateAction) {
+    await postCreateAction(dbResult);
   }
 
   response.send(renderCreateUserPage(clientId, dbResult, tenantConfig));
