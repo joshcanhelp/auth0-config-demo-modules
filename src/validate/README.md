@@ -18,3 +18,7 @@ Discoveries should be reported as one of 4 different levels:
 - **Important**: Issues that **should be** corrected but may have an allowable edge case
 - **Recommended**: Issues that affect maintainability or complexity but are not security problems
 - **Informational**: Things to note that may not be issues
+
+## Listing available validations
+
+Run `npm run validate:list` to see every validation code, grouped by entity and sorted by level, along with a description of what each one checks.
