@@ -19,6 +19,11 @@ Discoveries should be reported as one of 4 different levels:
 - **Recommended**: Issues that affect maintainability or complexity but are not security problems
 - **Informational**: Things to note that may not be issues
 
-## Listing available validations
+## Commands
 
-Run `npm run validate:list` to see every validation code, grouped by entity and sorted by level, along with a description of what each one checks.
+- `npm run validate` => `tsx ./run.ts` - Runs all validations.
+- `npm run validate:list` => `tsx ./list.ts` - Lists every validation code, grouped by entity and sorted by level, along with a description of what each one checks.
+
+## Entity discovery
+
+`run.ts` only offers an entity if its auth0-deploy-cli export directory exists and has data - an entity with an empty or missing directory is silently skipped rather than shown as available. Most directory names match the entity name (`clients`, `custom-domains`, etc.), but email templates are the exception: auth0-deploy-cli exports them to an `emails` directory, not `email-templates`. This mapping lives in `run.ts`'s `ENTITY_DIRECTORY_NAMES`.

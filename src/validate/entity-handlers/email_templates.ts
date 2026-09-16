@@ -14,6 +14,13 @@ const checkEmailTemplates = _require(
   "auth0-checkmate/analyzer/lib/email_templates/checkEmailTemplates.js"
 ) as CheckFn;
 
+// Maps a deploy-cli template type (the file name under the tenant's `emails`
+// directory, e.g. "blocked_account") to the display name Auth0 uses for it.
+// checkEmailTemplates expects a report against every known template type, not
+// just the ones configured, so this also defines the full set to check.
+const EMAIL_TEMPLATE_NAMES = _require("auth0-checkmate/analyzer/lib/constants.js")
+  .EMAIL_TEMPLATES_NAMES as Record<string, string>;
+
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   email_templates_not_configured: {
     level: "recommended",
@@ -31,10 +38,21 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
 };
 
 export async function validateEmailTemplates(
-  emailTemplates: unknown[],
+  templatesByType: Record<string, unknown>,
   _tenantTag?: TenantTag
 ): Promise<Finding[]> {
   const findings: Finding[] = [];
+
+  // checkEmailTemplates only reports the "nothing configured" summary when given
+  // an empty array - pass one through as-is rather than always sending the full
+  // set of known types with every template null.
+  const emailTemplates =
+    Object.keys(templatesByType).length === 0
+      ? []
+      : Object.entries(EMAIL_TEMPLATE_NAMES).map(([type, name]) => ({
+          name,
+          template: templatesByType[type] ?? null,
+        }));
   const result = await checkEmailTemplates({ emailTemplates });
 
   for (const item of result.details) {

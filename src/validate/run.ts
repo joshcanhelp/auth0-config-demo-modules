@@ -59,12 +59,22 @@ const SUPPORTED_ENTITIES = [
 ] as const;
 type SupportedEntity = (typeof SUPPORTED_ENTITIES)[number];
 
+// auth0-deploy-cli's export directory names mostly match the entity keys above,
+// except email templates, which it writes to an "emails" directory.
+const ENTITY_DIRECTORY_NAMES: Partial<Record<SupportedEntity, string>> = {
+  "email-templates": "emails",
+};
+
+function entityDirPath(entity: SupportedEntity): string {
+  return join(tenantDir, ENTITY_DIRECTORY_NAMES[entity] ?? entity);
+}
+
 function getEntityFiles(entity: SupportedEntity): string[] {
   if (entity === "tenant-settings") {
     return existsSync(join(tenantDir, "tenant.json")) ? ["tenant.json"] : [];
   }
 
-  const dir = join(tenantDir, entity);
+  const dir = entityDirPath(entity);
   if (!existsSync(dir)) return [];
 
   if (entity === "database-connections") {
@@ -122,7 +132,9 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
   if (entity === "clients") {
     const clients = files.map(
       (f) =>
-        JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8")) as Management.Client
+        JSON.parse(
+          readFileSync(join(entityDirPath(entity), f), "utf-8")
+        ) as Management.Client
     );
     console.log(`Validating ${clients.length} client(s)...`);
     return validateClients(clients, tenantTag);
@@ -130,7 +142,7 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
 
   if (entity === "actions" || entity === "action-modules") {
     const items = files.map((f) => {
-      const item = JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"));
+      const item = JSON.parse(readFileSync(join(entityDirPath(entity), f), "utf-8"));
       if (typeof item.code === "string" && item.code.startsWith("./")) {
         item.code = readFileSync(join(tenantDir, item.code), "utf-8");
       }
@@ -156,7 +168,7 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
     for (const f of files) {
       const key = fileKeyMap[f];
       if (key) {
-        config[key] = JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"));
+        config[key] = JSON.parse(readFileSync(join(entityDirPath(entity), f), "utf-8"));
       }
     }
     console.log("Validating attack protection...");
@@ -165,7 +177,7 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
 
   if (entity === "custom-domains") {
     const customDomains = JSON.parse(
-      readFileSync(join(tenantDir, entity, "custom-domains.json"), "utf-8")
+      readFileSync(join(entityDirPath(entity), "custom-domains.json"), "utf-8")
     ) as unknown[];
     console.log(`Validating ${customDomains.length} custom domain(s)...`);
     return validateCustomDomains(customDomains, tenantTag);
@@ -173,23 +185,27 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
 
   if (entity === "database-connections") {
     const databases = files.map((f) =>
-      JSON.parse(readFileSync(join(tenantDir, entity, f, "database.json"), "utf-8"))
+      JSON.parse(readFileSync(join(entityDirPath(entity), f, "database.json"), "utf-8"))
     );
     console.log(`Validating ${databases.length} database connection(s)...`);
     return validateDatabases(databases, tenantTag);
   }
 
   if (entity === "email-templates") {
-    const emailTemplates = files.map((f) =>
-      JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"))
-    );
-    console.log(`Validating ${emailTemplates.length} email template(s)...`);
-    return validateEmailTemplates(emailTemplates, tenantTag);
+    const templatesByType: Record<string, unknown> = {};
+    for (const f of files) {
+      const type = f.replace(/\.json$/, "");
+      templatesByType[type] = JSON.parse(
+        readFileSync(join(entityDirPath(entity), f), "utf-8")
+      );
+    }
+    console.log(`Validating ${files.length} email template(s)...`);
+    return validateEmailTemplates(templatesByType, tenantTag);
   }
 
   if (entity === "event-streams") {
     const eventStreams = files.map((f) =>
-      JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"))
+      JSON.parse(readFileSync(join(entityDirPath(entity), f), "utf-8"))
     );
     console.log(`Validating ${eventStreams.length} event stream(s)...`);
     return validateEventStreams(eventStreams, tenantTag);
@@ -198,14 +214,17 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
   if (entity === "pages") {
     const htmlFile = files.find((f) => f.endsWith(".html"));
     if (!htmlFile) return [];
-    const errorPageTemplate = readFileSync(join(tenantDir, entity, htmlFile), "utf-8");
+    const errorPageTemplate = readFileSync(
+      join(entityDirPath(entity), htmlFile),
+      "utf-8"
+    );
     console.log("Validating error page template...");
     return validateErrorPageTemplate(errorPageTemplate, tenantTag);
   }
 
   if (entity === "resource-servers") {
     const resourceServers = files.map((f) =>
-      JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"))
+      JSON.parse(readFileSync(join(entityDirPath(entity), f), "utf-8"))
     );
     console.log(`Validating ${resourceServers.length} resource server(s)...`);
     return validateResourceServers(resourceServers, tenantTag);
