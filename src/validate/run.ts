@@ -6,7 +6,6 @@ import type { Management } from "auth0";
 import chalk from "chalk";
 
 import { selectTenant } from "../scripts/utils/selectTenant.js";
-import { selectPrompt } from "../scripts/utils/selectPrompt.js";
 import { validateClients, TENANT_TAGS } from "./entity-handlers/clients.js";
 import type { TenantTag } from "./entity-handlers/clients.js";
 import { validateActions, validateActionModules } from "./entity-handlers/actions.js";
@@ -20,6 +19,7 @@ import { validateErrorPageTemplate } from "./entity-handlers/error_page_template
 import { validateResourceServers } from "./entity-handlers/resource_servers.js";
 import { validateTenantSettings } from "./entity-handlers/tenant_settings.js";
 import { LEVEL_COLOR, LEVEL_ORDER } from "./levels.js";
+import { isFindingSkipped, loadSkipConfig, SKIP_CONFIG_FILENAME } from "./skip_config.js";
 import type { Finding, FindingLevel } from "./types.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
@@ -43,6 +43,8 @@ if (
 const tenantTag = tenantTagFlag as TenantTag | undefined;
 
 const { tenantDir } = await selectTenant();
+
+const skipConfig = loadSkipConfig(tenantDir);
 
 const SUPPORTED_ENTITIES = [
   "clients",
@@ -98,12 +100,11 @@ if (availableEntities.length === 0) {
   process.exit(1);
 }
 
-let selectedEntities: SupportedEntity[];
+// Defaults to every available entity; pass --entity <name> to run just one.
+let selectedEntities: SupportedEntity[] = availableEntities;
 
-if (entityFlag !== null) {
-  if (entityFlag === "all") {
-    selectedEntities = availableEntities;
-  } else if (SUPPORTED_ENTITIES.includes(entityFlag as SupportedEntity)) {
+if (entityFlag !== null && entityFlag !== "all") {
+  if (SUPPORTED_ENTITIES.includes(entityFlag as SupportedEntity)) {
     const e = entityFlag as SupportedEntity;
     if (!availableEntities.includes(e)) {
       console.error(`No data found for entity "${entityFlag}" in this tenant.`);
@@ -116,14 +117,6 @@ if (entityFlag !== null) {
     );
     process.exit(1);
   }
-} else {
-  const options = [
-    { label: "All", value: "__all__" },
-    ...availableEntities.map((e) => ({ label: e, value: e })),
-  ];
-  const selected = await selectPrompt("Select an entity to validate:", options);
-  selectedEntities =
-    selected === "__all__" ? availableEntities : [selected as SupportedEntity];
 }
 
 async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
@@ -239,14 +232,22 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
   return [];
 }
 
-const findings: Finding[] = (
+const allFindings: Finding[] = (
   await Promise.all(selectedEntities.map(loadAndValidate))
 ).flat();
+
+const findings = allFindings.filter((f) => !isFindingSkipped(f, skipConfig));
+const skippedCount = allFindings.length - findings.length;
 
 const sorted = [...findings].sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
 
 if (sorted.length === 0) {
   console.log(chalk.green("No issues found."));
+  if (skippedCount > 0) {
+    console.log(
+      chalk.gray(`(${skippedCount} finding(s) skipped via ${SKIP_CONFIG_FILENAME})`)
+    );
+  }
   process.exit(0);
 }
 
@@ -264,6 +265,11 @@ console.log(`  ${LEVEL_COLOR.critical(`Critical:      ${counts.critical}`)}`);
 console.log(`  ${LEVEL_COLOR.important(`Important:     ${counts.important}`)}`);
 console.log(`  ${LEVEL_COLOR.recommended(`Recommended:   ${counts.recommended}`)}`);
 console.log(`  ${LEVEL_COLOR.informational(`Informational: ${counts.informational}`)}`);
+if (skippedCount > 0) {
+  console.log(
+    chalk.gray(`  Skipped:       ${skippedCount} (via ${SKIP_CONFIG_FILENAME})`)
+  );
+}
 console.log("");
 
 for (const finding of sorted) {
@@ -271,4 +277,6 @@ for (const finding of sorted) {
   console.log(
     color(`[${finding.level.toUpperCase()}] ${finding.clientName} - ${finding.message}`)
   );
+  console.log(chalk.gray(`  code: ${finding.code}`));
+  console.log("");
 }

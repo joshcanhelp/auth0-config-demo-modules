@@ -27,3 +27,21 @@ Discoveries should be reported as one of 4 different levels:
 ## Entity discovery
 
 `run.ts` only offers an entity if its auth0-deploy-cli export directory exists and has data - an entity with an empty or missing directory is silently skipped rather than shown as available. Most directory names match the entity name (`clients`, `custom-domains`, etc.), but email templates are the exception: auth0-deploy-cli exports them to an `emails` directory, not `email-templates`. This mapping lives in `run.ts`'s `ENTITY_DIRECTORY_NAMES`.
+
+## Skipping validations per tenant
+
+A tenant can suppress specific findings by adding a `.skip-validations.json` file next to its `tenant.json`:
+
+```json
+{
+  "skipCodes": ["tenant_settings_no_support_url"],
+  "skipInstances": {
+    "email_template_not_configured": ["Verification Code for Email MFA"]
+  }
+}
+```
+
+- `skipCodes` suppresses a code everywhere, for every instance, across the whole tenant.
+- `skipInstances` suppresses a code only for the named instances - the finding's `clientName` or `clientId` must match one of the listed identifiers. This is the way to, for example, accept that one specific email template isn't configured without silencing that check for every other template.
+
+The file is optional; a missing or empty file means nothing is skipped. Invalid JSON or an unrecognized code logs a warning and is otherwise ignored rather than failing the run. When any findings are skipped, `run.ts` reports the count in its summary output.
