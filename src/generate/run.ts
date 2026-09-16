@@ -9,23 +9,30 @@ import { handleAction } from "./entity-handlers/actions.js";
 import { handleClient } from "./entity-handlers/clients.js";
 import { handleGrant } from "./entity-handlers/grants.js";
 import { handleSolution } from "./entity-handlers/solutions.js";
+import { getTemplateTypes, getTemplatesForType } from "./templateSelection.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, "templates");
 
 const { tenantDir } = await selectTenant();
 
-const templates = readdirSync(TEMPLATES_DIR, { withFileTypes: true })
+const templateNames = readdirSync(TEMPLATES_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
-  .map((entry) => ({ label: entry.name, value: entry.name }));
+  .map((entry) => entry.name);
 
-if (templates.length === 0) {
+if (templateNames.length === 0) {
   console.error("No templates found.");
   process.exit(1);
 }
 
-const selected = await selectPrompt("Select a template:", templates);
-const [type] = selected.split(" > ");
+const entityTypes = getTemplateTypes(templateNames).map((type) => ({
+  label: type,
+  value: type,
+}));
+
+const type = await selectPrompt("Select an entity type:", entityTypes);
+const templateOptions = getTemplatesForType(templateNames, type);
+const selected = await selectPrompt("Select a template:", templateOptions);
 const templateDir = join(TEMPLATES_DIR, selected);
 
 if (type === "Action") {
