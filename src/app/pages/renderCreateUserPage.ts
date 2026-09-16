@@ -18,7 +18,6 @@ export function renderCreateUserPage(
   return pageLayout({
     title: "Create User",
     tenantConfig,
-
     body,
   });
 }
