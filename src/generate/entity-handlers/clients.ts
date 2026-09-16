@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
 import process from "node:process";
 
 import { confirmPrompt } from "../../scripts/utils/selectPrompt.js";
@@ -35,22 +35,28 @@ function isValidFilename(name: string): boolean {
   return !/[/\\:*?"<>|]/.test(name);
 }
 
+export function deriveClientName(templateDir: string): string {
+  const parts = basename(templateDir).split(" > ");
+  return parts.slice(1).join(" > ");
+}
+
 export async function handleClient(
   templateDir: string,
   tenantDir: string
 ): Promise<void> {
-  const jsonFiles = readdirSync(templateDir).filter((f) => f.endsWith(".json"));
+  const templatePath = join(templateDir, "client.json");
 
-  if (jsonFiles.length === 0) {
-    console.error("No template JSON found in template directory.");
+  if (!existsSync(templatePath)) {
+    console.error(`No client.json found in template: ${templateDir}`);
     process.exit(1);
   }
 
-  const template = JSON.parse(
-    readFileSync(join(templateDir, jsonFiles[0]!), "utf-8")
-  ) as Record<string, unknown>;
+  const template = JSON.parse(readFileSync(templatePath, "utf-8")) as Record<
+    string,
+    unknown
+  >;
 
-  const defaultName = jsonFiles[0]!.replace(/\.json$/, "");
+  const defaultName = deriveClientName(templateDir);
   const nameInput = await textPrompt(`App name (default: ${defaultName})`);
   const name = nameInput || defaultName;
 
