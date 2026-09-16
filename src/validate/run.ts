@@ -1,5 +1,5 @@
 import process from "node:process";
-import { readdirSync, readFileSync, existsSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import type { Management } from "auth0";
@@ -10,6 +10,16 @@ import { selectPrompt } from "../scripts/utils/selectPrompt.js";
 import { validateClients, TENANT_TAGS } from "./entity-handlers/clients.js";
 import type { TenantTag } from "./entity-handlers/clients.js";
 import { validateActions, validateActionModules } from "./entity-handlers/actions.js";
+import { validateAttackProtection } from "./entity-handlers/attack_protection.js";
+import type { AttackProtectionConfig } from "./entity-handlers/attack_protection.js";
+import { validateCustomDomains } from "./entity-handlers/custom_domain.js";
+import { validateDatabases } from "./entity-handlers/databases.js";
+import { validateEmailTemplates } from "./entity-handlers/email_templates.js";
+import { validateEventStreams } from "./entity-handlers/event_streams.js";
+import { validateErrorPageTemplate } from "./entity-handlers/error_page_template.js";
+import { validateResourceServers } from "./entity-handlers/resource_servers.js";
+import { validateTenantSettings } from "./entity-handlers/tenant_settings.js";
+import { LEVEL_COLOR, LEVEL_ORDER } from "./levels.js";
 import type { Finding, FindingLevel } from "./types.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
@@ -34,12 +44,40 @@ const tenantTag = tenantTagFlag as TenantTag | undefined;
 
 const { tenantDir } = await selectTenant();
 
-const SUPPORTED_ENTITIES = ["clients", "actions", "action-modules"] as const;
+const SUPPORTED_ENTITIES = [
+  "clients",
+  "actions",
+  "action-modules",
+  "attack-protection",
+  "custom-domains",
+  "database-connections",
+  "email-templates",
+  "event-streams",
+  "pages",
+  "resource-servers",
+  "tenant-settings",
+] as const;
 type SupportedEntity = (typeof SUPPORTED_ENTITIES)[number];
 
 function getEntityFiles(entity: SupportedEntity): string[] {
+  if (entity === "tenant-settings") {
+    return existsSync(join(tenantDir, "tenant.json")) ? ["tenant.json"] : [];
+  }
+
   const dir = join(tenantDir, entity);
   if (!existsSync(dir)) return [];
+
+  if (entity === "database-connections") {
+    return readdirSync(dir).filter((f) => {
+      const subDir = join(dir, f);
+      return statSync(subDir).isDirectory() && existsSync(join(subDir, "database.json"));
+    });
+  }
+
+  if (entity === "pages") {
+    return readdirSync(dir).filter((f) => f.endsWith(".html") || f.endsWith(".json"));
+  }
+
   return readdirSync(dir).filter((f) => f.endsWith(".json"));
 }
 
@@ -108,26 +146,83 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
     }
   }
 
+  if (entity === "attack-protection") {
+    const fileKeyMap: Record<string, keyof AttackProtectionConfig> = {
+      "breached-password-detection.json": "breachedPasswordDetection",
+      "brute-force-protection.json": "bruteForceProtection",
+      "suspicious-ip-throttling.json": "suspiciousIpThrottling",
+    };
+    const config: AttackProtectionConfig = {};
+    for (const f of files) {
+      const key = fileKeyMap[f];
+      if (key) {
+        config[key] = JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"));
+      }
+    }
+    console.log("Validating attack protection...");
+    return validateAttackProtection(config, tenantTag);
+  }
+
+  if (entity === "custom-domains") {
+    const customDomains = JSON.parse(
+      readFileSync(join(tenantDir, entity, "custom-domains.json"), "utf-8")
+    ) as unknown[];
+    console.log(`Validating ${customDomains.length} custom domain(s)...`);
+    return validateCustomDomains(customDomains, tenantTag);
+  }
+
+  if (entity === "database-connections") {
+    const databases = files.map((f) =>
+      JSON.parse(readFileSync(join(tenantDir, entity, f, "database.json"), "utf-8"))
+    );
+    console.log(`Validating ${databases.length} database connection(s)...`);
+    return validateDatabases(databases, tenantTag);
+  }
+
+  if (entity === "email-templates") {
+    const emailTemplates = files.map((f) =>
+      JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"))
+    );
+    console.log(`Validating ${emailTemplates.length} email template(s)...`);
+    return validateEmailTemplates(emailTemplates, tenantTag);
+  }
+
+  if (entity === "event-streams") {
+    const eventStreams = files.map((f) =>
+      JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"))
+    );
+    console.log(`Validating ${eventStreams.length} event stream(s)...`);
+    return validateEventStreams(eventStreams, tenantTag);
+  }
+
+  if (entity === "pages") {
+    const htmlFile = files.find((f) => f.endsWith(".html"));
+    if (!htmlFile) return [];
+    const errorPageTemplate = readFileSync(join(tenantDir, entity, htmlFile), "utf-8");
+    console.log("Validating error page template...");
+    return validateErrorPageTemplate(errorPageTemplate, tenantTag);
+  }
+
+  if (entity === "resource-servers") {
+    const resourceServers = files.map((f) =>
+      JSON.parse(readFileSync(join(tenantDir, entity, f), "utf-8"))
+    );
+    console.log(`Validating ${resourceServers.length} resource server(s)...`);
+    return validateResourceServers(resourceServers, tenantTag);
+  }
+
+  if (entity === "tenant-settings") {
+    const tenant = JSON.parse(readFileSync(join(tenantDir, "tenant.json"), "utf-8"));
+    console.log("Validating tenant settings...");
+    return validateTenantSettings(tenant, tenantTag);
+  }
+
   return [];
 }
 
 const findings: Finding[] = (
   await Promise.all(selectedEntities.map(loadAndValidate))
 ).flat();
-
-const LEVEL_ORDER: Record<FindingLevel, number> = {
-  critical: 0,
-  important: 1,
-  recommended: 2,
-  informational: 3,
-};
-
-const LEVEL_COLOR: Record<FindingLevel, chalk.Chalk> = {
-  critical: chalk.red.bold,
-  important: chalk.yellow,
-  recommended: chalk.cyan,
-  informational: chalk.gray,
-};
 
 const sorted = [...findings].sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
 

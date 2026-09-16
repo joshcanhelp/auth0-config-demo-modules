@@ -9,3 +9,11 @@ export interface Finding {
   value?: string;
   message: string;
 }
+
+// A static, instance-independent description of a validation check. Each entity
+// handler owns one map of these, keyed by code, so the level and description are
+// defined once and read by both the handler and the list-validations command.
+export interface ValidationDefinition {
+  level: FindingLevel;
+  description: string;
+}
