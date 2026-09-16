@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 
-import type { Finding } from "../types.js";
+import { buildFinding } from "../finding.js";
+import type { Finding, ValidationDefinition } from "../types.js";
 import type { TenantTag } from "./clients.js";
 
 const _require = createRequire(import.meta.url);
@@ -46,6 +47,21 @@ const checkUserEnumeration = _require(
 // - checkDependencies: makes external HTTP calls to check npm vulnerability databases
 // - checkPasswordResetMFA: requires database data ({ actions, databases }) in addition to actions
 
+export const DEFINITIONS: Record<string, ValidationDefinition> = {
+  actions_hard_coded_value_detected: {
+    level: "important",
+    description: "code: A hardcoded value was detected in the action code.",
+  },
+  actions_old_node_version: {
+    level: "important",
+    description: "runtime: Node.js version is below the minimum supported version.",
+  },
+  actions_user_enumeration_vulnerability: {
+    level: "recommended",
+    description: "code: Use of api.access.deny() may expose user enumeration.",
+  },
+};
+
 function parseActionName(fullName: string): { actionName: string; trigger: string } {
   const parenIndex = fullName.lastIndexOf(" (");
   if (parenIndex !== -1 && fullName.endsWith(")")) {
@@ -80,12 +96,14 @@ export async function validateActionModules(
       if (r.status !== "red") continue;
       switch (r.field) {
         case "hard_coded_value_detected":
-          findings.push({
-            code: "actions_hard_coded_value_detected",
-            level: "important",
-            clientName: actionName,
-            message: `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
-          });
+          findings.push(
+            buildFinding(
+              DEFINITIONS,
+              "actions_hard_coded_value_detected",
+              actionName,
+              `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`
+            )
+          );
           break;
       }
     }
@@ -112,13 +130,15 @@ export async function validateActions(
     const { actionName, trigger } = parseActionName(r.name);
     switch (r.field) {
       case "old_node_version":
-        findings.push({
-          code: "actions_old_node_version",
-          level: "important",
-          clientName: actionName,
-          clientId: trigger,
-          message: `runtime: Node.js version ${r.value} is below the minimum supported version.`,
-        });
+        findings.push(
+          buildFinding(
+            DEFINITIONS,
+            "actions_old_node_version",
+            actionName,
+            `runtime: Node.js version ${r.value} is below the minimum supported version.`,
+            { clientId: trigger }
+          )
+        );
         break;
     }
   }
@@ -130,13 +150,15 @@ export async function validateActions(
       if (r.status !== "red") continue;
       switch (r.field) {
         case "hard_coded_value_detected":
-          findings.push({
-            code: "actions_hard_coded_value_detected",
-            level: "important",
-            clientName: actionName,
-            clientId: trigger,
-            message: `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
-          });
+          findings.push(
+            buildFinding(
+              DEFINITIONS,
+              "actions_hard_coded_value_detected",
+              actionName,
+              `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
+              { clientId: trigger }
+            )
+          );
           break;
       }
     }
@@ -149,13 +171,15 @@ export async function validateActions(
       if (r.status !== "yellow") continue;
       switch (r.field) {
         case "user_enumeration_vulnerability":
-          findings.push({
-            code: "actions_user_enumeration_vulnerability",
-            level: "recommended",
-            clientName: actionName,
-            clientId: trigger,
-            message: `code: Use of api.access.deny() at line ${r.line} may expose user enumeration.`,
-          });
+          findings.push(
+            buildFinding(
+              DEFINITIONS,
+              "actions_user_enumeration_vulnerability",
+              actionName,
+              `code: Use of api.access.deny() at line ${r.line} may expose user enumeration.`,
+              { clientId: trigger }
+            )
+          );
           break;
       }
     }
