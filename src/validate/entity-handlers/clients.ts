@@ -4,6 +4,10 @@ import { createRequire } from "node:module";
 import { buildFinding } from "../finding.js";
 import type { Finding, ValidationDefinition } from "../types.js";
 import assert from "node:assert";
+import {
+  DEFINITIONS as CUSTOM_DEFINITIONS,
+  validateCustomClientChecks,
+} from "./clients_custom.js";
 
 const _require = createRequire(import.meta.url);
 
@@ -40,7 +44,7 @@ const checkPrivateKeyJWT = loadCheck("checkPrivateKeyJWT.js");
 const checkRefreshToken = loadCheck("checkRefreshToken.js");
 const checkWebOrigins = loadCheck("checkWebOrigins.js");
 
-export const DEFINITIONS: Record<string, ValidationDefinition> = {
+export const CHECKMATE_DEFINITIONS: Record<string, ValidationDefinition> = {
   "clients_insecure_callbacks": {
     level: "important",
     description: "callbacks: Insecure pattern in a callback URL.",
@@ -108,6 +112,11 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   },
 };
 
+export const DEFINITIONS: Record<string, ValidationDefinition> = {
+  ...CHECKMATE_DEFINITIONS,
+  ...CUSTOM_DEFINITIONS,
+};
+
 function mapCheckResult(
   result: CheckmateCheckResult,
   tenantTag: TenantTag,
@@ -138,7 +147,7 @@ function mapCheckResult(
           if (tenantTag === "dev") break;
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               `callbacks: Insecure pattern in callback URL: ${value}`,
@@ -151,7 +160,7 @@ function mapCheckResult(
           if (tenantTag === "dev") break;
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               `allowed_logout_urls: Insecure pattern in logout URL: ${value}`,
@@ -163,7 +172,7 @@ function mapCheckResult(
         case "use_rotating_refresh_token":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               `refresh_token.rotation_type: Refresh token rotation is "${value}". Rotating refresh tokens should be used.`,
@@ -176,7 +185,7 @@ function mapCheckResult(
           if (tenantTag === "dev") break;
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               `web_origins: Insecure pattern in web origin: ${value}`,
@@ -189,7 +198,7 @@ function mapCheckResult(
           if (tenantTag === "dev") break;
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               `initiate_login_uri: Insecure pattern in initiate_login_uri: ${value}`,
@@ -201,7 +210,7 @@ function mapCheckResult(
         case "unexpected_grant_type_for_app_type":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               `grant_types: Unexpected grant types for ${report.app_type ?? "unknown"} application: ${value}`,
@@ -213,7 +222,7 @@ function mapCheckResult(
         case "signed_request_object.credentials":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "signed_request_object.credentials: JAR is required but no signing credentials are configured.",
@@ -225,7 +234,7 @@ function mapCheckResult(
         case "cross_origin_authentication_enabled":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "cross_origin_authentication: Cross-origin authentication is enabled. This feature has been deprecated by Auth0.",
@@ -237,7 +246,7 @@ function mapCheckResult(
         case "not_using_asymmetric_alg":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "jwt_configuration.alg: ID tokens are signed with HS256, a symmetric algorithm. Use RS256 or another asymmetric algorithm.",
@@ -248,13 +257,13 @@ function mapCheckResult(
 
         case "require_proof_of_possession":
           // TOOD: Investigate this to fiogure out what apps would require this
-          // findings.push(buildFinding(DEFINITIONS, code, clientName, "require_proof_of_possession: mTLS token sender-constraining (proof of possession) is not required.", extra));
+          // findings.push(buildFinding(CHECKMATE_DEFINITIONS, code, clientName, "require_proof_of_possession: mTLS token sender-constraining (proof of possession) is not required.", extra));
           break;
 
         case "missing_initiate_login_uri":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "initiate_login_uri: No initiate_login_uri configured. Third-party initiated login will not work.",
@@ -266,7 +275,7 @@ function mapCheckResult(
         case "oidc_backchannel_logout.backchannel_logout_urls":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "oidc_logout.backchannel_logout_urls: Back-channel logout is not configured for this server-side web application.",
@@ -278,7 +287,7 @@ function mapCheckResult(
         case "signed_request_object.required":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "signed_request_object.required: JWT Authorization Requests (JAR) are not required for this confidential client.",
@@ -290,7 +299,7 @@ function mapCheckResult(
         case "require_pushed_authorization_requests":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "require_pushed_authorization_requests: Pushed Authorization Requests (PAR) are not required for this confidential client.",
@@ -305,7 +314,7 @@ function mapCheckResult(
           }
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               code,
               clientName,
               "client_authentication_methods.private_key_jwt: Private key JWT client authentication is not configured. Consider it over shared client secrets.",
@@ -345,7 +354,8 @@ export async function validateClients(
     checkWebOrigins({ clients: nonGlobalClients }),
   ]);
 
-  return results.flatMap((result) =>
-    mapCheckResult(result, tenantTag || "prod", clients)
-  );
+  return [
+    ...results.flatMap((result) => mapCheckResult(result, tenantTag || "prod", clients)),
+    ...validateCustomClientChecks(nonGlobalClients, tenantTag),
+  ];
 }
