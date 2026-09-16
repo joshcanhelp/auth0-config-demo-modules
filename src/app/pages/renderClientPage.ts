@@ -165,8 +165,10 @@ function renderSelfServiceSection(
 
   return `${header}
   <div id="client-self-service-actions">
-    <p><a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a></p>
-    <p><a href="/change-password-link/${client.client_id}"><button>Change Password (link)</button></a></p>
+    <p>
+      <a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a>
+      ${client.client_metadata?.bff_client_id ? `<a href="/change-password-link/${client.client_id}"><button>Change Password (link)</button></a>` : ""}
+    </p>
   </div>
   <script>if (!localStorage.getItem("auth0_user_id")) document.getElementById("client-self-service-actions").innerHTML = "<p>${noUserError}</p>"</script>`;
 }
