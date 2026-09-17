@@ -7,6 +7,7 @@ import { buildAuthorizeUrl } from "./buildAuthorizeUrl.js";
 import { detectLoginMethod } from "./detectLoginMethod.js";
 import { pageLayout } from "./pages/pageLayout.js";
 import { readTenantConfig } from "./readTenantConfig.js";
+import { getLoginDomains, getDefaultLoginDomain } from "./loginDomain.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
@@ -33,7 +34,9 @@ export function handleLoginRedirect({
     extraParams[line.slice(0, eqIdx).trim()] = line.slice(eqIdx + 1).trim();
   }
 
-  const loginDomain = login_domain || tenantConfig.loginDomain;
+  const loginDomains = getLoginDomains(client, tenantConfig);
+  const loginDomain =
+    login_domain || getDefaultLoginDomain(client, tenantConfig, loginDomains);
 
   const { url, state, codeVerifier, codeChallenge } = buildAuthorizeUrl(
     client,

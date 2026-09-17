@@ -14,6 +14,7 @@ import type {
 import type { SchemaField, PrimitiveField } from "../../utils/tenantUserSchema.js";
 import { readTenantConfig } from "../readTenantConfig.js";
 import { readConnections } from "../readConnections.js";
+import { getLoginDomains, getDefaultLoginDomain } from "../loginDomain.js";
 import { SessionData } from "express-session";
 
 function getDatabaseConnections(connections: Connection[]): Connection[] {
@@ -84,28 +85,6 @@ const APP_TYPE_DESCRIPTIONS: Record<Auth0ClientType, string> = {
 
 function renderAppTypeRow(client: Auth0Client): string {
   return `<dt>Type</dt><dd><span tabindex="0" style="cursor:help;border-bottom:1px dotted;" data-tooltip="${APP_TYPE_DESCRIPTIONS[client.app_type]}">${client.app_type}</span></dd>`;
-}
-
-function getLoginDomains(client: Auth0Client, tenantConfig: TenantConfig): string[] {
-  const metadataValue = client.client_metadata?.login_domain as string | undefined;
-  if (metadataValue) {
-    return metadataValue
-      .split(",")
-      .map((d) => d.trim())
-      .filter(Boolean);
-  }
-  return tenantConfig.customDomains;
-}
-
-function getDefaultLoginDomain(
-  client: Auth0Client,
-  tenantConfig: TenantConfig,
-  domains: string[]
-): string {
-  if (client.client_metadata?.login_domain) {
-    return domains[0] ?? tenantConfig.tenantDomain;
-  }
-  return tenantConfig.defaultCustomDomain ?? tenantConfig.tenantDomain;
 }
 
 function renderLoginDomainsRow(domains: string[], defaultDomain: string): string {
