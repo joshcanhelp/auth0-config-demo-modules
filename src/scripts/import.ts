@@ -20,6 +20,7 @@ import { selectPrompt } from "./utils/selectPrompt.js";
 import { buildAppUrls } from "../app/updateClientUrls.js";
 import type { AppUrls } from "../app/updateClientUrls.js";
 import { selectTenant } from "./utils/selectTenant.js";
+import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
 const entityFlag =
@@ -46,6 +47,7 @@ if (!PORT) {
 }
 
 const DIR_TO_ASSET: Record<string, AssetTypes> = {
+  "action-modules": "actionModules",
   "actions": "actions",
   "branding": "branding",
   "clients": "clients",
@@ -53,6 +55,7 @@ const DIR_TO_ASSET: Record<string, AssetTypes> = {
   "custom-domains": "customDomains",
   "database-connections": "databases",
   "event-streams": "eventStreams",
+  "flow-vault-connections": "flowVaultConnections",
   "flows": "flows",
   "forms": "forms",
   "grants": "clientGrants",
@@ -157,16 +160,10 @@ async function importFlows(): Promise<void> {
     return;
   }
 
-  await withToken((token) =>
-    deploy({
-      input_file: tenantDir,
-      config: {
-        AUTH0_DOMAIN: TENANT_DOMAIN!,
-        AUTH0_ACCESS_TOKEN: token,
-        AUTH0_INCLUDED_ONLY: ["flows"],
-      },
-    })
-  );
+  await deployCliPush({
+    tenantDir,
+    assetType: ["flows"],
+  });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
 
@@ -247,16 +244,10 @@ async function importForms(): Promise<void> {
     return;
   }
 
-  await withToken((token) =>
-    deploy({
-      input_file: tenantDir,
-      config: {
-        AUTH0_DOMAIN: TENANT_DOMAIN!,
-        AUTH0_ACCESS_TOKEN: token,
-        AUTH0_INCLUDED_ONLY: ["forms"],
-      },
-    })
-  );
+  await deployCliPush({
+    tenantDir,
+    assetType: ["forms"],
+  });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
 
@@ -340,6 +331,140 @@ async function importForms(): Promise<void> {
   }
 }
 
+async function importActionModules(): Promise<void> {
+  const modulesDir = join(tenantDir, "action-modules");
+
+  if (!existsSync(modulesDir)) {
+    return;
+  }
+
+  const localFiles = readdirSync(modulesDir).filter((f) => f.endsWith(".json"));
+
+  const newModules = localFiles
+    .map(
+      (f) =>
+        JSON.parse(readFileSync(join(modulesDir, f), "utf-8")) as Record<string, unknown>
+    )
+    .filter((m) => !m.id);
+
+  if (newModules.length === 0) {
+    return;
+  }
+
+  for (const module of newModules) {
+    if (module.all_changes_published !== true) {
+      throw new Error(
+        `Action module "${module.name as string}" must have all_changes_published: true to be imported - it needs a published version before any action can reference it.`
+      );
+    }
+  }
+
+  const newModuleNames = new Set(newModules.map((m) => m.name as string));
+
+  await deployCliPush({
+    tenantDir,
+    assetType: ["actionModules"],
+  });
+
+  const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
+
+  try {
+    await withToken((token) =>
+      dump({
+        output_folder: tmpDir,
+        format: "directory",
+        export_ids: true,
+        config: {
+          AUTH0_DOMAIN: TENANT_DOMAIN!,
+          AUTH0_ACCESS_TOKEN: token,
+          AUTH0_INCLUDED_ONLY: ["actionModules"],
+        },
+      })
+    );
+
+    const tmpModulesDir = join(tmpDir, "action-modules");
+    const exportedFiles = readdirSync(tmpModulesDir).filter((f) => f.endsWith(".json"));
+
+    const actionsDir = join(tenantDir, "actions");
+    const actionFiles = existsSync(actionsDir)
+      ? readdirSync(actionsDir).filter((f) => f.endsWith(".json"))
+      : [];
+
+    for (const exportedFile of exportedFiles) {
+      const exported = JSON.parse(
+        readFileSync(join(tmpModulesDir, exportedFile), "utf-8")
+      ) as Record<string, unknown>;
+
+      const moduleName = exported.name as string;
+      if (!newModuleNames.has(moduleName)) {
+        continue;
+      }
+
+      const moduleId = exported.id as string;
+      const versionNumber = exported.latest_version_number as number | undefined;
+
+      const localFile = localFiles.find((f) => {
+        const content = JSON.parse(readFileSync(join(modulesDir, f), "utf-8")) as Record<
+          string,
+          unknown
+        >;
+        return content.name === moduleName;
+      });
+
+      if (!localFile) continue;
+
+      const localModule = JSON.parse(
+        readFileSync(join(modulesDir, localFile), "utf-8")
+      ) as Record<string, unknown>;
+
+      writeFileSync(
+        join(modulesDir, localFile),
+        JSON.stringify({ id: moduleId, ...localModule }, null, 2) + "\n"
+      );
+      console.log(`[import] Created action module: ${moduleName} (${moduleId})`);
+
+      if (!versionNumber) {
+        throw new Error(
+          `Action module "${moduleName}" (${moduleId}) was created but has no published version. Check that all_changes_published was set before import, then re-run to publish and update the actions that reference it.`
+        );
+      }
+
+      for (const actionFile of actionFiles) {
+        const actionPath = join(actionsDir, actionFile);
+        const action = JSON.parse(readFileSync(actionPath, "utf-8")) as Record<
+          string,
+          unknown
+        >;
+        const modules = action.modules as
+          Array<{ module_name: string; module_version_number: number }> | undefined;
+
+        if (!modules) continue;
+
+        let changed = false;
+        const updatedModules = modules.map((m) => {
+          if (m.module_name === moduleName && m.module_version_number !== versionNumber) {
+            changed = true;
+            return { ...m, module_version_number: versionNumber };
+          }
+          return m;
+        });
+
+        if (changed) {
+          writeFileSync(
+            actionPath,
+            JSON.stringify({ ...action, modules: updatedModules }, null, 2) + "\n"
+          );
+          console.log(
+            `[import] Updated ${actionFile} to use ${moduleName}@${versionNumber}`
+          );
+        }
+      }
+    }
+  } finally {
+    rmSync(tmpDir, { recursive: true });
+  }
+}
+
 async function importActions(): Promise<void> {
   const actionsDir = join(tenantDir, "actions");
   const localFiles = readdirSync(actionsDir).filter((f) => f.endsWith(".json"));
@@ -361,16 +486,10 @@ async function importActions(): Promise<void> {
     return;
   }
 
-  await withToken((token) =>
-    deploy({
-      input_file: tenantDir,
-      config: {
-        AUTH0_DOMAIN: TENANT_DOMAIN!,
-        AUTH0_ACCESS_TOKEN: token,
-        AUTH0_INCLUDED_ONLY: ["actions"],
-      },
-    })
-  );
+  await deployCliPush({
+    tenantDir,
+    assetType: ["actions"],
+  });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
 
@@ -447,16 +566,10 @@ async function importClients(): Promise<void> {
     return;
   }
 
-  await withToken((token) =>
-    deploy({
-      input_file: tenantDir,
-      config: {
-        AUTH0_DOMAIN: TENANT_DOMAIN!,
-        AUTH0_ACCESS_TOKEN: token,
-        AUTH0_INCLUDED_ONLY: ["clients"],
-      },
-    })
-  );
+  await deployCliPush({
+    tenantDir,
+    assetType: ["clients"],
+  });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
 
@@ -530,19 +643,13 @@ async function importClients(): Promise<void> {
     rmSync(tmpDir, { recursive: true });
   }
 
-  await withToken((token) =>
-    deploy({
-      input_file: tenantDir,
-      config: {
-        AUTH0_DOMAIN: TENANT_DOMAIN!,
-        AUTH0_ACCESS_TOKEN: token,
-        AUTH0_INCLUDED_ONLY: ["clients"],
-      },
-    })
-  );
+  await deployCliPush({
+    tenantDir,
+    assetType: ["clients"],
+  });
 }
 
-const specialTypes = new Set(["actions", "clients", "flows", "forms"]);
+const specialTypes = new Set(["actionModules", "actions", "clients", "flows", "forms"]);
 
 if (selectedTypes.includes("flows")) {
   await importFlows();
@@ -550,6 +657,10 @@ if (selectedTypes.includes("flows")) {
 
 if (selectedTypes.includes("forms")) {
   await importForms();
+}
+
+if (selectedTypes.includes("actionModules")) {
+  await importActionModules();
 }
 
 if (selectedTypes.includes("actions")) {
@@ -562,14 +673,8 @@ if (selectedTypes.includes("clients")) {
 
 const remainingTypes = selectedTypes.filter((t) => !specialTypes.has(t));
 if (remainingTypes.length > 0) {
-  await withToken((token) =>
-    deploy({
-      input_file: tenantDir,
-      config: {
-        AUTH0_DOMAIN: TENANT_DOMAIN!,
-        AUTH0_ACCESS_TOKEN: token,
-        AUTH0_INCLUDED_ONLY: remainingTypes,
-      },
-    })
-  );
+  await deployCliPush({
+    tenantDir,
+    assetType: remainingTypes,
+  });
 }
