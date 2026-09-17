@@ -2,15 +2,10 @@ import process from "node:process";
 import { watch, statSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { deploy } from "auth0-deploy-cli";
-import { AssetTypes } from "auth0-deploy-cli/lib/types.js";
-
-import { getClientCredentialsToken } from "../auth0/clientCredentials.js";
-import { withRetryOnInsufficientScope } from "../auth0/withRetryOnInsufficientScope.js";
 import { buildPromptPartials } from "../deploy/buildPromptPartials.js";
 import { buildTriggers } from "../deploy/buildTriggers.js";
-import { createFileCache } from "./utils/fileCache.js";
 import { selectTenant } from "./utils/selectTenant.js";
+import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
 
 const { tenantDir: TENANT_DIR, tenantType } = await selectTenant();
 
@@ -120,32 +115,10 @@ async function deployAsset(assetType: string): Promise<void> {
   console.log(`[watch] Deploying ${assetType}...`);
 
   try {
-    const cache = createFileCache(`${TENANT_DIR}/.management-token.json`);
-    await withRetryOnInsufficientScope(
-      () =>
-        getClientCredentialsToken(TENANT_DOMAIN!, M2M_CLIENT_ID!, M2M_CLIENT_SECRET!, {
-          cache,
-        }),
-      () => cache.clear(),
-      (token) =>
-        deploy({
-          input_file: TENANT_DIR,
-          config: {
-            AUTH0_DOMAIN: TENANT_DOMAIN!,
-            AUTH0_ACCESS_TOKEN: token,
-            AUTH0_INCLUDED_ONLY: [assetType as AssetTypes],
-            AUTH0_KEYWORD_REPLACE_MAPPINGS: {
-              TENANT_DOMAIN: TENANT_DOMAIN!,
-              ACTIONS_CONNECTOR_CLIENT_ID: process.env.ACTIONS_CONNECTOR_CLIENT_ID!,
-              ACTIONS_CONNECTOR_CLIENT_SECRET:
-                process.env.ACTIONS_CONNECTOR_CLIENT_SECRET!,
-              AUTH0_M2M_CLIENT_ID: process.env.M2M_CLIENT_ID!,
-              AUTH0_M2M_CLIENT_SECRET: process.env.M2M_CLIENT_SECRET!,
-            },
-          },
-        })
-    );
-
+    await deployCliPush({
+      tenantDir: TENANT_DIR,
+      assetType,
+    });
     console.log(`[watch] Deployed ${assetType}`);
   } catch (err) {
     console.error(`[watch] Deploy failed for ${assetType}:`, err);
