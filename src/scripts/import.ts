@@ -10,7 +10,7 @@ import {
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-import { deploy, dump } from "auth0-deploy-cli";
+import { dump } from "auth0-deploy-cli";
 import type { AssetTypes } from "auth0-deploy-cli/lib/types.js";
 
 import { getClientCredentialsToken } from "../auth0/clientCredentials.js";
