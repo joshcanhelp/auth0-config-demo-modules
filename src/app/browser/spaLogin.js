@@ -4,6 +4,7 @@
 
   sessionStorage.setItem("oauthState_" + config.clientId, config.state);
   sessionStorage.setItem("pkceVerifier_" + config.clientId, config.codeVerifier);
+  localStorage.setItem("auth0_login_domain", config.domain);
 
   const url = new URL("/authorize", "https://" + config.domain);
   url.searchParams.set("response_type", "code");

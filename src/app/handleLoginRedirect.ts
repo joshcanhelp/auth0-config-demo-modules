@@ -71,5 +71,6 @@ export function handleLoginRedirect({
 
   request.session.oauthState = state;
   request.session.pkceVerifier = codeVerifier;
+  request.session.loginDomain = loginDomain;
   response.redirect(url);
 }

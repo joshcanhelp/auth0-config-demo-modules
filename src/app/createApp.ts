@@ -40,6 +40,7 @@ declare module "express-session" {
     oauthState?: string;
     auth0UserId?: string;
     auth0UserEmail?: string;
+    loginDomain?: string;
   }
 }
 
