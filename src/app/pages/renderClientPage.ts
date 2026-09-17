@@ -4,7 +4,13 @@ import { detectLoginMethod } from "../detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
 import { clientHasScope, getClientGrants, readGrants } from "../readGrants.js";
 import type { ClientGrant } from "../readGrants.js";
-import type { Auth0Client, Connection, LoginMethod, TenantConfig } from "../../types.js";
+import type {
+  Auth0Client,
+  Auth0ClientType,
+  Connection,
+  LoginMethod,
+  TenantConfig,
+} from "../../types.js";
 import type { SchemaField, PrimitiveField } from "../../utils/tenantUserSchema.js";
 import { readTenantConfig } from "../readTenantConfig.js";
 import { readConnections } from "../readConnections.js";
@@ -54,6 +60,84 @@ function renderField(field: SchemaField): string {
     </fieldset>`;
   }
   return renderPrimitiveField(field);
+}
+
+function renderCopyableValue(value: string, isDefault = false): string {
+  const defaultLabel = isDefault ? ` <small>(default)</small>` : "";
+  return `<div style="display:flex;align-items:center;gap:0.5rem;">
+    <code>${value}</code>
+    <button type="button" class="outline secondary" style="margin:0;padding:0.15rem 0.5rem;font-size:0.85em;" aria-label="Copy ${value}" onclick="navigator.clipboard.writeText('${value}').then(() => { const b = this; const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => { b.textContent = t; }, 1500); })">Copy</button>${defaultLabel}
+  </div>`;
+}
+
+function renderClientIdRow(client: Auth0Client): string {
+  return `<dt>Client ID</dt><dd>${renderCopyableValue(client.client_id)}</dd>`;
+}
+
+const APP_TYPE_DESCRIPTIONS: Record<Auth0ClientType, string> = {
+  regular_web: "A traditional web app that runs on a server (e.g. Express, Rails, Django).",
+  spa: "A single-page application that runs entirely in the browser (e.g. React, Vue, Angular).",
+  native: "A native mobile or desktop application.",
+  non_interactive:
+    "A machine-to-machine application that authenticates without user interaction, using the client credentials grant.",
+};
+
+function renderAppTypeRow(client: Auth0Client): string {
+  return `<dt>Type</dt><dd><span tabindex="0" style="cursor:help;border-bottom:1px dotted;" data-tooltip="${APP_TYPE_DESCRIPTIONS[client.app_type]}">${client.app_type}</span></dd>`;
+}
+
+function getLoginDomains(client: Auth0Client, tenantConfig: TenantConfig): string[] {
+  const metadataValue = client.client_metadata?.login_domain as string | undefined;
+  if (metadataValue) {
+    return metadataValue
+      .split(",")
+      .map((d) => d.trim())
+      .filter(Boolean);
+  }
+  return tenantConfig.customDomains;
+}
+
+function getDefaultLoginDomain(
+  client: Auth0Client,
+  tenantConfig: TenantConfig,
+  domains: string[]
+): string {
+  if (client.client_metadata?.login_domain) {
+    return domains[0] ?? tenantConfig.tenantDomain;
+  }
+  return tenantConfig.defaultCustomDomain ?? tenantConfig.tenantDomain;
+}
+
+function renderLoginDomainsRow(domains: string[], defaultDomain: string): string {
+  if (domains.length === 0) {
+    return `<dt>Login Domain(s)</dt><dd>(none)</dd>`;
+  }
+  const rows = domains
+    .map((d) => renderCopyableValue(d, d === defaultDomain))
+    .join("\n    ");
+  return `<dt>Login Domain(s)</dt><dd style="display:flex;flex-direction:column;gap:0.35rem;">${rows}</dd>`;
+}
+
+function renderLoginDomainSelect(
+  domains: string[],
+  tenantDomain: string,
+  defaultDomain: string
+): string {
+  const allDomains = Array.from(new Set([...domains, tenantDomain]));
+  const options = allDomains
+    .map((d) => {
+      const selected = d === defaultDomain ? " selected" : "";
+      const label = d === tenantDomain ? " (testing)" : "";
+      return `<option value="${d}"${selected}>${d}${label}</option>`;
+    })
+    .join("\n        ");
+
+  return `<div>
+        <label for="login_domain">Login Domain</label>
+        <select id="login_domain" name="login_domain">
+          ${options}
+        </select>
+      </div>`;
 }
 
 function renderGrantsSection(grants: ClientGrant[]): string {
@@ -136,7 +220,8 @@ function renderM2MClientPage(
   <p><a href="/">&larr; Back</a></p>
   <h1>${client.name}</h1>
   <dl>
-    <dt>Type</dt><dd>${client.app_type}</dd>
+    ${renderClientIdRow(client)}
+    ${renderAppTypeRow(client)}
     <dt>Grants</dt><dd>${client.grant_types.join(", ")}</dd>
   </dl>
   <h2>Client Grants</h2>
@@ -202,19 +287,20 @@ function renderLoginClientPage(
     ? `<h2>Client Grants</h2>\n  ${renderGrantsSection(grants)}`
     : "";
 
-  const { customDomains, tenantDomain } = tenantConfig;
-  const loginButtons =
-    customDomains.length > 0
-      ? `<div style="display:flex;gap:1rem;flex-wrap:wrap;">
-      ${customDomains.map((d) => `<button type="submit" name="login_domain" value="${d}">Login (${d})</button>`).join("\n      ")}
-      <button type="submit" name="login_domain" value="${tenantDomain}">Login (auth0.com)</button>
-    </div>`
-      : `<button type="submit">Login</button>`;
+  const { tenantDomain } = tenantConfig;
+  const loginDomains = getLoginDomains(client, tenantConfig);
+  const defaultLoginDomain = getDefaultLoginDomain(client, tenantConfig, loginDomains);
+  const loginDomainSelect = renderLoginDomainSelect(
+    loginDomains,
+    tenantDomain,
+    defaultLoginDomain
+  );
 
-  const frontendNote =
-    method === "frontend"
-      ? `<p><em>This app uses frontend login. The authorization code exchange happens in the browser - no client secret is used.</em></p>`
-      : "";
+  const loginMethodDescriptions: Record<LoginMethod, string> = {
+    frontend:
+      "The authorization code exchange happens in the browser - no client secret is used.",
+    backend: "The authorization code exchange happens server-side using a client secret.",
+  };
 
   return pageLayout({
     title: `${client.name} — ${tenantConfig.friendlyName}`,
@@ -224,19 +310,21 @@ function renderLoginClientPage(
   <p><a href="/">&larr; Back</a></p>
   <h1>${client.name}</h1>
   <dl>
-    <dt>Type</dt><dd>${client.app_type}</dd>
+    ${renderClientIdRow(client)}
+    ${renderAppTypeRow(client)}
     <dt>Grants</dt><dd>${client.grant_types.join(", ")}</dd>
-    <dt>Login method</dt><dd>${method}</dd>
+    <dt>Login method</dt><dd><span tabindex="0" style="cursor:help;border-bottom:1px dotted;" data-tooltip="${loginMethodDescriptions[method]}">${method}</span></dd>
+    ${renderLoginDomainsRow(loginDomains, defaultLoginDomain)}
   </dl>
-  ${frontendNote}
   ${grantsSection}
   <form method="get" action="/login/${client.client_id}">
     ${connectionSelect}
+    ${loginDomainSelect}
     <div>
       <label for="extra_params">Extra parameters</label>
       <textarea id="extra_params" name="extra_params" placeholder="screen_hint=signup&#10;prompt=login"></textarea>
     </div>
-    ${loginButtons}
+    <button type="submit">Login</button>
   </form>
   ${renderSelfServiceSection(client, connections, session)}`,
   });

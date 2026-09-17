@@ -16,11 +16,11 @@ export function readTenantConfig(
     throw new Error("TENANT_DOMAIN environment variable is required");
   }
 
-  const customDomains = readCustomDomains(tenantDir);
-  const loginDomain = customDomains.find(Boolean) ?? tenantDomain;
+  const { customDomains, defaultCustomDomain } = readCustomDomains(tenantDir);
+  const loginDomain = defaultCustomDomain ?? tenantDomain;
   const friendlyName = readFriendlyName(tenantDir) ?? tenantDomain;
 
-  return { tenantDomain, loginDomain, customDomains, friendlyName };
+  return { tenantDomain, loginDomain, customDomains, defaultCustomDomain, friendlyName };
 }
 
 function readFriendlyName(tenantDir: string): string | null {
@@ -33,7 +33,10 @@ function readFriendlyName(tenantDir: string): string | null {
   }
 }
 
-function readCustomDomains(tenantDir: string): string[] {
+function readCustomDomains(tenantDir: string): {
+  customDomains: string[];
+  defaultCustomDomain: string | null;
+} {
   const customDomainsPath = join(tenantDir, "custom-domains", "custom-domains.json");
 
   let domains: CustomDomain[];
@@ -41,11 +44,13 @@ function readCustomDomains(tenantDir: string): string[] {
     const content = readFileSync(customDomainsPath, "utf-8");
     domains = JSON.parse(content) as CustomDomain[];
   } catch {
-    return [];
+    return { customDomains: [], defaultCustomDomain: null };
   }
 
   const ready = domains.filter((d) => d.status === "ready");
   const defaultDomain = ready.find((d) => d.is_default);
   const others = ready.filter((d) => !d.is_default);
-  return [defaultDomain, ...others].filter(Boolean).map((d) => d!.domain!);
+  const customDomains = [defaultDomain, ...others].filter(Boolean).map((d) => d!.domain!);
+
+  return { customDomains, defaultCustomDomain: defaultDomain?.domain ?? null };
 }

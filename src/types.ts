@@ -33,6 +33,7 @@ export interface TenantConfig {
   tenantDomain: string;
   loginDomain: string;
   customDomains: string[];
+  defaultCustomDomain: string | null;
   friendlyName: string;
 }
 
