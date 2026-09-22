@@ -76,7 +76,8 @@ function renderClientIdRow(client: Auth0Client): string {
 }
 
 const APP_TYPE_DESCRIPTIONS: Record<Auth0ClientType, string> = {
-  regular_web: "A traditional web app that runs on a server (e.g. Express, Rails, Django).",
+  regular_web:
+    "A traditional web app that runs on a server (e.g. Express, Rails, Django).",
   spa: "A single-page application that runs entirely in the browser (e.g. React, Vue, Angular).",
   native: "A native mobile or desktop application.",
   non_interactive:

@@ -1,6 +1,9 @@
 import type { Auth0Client, TenantConfig } from "../types.js";
 
-export function getLoginDomains(client: Auth0Client, tenantConfig: TenantConfig): string[] {
+export function getLoginDomains(
+  client: Auth0Client,
+  tenantConfig: TenantConfig
+): string[] {
   const metadataValue = client.client_metadata?.login_domain as string | undefined;
   if (metadataValue) {
     return metadataValue
