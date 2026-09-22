@@ -118,6 +118,7 @@ async function deployAsset(assetType: string): Promise<void> {
     await deployCliPush({
       tenantDir: TENANT_DIR,
       assetType,
+      tenantType,
     });
     console.log(`[watch] Deployed ${assetType}`);
   } catch (err) {

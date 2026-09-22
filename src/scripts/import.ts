@@ -163,6 +163,7 @@ async function importFlows(): Promise<void> {
   await deployCliPush({
     tenantDir,
     assetType: ["flows"],
+    tenantType,
   });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
@@ -247,6 +248,7 @@ async function importForms(): Promise<void> {
   await deployCliPush({
     tenantDir,
     assetType: ["forms"],
+    tenantType,
   });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
@@ -364,6 +366,7 @@ async function importActionModules(): Promise<void> {
   await deployCliPush({
     tenantDir,
     assetType: ["actionModules"],
+    tenantType,
   });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
@@ -489,6 +492,7 @@ async function importActions(): Promise<void> {
   await deployCliPush({
     tenantDir,
     assetType: ["actions"],
+    tenantType,
   });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
@@ -569,6 +573,7 @@ async function importClients(): Promise<void> {
   await deployCliPush({
     tenantDir,
     assetType: ["clients"],
+    tenantType,
   });
 
   const tmpDir = mkdtempSync(join(tmpdir(), "aid-import-"));
@@ -646,6 +651,7 @@ async function importClients(): Promise<void> {
   await deployCliPush({
     tenantDir,
     assetType: ["clients"],
+    tenantType,
   });
 }
 
@@ -676,5 +682,6 @@ if (remainingTypes.length > 0) {
   await deployCliPush({
     tenantDir,
     assetType: remainingTypes,
+    tenantType,
   });
 }

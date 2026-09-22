@@ -19,10 +19,6 @@ function parseTenantFlag(): string | undefined {
   return undefined;
 }
 
-function stripSuffix(dirName: string): string {
-  return dirName.replace(/-(?:PUSH|PULL)$/, "");
-}
-
 const options = readdirSync(TENANTS_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
   .map((entry) => ({ label: entry.name, value: entry.name }));
@@ -37,7 +33,7 @@ const tenantFlag = parseTenantFlag();
 let tenantName: string;
 
 if (tenantFlag) {
-  const match = options.find((o) => stripSuffix(o.value) === tenantFlag);
+  const match = options.find((o) => o.value === tenantFlag);
   if (!match) {
     console.error(`No tenant directory found matching "--tenant ${tenantFlag}"`);
     process.exit(1);

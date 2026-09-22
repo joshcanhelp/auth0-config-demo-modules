@@ -23,15 +23,15 @@ function parseTenantFlag(): string | undefined {
   return undefined;
 }
 
-function stripSuffix(dirName: string): string {
-  return dirName.replace(/-(?:PUSH|PULL)$/, "");
-}
-
-function resolveTenantType(dirName: string): "PUSH" | "PULL" {
-  const fromEnv = process.env.TENANT_TYPE;
-  if (fromEnv === "PUSH" || fromEnv === "PULL") return fromEnv;
-  if (dirName.endsWith("-PULL")) return "PULL";
-  return "PUSH";
+function resolveTenantType(): "PUSH" | "PULL" {
+  const value = process.env.TENANT_TYPE;
+  if (value === "PUSH" || value === "PULL") {
+    return value;
+  }
+  console.error(
+    `Missing or invalid TENANT_TYPE in .env (expected "PUSH" or "PULL", got ${JSON.stringify(value)}).`
+  );
+  process.exit(1);
 }
 
 export async function selectTenant(): Promise<TenantPaths> {
@@ -51,7 +51,7 @@ export async function selectTenant(): Promise<TenantPaths> {
   if (options.length === 1 && !tenantFlag) {
     tenantName = options[0].value;
   } else if (tenantFlag) {
-    const match = options.find((o) => stripSuffix(o.value) === tenantFlag);
+    const match = options.find((o) => o.value === tenantFlag);
     if (!match) {
       console.error(`No tenant directory found matching "--tenant ${tenantFlag}"`);
       process.exit(1);
@@ -66,7 +66,7 @@ export async function selectTenant(): Promise<TenantPaths> {
 
   dotenv.config({ path: envFile, quiet: true });
 
-  const tenantType = resolveTenantType(tenantName);
+  const tenantType = resolveTenantType();
 
   if (!tenantFlag && options.length > 1) {
     const domain = process.env.TENANT_DOMAIN;

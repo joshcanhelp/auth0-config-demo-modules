@@ -5,7 +5,7 @@
 Rough notes on how to get started with a new tenant:
 
 1. Copy `serve.ts` and `package.json` to a new directory
-2. Create a `tenants` directory, then a directory with the tenant name you want to export from with `-PUSH` appended
+2. Create a `tenants` directory, then a directory with the tenant name you want to export from
 3. Create an M2M client on the tenant (or just repurpose the "Default App" one if it's a new tenant) and grant all permissions for the Management API
 4. Create a `.env` in the tenant directory you made with the following:
 
@@ -13,6 +13,7 @@ Rough notes on how to get started with a new tenant:
 TENANT_DOMAIN="discounttire-dev.discounttire.auth0app.com"
 M2M_CLIENT_ID="wE43MwoUElTxNSDraI4KCkndjkOFKPWT"
 M2M_CLIENT_SECRET="FgUSPy4mDyzHTIFbBFNO8LRZ8gsofeB28IQm_yBiXY2M_foncHTUkFIMn8AEgOKf"
+TENANT_TYPE="PUSH" # or "PULL" for a read-only tenant
 
 PORT=3333 # something cool and funny
 AUTH0_LOG="debug"
@@ -23,7 +24,7 @@ AUTH0_LOG="debug"
 
 ## Commands
 
-All commands that interact with a tenant prompt for tenant selection unless `--tenant <name>` is passed. The flag matches the directory name with the `-PUSH`/`-PULL` suffix stripped (e.g. `--tenant my-tenant` matches `my-tenant-PUSH`). If only one tenant directory exists, selection is skipped automatically.
+All commands that interact with a tenant prompt for tenant selection unless `--tenant <name>` is passed. The flag matches the tenant directory name exactly (e.g. `--tenant my-tenant` matches `tenants/my-tenant`). If only one tenant directory exists, selection is skipped automatically. Every tenant's `.env` must set `TENANT_TYPE` to `PUSH` or `PULL`.
 
 ### `npm run export`
 
