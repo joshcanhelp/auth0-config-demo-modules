@@ -87,12 +87,15 @@ if (entityFlag !== null) {
 } else {
   const options = [
     { label: "All", value: "__all__" as const },
+    { label: "All (local)", value: "__all_local__" as const },
     { label: "tenant.json", value: "tenant" as AssetTypes },
     ...dirOptions,
   ];
 
   const selected = await selectPrompt("Select an entity to export:", options);
   if (selected === "__all__") {
+    includedOnly = undefined;
+  } else if (selected === "__all_local__") {
     includedOnly = dirOptions.length > 0 ? allAssets : undefined;
   } else {
     includedOnly = [selected as AssetTypes];

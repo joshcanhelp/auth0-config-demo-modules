@@ -28,7 +28,7 @@ All commands that interact with a tenant prompt for tenant selection unless `--t
 
 ### `npm run export`
 
-Exports tenant configuration from Auth0 to local files.
+Exports tenant configuration from Auth0 to local files. Selecting "All" exports every asset type Deploy CLI supports, minus the globally-excluded types (`guardianFactorProviders`, `guardianFactorTemplates`, `guardianPhoneFactorSelectedProvider`, `hooks`, `rules`, `rulesConfigs`). Selecting "All (local)" only exports the asset types that already have a directory in the tenant folder.
 
 ```
 npm run export -- --tenant <name> --entity <entity>
