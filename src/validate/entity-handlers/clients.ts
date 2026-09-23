@@ -47,68 +47,81 @@ const checkWebOrigins = loadCheck("checkWebOrigins.js");
 export const CHECKMATE_DEFINITIONS: Record<string, ValidationDefinition> = {
   "clients_insecure_callbacks": {
     level: "important",
-    description: "callbacks: Insecure pattern in a callback URL.",
+    description: "Insecure pattern in a callback URL.",
+    property: "callbacks",
   },
   "clients_insecure_allowed_logout_urls": {
     level: "important",
-    description: "allowed_logout_urls: Insecure pattern in a logout URL.",
+    description: "Insecure pattern in a logout URL.",
+    property: "allowed_logout_urls",
   },
   "clients_use_rotating_refresh_token": {
     level: "important",
     description:
-      "refresh_token.rotation_type: Refresh token rotation is not enabled. Rotating refresh tokens should be used.",
+      "Refresh token rotation is not enabled. Rotating refresh tokens should be used.",
+    property: "refresh_token.rotation_type",
   },
   "clients_insecure_web_origins_urls": {
     level: "important",
-    description: "web_origins: Insecure pattern in a web origin.",
+    description: "Insecure pattern in a web origin.",
+    property: "web_origins",
   },
   "clients_insecure_initiate_login_uri": {
     level: "important",
-    description: "initiate_login_uri: Insecure pattern in initiate_login_uri.",
+    description: "Insecure pattern in initiate_login_uri.",
+    property: "initiate_login_uri",
   },
   "clients_unexpected_grant_type_for_app_type": {
     level: "important",
-    description: "grant_types: Unexpected grant types for the application type.",
+    description: "Unexpected grant types for the application type.",
+    property: "grant_types",
   },
   "clients_signed_request_object.credentials": {
     level: "important",
-    description:
-      "signed_request_object.credentials: JAR is required but no signing credentials are configured.",
+    description: "JAR is required but no signing credentials are configured.",
+    property: "signed_request_object.credentials",
   },
   "clients_cross_origin_authentication_enabled": {
     level: "important",
     description:
-      "cross_origin_authentication: Cross-origin authentication is enabled. This feature has been deprecated by Auth0.",
+      "Cross-origin authentication is enabled. This feature has been deprecated by Auth0.",
+    property: "cross_origin_authentication",
   },
   "clients_not_using_asymmetric_alg": {
     level: "important",
     description:
-      "jwt_configuration.alg: ID tokens are signed with HS256, a symmetric algorithm. Use RS256 or another asymmetric algorithm.",
+      "ID tokens are signed with HS256, a symmetric algorithm. Use RS256 or another asymmetric algorithm.",
+    property: "jwt_configuration.alg",
   },
   "clients_missing_initiate_login_uri": {
     level: "recommended",
     description:
-      "initiate_login_uri: No initiate_login_uri configured. Third-party initiated login will not work.",
+      "No initiate_login_uri configured. Third-party initiated login will not work.",
+    property: "initiate_login_uri",
   },
   "clients_oidc_backchannel_logout.backchannel_logout_urls": {
     level: "recommended",
     description:
-      "oidc_logout.backchannel_logout_urls: Back-channel logout is not configured for this server-side web application.",
+      "Back-channel logout is not configured for this server-side web application.",
+    property: "oidc_logout.backchannel_logout_urls",
   },
   "clients_signed_request_object.required": {
     level: "recommended",
     description:
-      "signed_request_object.required: JWT Authorization Requests (JAR) are not required for this confidential client.",
+      "JWT Authorization Requests (JAR) are not required for this confidential client.",
+    property: "signed_request_object.required",
   },
   "clients_require_pushed_authorization_requests": {
     level: "recommended",
     description:
-      "require_pushed_authorization_requests: Pushed Authorization Requests (PAR) are not required for this confidential client.",
+      "Pushed Authorization Requests (PAR) are not required for this confidential client.",
+    property: "require_pushed_authorization_requests",
   },
   "clients_client_authentication_methods.private_key_jwt": {
     level: "recommended",
     description:
-      "client_authentication_methods.private_key_jwt: Private key JWT client authentication is not configured. Consider it over shared client secrets.",
+      "Private key JWT client authentication is not configured. Consider it over shared client secrets.",
+    property: "client_authentication_methods.private_key_jwt",
   },
 };
 

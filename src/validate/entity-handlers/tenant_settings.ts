@@ -30,57 +30,69 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   tenant_settings_default_audience_set: {
     level: "recommended",
     description:
-      "default_audience: A default audience is configured, which implicitly adds the audience to all tokens.",
+      "A default audience is configured, which implicitly adds the audience to all tokens.",
+    property: "default_audience",
   },
   tenant_settings_default_directory_set: {
     level: "informational",
-    description: "default_directory: Reports the configured default directory.",
+    description: "Reports the configured default directory.",
+    property: "default_directory",
   },
   tenant_settings_dynamic_client_registration_enabled: {
     level: "important",
     description:
-      "flags.enable_dynamic_client_registration: Dynamic client registration is enabled. Unauthenticated clients can register themselves.",
+      "Dynamic client registration is enabled. Unauthenticated clients can register themselves.",
+    property: "flags.enable_dynamic_client_registration",
   },
   tenant_settings_sandbox_version_outdated: {
     level: "important",
-    description:
-      "sandbox_version: Node.js sandbox version is below the minimum supported version.",
+    description: "Node.js sandbox version is below the minimum supported version.",
+    property: "sandbox_version",
   },
   tenant_settings_idle_session_lifetime: {
     level: "informational",
-    description: "idle_session_lifetime: Reports the configured idle session lifetime.",
+    description: "Reports the configured idle session lifetime.",
+    property: "idle_session_lifetime",
   },
   tenant_settings_session_lifetime: {
     level: "informational",
-    description: "session_lifetime: Reports the configured session lifetime.",
+    description: "Reports the configured session lifetime.",
+    property: "session_lifetime",
   },
   tenant_settings_session_cookie_mode: {
     level: "informational",
-    description: "session_cookie.mode: Reports the configured session cookie mode.",
+    description: "Reports the configured session cookie mode.",
+    property: "session_cookie.mode",
   },
   tenant_settings_no_support_email: {
     level: "recommended",
-    description: "support_email: No support email address is configured.",
+    description: "No support email address is configured.",
+    property: "support_email",
   },
   tenant_settings_no_support_url: {
     level: "recommended",
-    description: "support_url: No support URL is configured.",
+    description: "No support URL is configured.",
+    property: "support_url",
   },
   tenant_settings_no_default_redirection_uri: {
     level: "recommended",
-    description: "default_redirection_uri: No default redirection URI is configured.",
+    description: "No default redirection URI is configured.",
+    property: "default_redirection_uri",
   },
   tenant_settings_invalid_default_redirection_uri: {
     level: "important",
-    description: "default_redirection_uri: Insecure default redirection URI.",
+    description: "Insecure default redirection URI.",
+    property: "default_redirection_uri",
   },
   tenant_settings_missing_allowed_logout_urls: {
     level: "recommended",
-    description: "allowed_logout_urls: No allowed logout URLs are configured.",
+    description: "No allowed logout URLs are configured.",
+    property: "allowed_logout_urls",
   },
   tenant_settings_invalid_allowed_logout_url: {
     level: "important",
-    description: "allowed_logout_urls: Insecure logout URL.",
+    description: "Insecure logout URL.",
+    property: "allowed_logout_urls",
   },
 };
 

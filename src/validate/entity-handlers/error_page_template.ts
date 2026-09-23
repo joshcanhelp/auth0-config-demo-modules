@@ -17,13 +17,13 @@ const checkErrorPageTemplate = _require(
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   error_page_template_raw_filter: {
     level: "critical",
-    description:
-      "error_page.html: Raw/unescaped filter usage detected - potential XSS vulnerability.",
+    description: "Raw/unescaped filter usage detected - potential XSS vulnerability.",
+    property: "error_page.html",
   },
   error_page_template_unescaped_output: {
     level: "important",
-    description:
-      "error_page.html: Unescaped variable output detected - potential XSS vulnerability.",
+    description: "Unescaped variable output detected - potential XSS vulnerability.",
+    property: "error_page.html",
   },
 };
 

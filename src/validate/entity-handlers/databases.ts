@@ -55,57 +55,59 @@ const checkPasswordPolicy = loadFlatCheck("checkPasswordPolicy.js");
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   databases_only_password_method: {
     level: "recommended",
-    description:
-      "authentication_methods: Only password authentication is enabled. Consider enabling passkeys.",
+    description: "Only password authentication is enabled. Consider enabling passkeys.",
+    property: "authentication_methods",
   },
   databases_hard_coded_value_detected: {
     level: "important",
-    description:
-      "customScripts: A hardcoded value was detected in a custom database script.",
+    description: "A hardcoded value was detected in a custom database script.",
+    property: "customScripts",
   },
   databases_flexible_identifiers_disabled: {
     level: "informational",
-    description:
-      "attributes: Flexible identifiers are not configured for this connection.",
+    description: "Flexible identifiers are not configured for this connection.",
+    property: "attributes",
   },
   databases_verification_by_link_method: {
     level: "recommended",
     description:
-      "attributes.email.verification_method: Email verification uses link method. Consider OTP for a better user experience.",
+      "Email verification uses link method. Consider OTP for a better user experience.",
+    property: "attributes.email.verification_method",
   },
   databases_external_user_store: {
     level: "informational",
-    description:
-      "options.enabledDatabaseCustomization: Custom database scripts are enabled (external user store).",
+    description: "Custom database scripts are enabled (external user store).",
+    property: "options.enabledDatabaseCustomization",
   },
   databases_password_min_length: {
     level: "recommended",
-    description:
-      "options.password_complexity_options.min_length: Minimum password length is below the NIST-recommended 12 characters.",
+    description: "Minimum password length is below the NIST-recommended 12 characters.",
+    property: "options.password_complexity_options.min_length",
   },
   databases_password_complexity_not_configured: {
     level: "recommended",
-    description:
-      "options.password_complexity_options: Password complexity options are not configured.",
+    description: "Password complexity options are not configured.",
+    property: "options.password_complexity_options",
   },
   databases_password_history_disabled: {
     level: "recommended",
-    description:
-      "options.password_history: Password history is disabled. Enable it to prevent password reuse.",
+    description: "Password history is disabled. Enable it to prevent password reuse.",
+    property: "options.password_history",
   },
   databases_password_no_personal_info_disabled: {
     level: "recommended",
-    description:
-      "options.password_no_personal_info: Personal info check for passwords is disabled.",
+    description: "Personal info check for passwords is disabled.",
+    property: "options.password_no_personal_info",
   },
   databases_password_policy_weak: {
     level: "important",
-    description:
-      'options.passwordPolicy: Password policy is below "good" or "excellent".',
+    description: 'Password policy is below "good" or "excellent".',
+    property: "options.passwordPolicy",
   },
   databases_password_policy_missing: {
     level: "important",
-    description: "options.passwordPolicy: Password policy is not configured.",
+    description: "Password policy is not configured.",
+    property: "options.passwordPolicy",
   },
 };
 

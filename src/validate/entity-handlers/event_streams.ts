@@ -23,11 +23,13 @@ const checkEventStreams = _require(
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   event_streams_not_configured: {
     level: "informational",
-    description: "event_streams: No event streams are configured.",
+    description: "No event streams are configured.",
+    property: "event_streams",
   },
   event_streams_stream_disabled: {
     level: "informational",
-    description: "event_streams: An event stream is not in an active/enabled status.",
+    description: "An event stream is not in an active/enabled status.",
+    property: "event_streams",
   },
 };
 

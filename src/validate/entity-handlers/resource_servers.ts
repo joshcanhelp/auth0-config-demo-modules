@@ -37,25 +37,30 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   resource_servers_api_access_unrestricted: {
     level: "recommended",
     description:
-      'subject_type_authorization.user.policy: User access to the API is unrestricted. Consider "require_client_grant".',
+      'User access to the API is unrestricted. Consider "require_client_grant".',
+    property: "subject_type_authorization.user.policy",
   },
   resource_servers_symmetric_signing_alg: {
     level: "important",
     description:
-      "signing_alg: API tokens are signed with HS256, a symmetric algorithm. Use RS256 or another asymmetric algorithm.",
+      "API tokens are signed with HS256, a symmetric algorithm. Use RS256 or another asymmetric algorithm.",
+    property: "signing_alg",
   },
   resource_servers_token_lifetime_too_long: {
     level: "important",
-    description: "token_lifetime: Token lifetime exceeds 7 days.",
+    description: "Token lifetime exceeds 7 days.",
+    property: "token_lifetime",
   },
   resource_servers_token_lifetime_extended: {
     level: "recommended",
-    description: "token_lifetime: Token lifetime exceeds the 24-hour default.",
+    description: "Token lifetime exceeds the 24-hour default.",
+    property: "token_lifetime",
   },
   resource_servers_management_api_user_access_allowed: {
     level: "important",
     description:
-      "subject_type_authorization.user.policy: User access to the Management API is unrestricted. Any application's users can obtain Management API tokens.",
+      "User access to the Management API is unrestricted. Any application's users can obtain Management API tokens.",
+    property: "subject_type_authorization.user.policy",
   },
 };
 

@@ -32,71 +32,80 @@ export interface AttackProtectionConfig {
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   attack_protection_breached_password_disabled: {
     level: "important",
-    description: "breached_password_detection: Breached password detection is disabled.",
+    description: "Breached password detection is disabled.",
+    property: "breached_password_detection",
   },
   attack_protection_breached_password_login_block_missing: {
     level: "important",
-    description: "breached_password_detection: Block shield is not configured for login.",
+    description: "Block shield is not configured for login.",
+    property: "breached_password_detection",
   },
   attack_protection_breached_password_pre_user_block_missing: {
     level: "important",
-    description:
-      "breached_password_detection.stage.pre-user-registration: Block shield is not configured.",
+    description: "Block shield is not configured.",
+    property: "breached_password_detection.stage.pre-user-registration",
   },
   attack_protection_breached_password_pre_change_block_missing: {
     level: "important",
-    description:
-      "breached_password_detection.stage.pre-change-password: Block shield is not configured.",
+    description: "Block shield is not configured.",
+    property: "breached_password_detection.stage.pre-change-password",
   },
   attack_protection_breached_password_shields_invalid: {
     level: "recommended",
-    description: "breached_password_detection.shields: Invalid shield values configured.",
+    description: "Invalid shield values configured.",
+    property: "breached_password_detection.shields",
   },
   attack_protection_breached_password_admin_frequency_invalid: {
     level: "recommended",
-    description:
-      "breached_password_detection.admin_notification_frequency: Invalid notification frequency.",
+    description: "Invalid notification frequency.",
+    property: "breached_password_detection.admin_notification_frequency",
   },
   attack_protection_breached_password_method_invalid: {
     level: "recommended",
-    description:
-      "breached_password_detection.method: Invalid detection method configured.",
+    description: "Invalid detection method configured.",
+    property: "breached_password_detection.method",
   },
   attack_protection_breached_password_monitoring_mode: {
     level: "important",
     description:
-      "breached_password_detection: Detection is enabled but no shields are configured (monitoring mode only).",
+      "Detection is enabled but no shields are configured (monitoring mode only).",
+    property: "breached_password_detection",
   },
   attack_protection_brute_force_disabled: {
     level: "important",
-    description: "brute_force_protection: Brute force protection is disabled.",
+    description: "Brute force protection is disabled.",
+    property: "brute_force_protection",
   },
   attack_protection_brute_force_shields_missing: {
     level: "important",
-    description: "brute_force_protection.shields: Required shields are missing.",
+    description: "Required shields are missing.",
+    property: "brute_force_protection.shields",
   },
   attack_protection_brute_force_allowlist_present: {
     level: "recommended",
-    description:
-      "brute_force_protection.allowlist: Allowlist is configured with entries.",
+    description: "Allowlist is configured with entries.",
+    property: "brute_force_protection.allowlist",
   },
   attack_protection_brute_force_account_lockout_mode: {
     level: "recommended",
     description:
-      'brute_force_protection.mode: Account lockout mode is not "count_per_identifier", which limits user enumeration exposure.',
+      'Account lockout mode is not "count_per_identifier", which limits user enumeration exposure.',
+    property: "brute_force_protection.mode",
   },
   attack_protection_suspicious_ip_disabled: {
     level: "important",
-    description: "suspicious_ip_throttling: Suspicious IP throttling is disabled.",
+    description: "Suspicious IP throttling is disabled.",
+    property: "suspicious_ip_throttling",
   },
   attack_protection_suspicious_ip_shields_missing: {
     level: "important",
-    description: "suspicious_ip_throttling.shields: Required shields are missing.",
+    description: "Required shields are missing.",
+    property: "suspicious_ip_throttling.shields",
   },
   attack_protection_suspicious_ip_allowlist_present: {
     level: "recommended",
-    description:
-      "suspicious_ip_throttling.allowlist: Allowlist is configured with entries.",
+    description: "Allowlist is configured with entries.",
+    property: "suspicious_ip_throttling.allowlist",
   },
 };
 

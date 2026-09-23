@@ -16,4 +16,5 @@ export interface Finding {
 export interface ValidationDefinition {
   level: FindingLevel;
   description: string;
+  property: string;
 }

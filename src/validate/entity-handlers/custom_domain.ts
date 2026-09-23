@@ -17,11 +17,13 @@ const checkCustomDomain = _require(
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   custom_domain_not_configured: {
     level: "important",
-    description: "custom_domains: No custom domain is configured.",
+    description: "No custom domain is configured.",
+    property: "custom_domains",
   },
   custom_domain_pending_verification: {
     level: "recommended",
-    description: "custom_domains: A custom domain is pending verification.",
+    description: "A custom domain is pending verification.",
+    property: "custom_domains",
   },
 };
 

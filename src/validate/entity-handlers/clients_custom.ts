@@ -20,8 +20,8 @@ const EMPTY_ONLY_FIELDS_BY_APP_TYPE: Record<string, (keyof Management.Client)[]>
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   clients_unexpected_fields_for_app_type: {
     level: "important",
-    description:
-      "app_type: Fields are set that are not expected for this application type.",
+    description: "Fields are set that are not expected for this application type.",
+    property: "app_type",
   },
 };
 

@@ -50,15 +50,18 @@ const checkUserEnumeration = _require(
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   actions_hard_coded_value_detected: {
     level: "important",
-    description: "code: A hardcoded value was detected in the action code.",
+    description: "A hardcoded value was detected in the action code.",
+    property: "code",
   },
   actions_old_node_version: {
     level: "important",
-    description: "runtime: Node.js version is below the minimum supported version.",
+    description: "Node.js version is below the minimum supported version.",
+    property: "runtime",
   },
   actions_user_enumeration_vulnerability: {
     level: "recommended",
-    description: "code: Use of api.access.deny() may expose user enumeration.",
+    description: "Use of api.access.deny() may expose user enumeration.",
+    property: "code",
   },
 };
 

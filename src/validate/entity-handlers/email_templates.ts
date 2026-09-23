@@ -24,16 +24,18 @@ const EMAIL_TEMPLATE_NAMES = _require("auth0-checkmate/analyzer/lib/constants.js
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   email_templates_not_configured: {
     level: "recommended",
-    description: "email_templates: No email templates are configured.",
+    description: "No email templates are configured.",
+    property: "email_templates",
   },
   email_template_not_configured: {
     level: "recommended",
-    description: "email_templates: A specific email template is not configured.",
+    description: "A specific email template is not configured.",
+    property: "email_templates",
   },
   email_template_not_enabled: {
     level: "informational",
-    description:
-      "email_templates: A specific email template is configured but not enabled.",
+    description: "A specific email template is configured but not enabled.",
+    property: "email_templates",
   },
 };
 
