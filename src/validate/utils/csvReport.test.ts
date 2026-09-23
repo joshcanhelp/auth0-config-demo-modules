@@ -17,10 +17,12 @@ const DEFINITIONS: Record<string, ValidationDefinition> = {
   clients_grants_include_implicit: {
     level: "critical",
     description: "Implicit grant is enabled.",
+    property: "grant_types",
   },
   clients_ok_check: {
     level: "informational",
     description: "Everything checked out fine.",
+    property: "some_field",
   },
 };
 
@@ -67,7 +69,7 @@ describe("buildCsvReport", () => {
       codeToEntity: CODE_TO_ENTITY,
     });
     expect(csv).toBe(
-      "status,level,code,entity,description,entityName,entityId,field,value,message\n"
+      "status,level,code,entity,description,property,entityName,entityId,field,value,message\n"
     );
   });
 
@@ -86,7 +88,7 @@ describe("buildCsvReport", () => {
     });
     const [, row] = csv.trim().split("\n");
     expect(row).toBe(
-      'fail,critical,clients_grants_include_implicit,clients,Implicit grant is enabled.,"Acme, Inc.",abc123,grant_types,implicit,Implicit grant is enabled.'
+      'fail,critical,clients_grants_include_implicit,clients,Implicit grant is enabled.,grant_types,"Acme, Inc.",abc123,grant_types,implicit,Implicit grant is enabled.'
     );
   });
 
@@ -100,7 +102,7 @@ describe("buildCsvReport", () => {
     });
     const [, row] = csv.trim().split("\n");
     expect(row).toBe(
-      'fail,critical,clients_grants_include_implicit,clients,Implicit grant is enabled.,"Acme, Inc.",,,,Implicit grant is enabled.'
+      'fail,critical,clients_grants_include_implicit,clients,Implicit grant is enabled.,grant_types,"Acme, Inc.",,,,Implicit grant is enabled.'
     );
   });
 
@@ -126,7 +128,7 @@ describe("buildCsvReport", () => {
     });
     const [, row] = csv.trim().split("\n");
     expect(row).toBe(
-      "pass,informational,clients_ok_check,clients,Everything checked out fine.,,,,,"
+      "pass,informational,clients_ok_check,clients,Everything checked out fine.,some_field,,,,,"
     );
   });
 
@@ -162,7 +164,7 @@ describe("buildCsvReport", () => {
     expect(csv).toContain('"Line one.\nLine two."');
   });
 
-  it("leaves entity and description blank for a code with no matching definition", () => {
+  it("leaves entity, description, and property blank for a code with no matching definition", () => {
     const csv = buildCsvReport({
       findings: [makeFinding({ code: "unknown_code" })],
       skippedFindings: [],
@@ -172,7 +174,7 @@ describe("buildCsvReport", () => {
     });
     const [, row] = csv.trim().split("\n");
     expect(row).toBe(
-      'fail,critical,unknown_code,,,"Acme, Inc.",,,,Implicit grant is enabled.'
+      'fail,critical,unknown_code,,,,"Acme, Inc.",,,,Implicit grant is enabled.'
     );
   });
 });

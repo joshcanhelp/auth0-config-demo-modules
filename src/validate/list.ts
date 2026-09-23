@@ -11,9 +11,9 @@ for (const { entity, definitions } of ENTITY_DEFINITIONS) {
   );
 
   for (const code of codes) {
-    const { level, description } = definitions[code];
+    const { level, description, property } = definitions[code];
     console.log(`  ${LEVEL_COLOR[level](level.padEnd(13))} ${chalk.bold(code)}`);
-    console.log(`  ${" ".repeat(13)} ${description}`);
+    console.log(`  ${" ".repeat(13)} ${chalk.dim(`${property}:`)} ${description}`);
   }
 }
 

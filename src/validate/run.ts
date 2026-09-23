@@ -45,6 +45,7 @@ if (
 const tenantTag = tenantTagFlag as TenantTag | undefined;
 
 const showPassed = process.argv.includes("--show-passed");
+const verbose = process.argv.includes("--verbose");
 
 const csvFlagIndex = process.argv.indexOf("--csv");
 const csvDir = csvFlagIndex !== -1 ? (process.argv[csvFlagIndex + 1] ?? null) : null;
@@ -361,7 +362,10 @@ for (const finding of sorted) {
   console.log(
     color(`[${finding.level.toUpperCase()}] ${finding.entityName} - ${finding.message}`)
   );
-  console.log(chalk.gray(`  code: ${finding.code}`));
+  if (verbose) {
+    const property = relevantDefinitions[finding.code]?.property ?? "unknown";
+    console.log(chalk.gray(`  code: ${finding.code}  setting: ${property}`));
+  }
   console.log("");
 }
 

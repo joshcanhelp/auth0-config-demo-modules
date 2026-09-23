@@ -21,7 +21,7 @@ Discoveries should be reported as one of 4 different levels:
 
 ## Commands
 
-- `npm run validate` => `tsx ./run.ts` - Runs all validations. Pass `--show-passed` to also list, after the findings, every validation code for the selected entities that produced no findings in this run. Pass `--csv <dir>` to also write a CSV report into the existing directory `<dir>`, named `<tenant-name>-<YYYY-MM-DDTHH-MM-SS>.csv`, with one row per fail/skipped finding and per passed code, columned `status,level,code,entity,description,entityName,entityId,field,value,message`. Fails if that filename already exists.
+- `npm run validate` => `tsx ./run.ts` - Runs all validations. Pass `--show-passed` to also list, after the findings, every validation code for the selected entities that produced no findings in this run. Pass `--verbose` to print each finding's code and setting (the configuration property it checks) below its message. Pass `--csv <dir>` to also write a CSV report into the existing directory `<dir>`, named `<tenant-name>-<YYYY-MM-DDTHH-MM-SS>.csv`, with one row per fail/skipped finding and per passed code, columned `status,level,code,entity,description,property,entityName,entityId,field,value,message`. Fails if that filename already exists.
 - `npm run validate:list` => `tsx ./list.ts` - Lists every validation code, grouped by entity and sorted by level, along with a description of what each one checks.
 
 ## Entity discovery
