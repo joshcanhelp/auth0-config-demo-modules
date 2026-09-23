@@ -1,5 +1,5 @@
 import process from "node:process";
-import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { Management } from "auth0";
@@ -18,9 +18,11 @@ import { validateEventStreams } from "./entity-handlers/event_streams.js";
 import { validateErrorPageTemplate } from "./entity-handlers/error_page_template.js";
 import { validateResourceServers } from "./entity-handlers/resource_servers.js";
 import { validateTenantSettings } from "./entity-handlers/tenant_settings.js";
+import { ENTITY_DEFINITIONS } from "./definitions.js";
 import { LEVEL_COLOR, LEVEL_ORDER } from "./levels.js";
 import { isFindingSkipped, loadSkipConfig, SKIP_CONFIG_FILENAME } from "./skip_config.js";
-import type { Finding, FindingLevel } from "./types.js";
+import type { Finding, FindingLevel, ValidationDefinition } from "./types.js";
+import { buildCsvReport, resolveCsvPath } from "./utils/csvReport.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
 const entityFlag =
@@ -42,7 +44,29 @@ if (
 
 const tenantTag = tenantTagFlag as TenantTag | undefined;
 
+const showPassed = process.argv.includes("--show-passed");
+
+const csvFlagIndex = process.argv.indexOf("--csv");
+const csvDir = csvFlagIndex !== -1 ? (process.argv[csvFlagIndex + 1] ?? null) : null;
+
+if (csvFlagIndex !== -1 && !csvDir) {
+  console.error("Missing directory for --csv <dir>");
+  process.exit(1);
+}
+
+if (csvDir !== null && !(existsSync(csvDir) && statSync(csvDir).isDirectory())) {
+  console.error(`--csv directory "${csvDir}" does not exist.`);
+  process.exit(1);
+}
+
 const { tenantDir } = await selectTenant();
+
+const csvPath = csvDir ? resolveCsvPath(csvDir, tenantDir) : null;
+
+if (csvPath !== null && existsSync(csvPath)) {
+  console.error(`CSV output file "${csvPath}" already exists.`);
+  process.exit(1);
+}
 
 const skipConfig = loadSkipConfig(tenantDir);
 
@@ -60,6 +84,19 @@ const SUPPORTED_ENTITIES = [
   "tenant-settings",
 ] as const;
 type SupportedEntity = (typeof SUPPORTED_ENTITIES)[number];
+
+// ENTITY_DEFINITIONS has no separate entry for "action-modules" - it shares
+// the "actions" DEFINITIONS map.
+const DEFINITIONS_ENTITY_NAMES: Partial<Record<SupportedEntity, string>> = {
+  "action-modules": "actions",
+};
+
+function definitionsForEntity(
+  entity: SupportedEntity
+): Record<string, ValidationDefinition> {
+  const key = DEFINITIONS_ENTITY_NAMES[entity] ?? entity;
+  return ENTITY_DEFINITIONS.find((d) => d.entity === key)?.definitions ?? {};
+}
 
 // auth0-deploy-cli's export directory names mostly match the entity keys above,
 // except email templates, which it writes to an "emails" directory.
@@ -241,6 +278,51 @@ const skippedCount = allFindings.length - findings.length;
 
 const sorted = [...findings].sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
 
+const relevantDefinitions: Record<string, ValidationDefinition> = Object.assign(
+  {},
+  ...selectedEntities.map(definitionsForEntity)
+);
+const passedCodes = Object.keys(relevantDefinitions)
+  .filter((code) => !allFindings.some((f) => f.code === code))
+  .sort(
+    (a, b) =>
+      LEVEL_ORDER[relevantDefinitions[a].level] -
+      LEVEL_ORDER[relevantDefinitions[b].level]
+  );
+
+function printPassed(): void {
+  if (!showPassed || passedCodes.length === 0) return;
+  console.log("\nPassed:");
+  for (const code of passedCodes) {
+    console.log(chalk.green(`  [PASSED] ${code}`));
+    console.log(chalk.gray(`    ${relevantDefinitions[code].description}`));
+  }
+  console.log("");
+}
+
+const codeToEntity: Record<string, string> = {};
+for (const entity of selectedEntities) {
+  const key = DEFINITIONS_ENTITY_NAMES[entity] ?? entity;
+  for (const code of Object.keys(definitionsForEntity(entity))) {
+    codeToEntity[code] = key;
+  }
+}
+
+const skippedFindings = allFindings.filter((f) => isFindingSkipped(f, skipConfig));
+
+function writeCsvIfRequested(): void {
+  if (!csvPath) return;
+  const report = buildCsvReport({
+    findings: sorted,
+    skippedFindings,
+    passedCodes,
+    definitions: relevantDefinitions,
+    codeToEntity,
+  });
+  writeFileSync(csvPath, report, "utf-8");
+  console.log(chalk.gray(`Wrote CSV report to ${csvPath}`));
+}
+
 if (sorted.length === 0) {
   console.log(chalk.green("No issues found."));
   if (skippedCount > 0) {
@@ -248,6 +330,8 @@ if (sorted.length === 0) {
       chalk.gray(`(${skippedCount} finding(s) skipped via ${SKIP_CONFIG_FILENAME})`)
     );
   }
+  printPassed();
+  writeCsvIfRequested();
   process.exit(0);
 }
 
@@ -275,8 +359,11 @@ console.log("");
 for (const finding of sorted) {
   const color = LEVEL_COLOR[finding.level];
   console.log(
-    color(`[${finding.level.toUpperCase()}] ${finding.clientName} - ${finding.message}`)
+    color(`[${finding.level.toUpperCase()}] ${finding.entityName} - ${finding.message}`)
   );
   console.log(chalk.gray(`  code: ${finding.code}`));
   console.log("");
 }
+
+printPassed();
+writeCsvIfRequested();
