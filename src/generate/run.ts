@@ -1,5 +1,5 @@
-import { readdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readdirSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
@@ -12,7 +12,27 @@ import { handleSolution } from "./entity-handlers/solutions.js";
 import { getTemplateTypes, getTemplatesForType } from "./templateSelection.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = join(__dirname, "templates");
+
+// TODO: --templates-path will become required (flag or env) once local templates are removed.
+function parseTemplatesPathFlag(): string | undefined {
+  const args = process.argv.slice(2);
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--templates-path" && args[i + 1]) return args[i + 1];
+    const match = args[i].match(/^--templates-path=(.+)$/);
+    if (match) return match[1];
+  }
+  return undefined;
+}
+
+const templatesPathFlag = parseTemplatesPathFlag();
+const TEMPLATES_DIR = templatesPathFlag
+  ? resolve(process.cwd(), templatesPathFlag)
+  : join(__dirname, "templates");
+
+if (!existsSync(TEMPLATES_DIR)) {
+  console.error(`No templates directory found at: ${TEMPLATES_DIR}`);
+  process.exit(1);
+}
 
 const { tenantDir } = await selectTenant();
 
@@ -38,7 +58,7 @@ const templateDir = join(TEMPLATES_DIR, selected);
 if (type === "Action") {
   await handleAction(templateDir, tenantDir);
 } else if (type === "Solution") {
-  await handleSolution(templateDir, tenantDir);
+  await handleSolution(templateDir, tenantDir, TEMPLATES_DIR);
 } else if (type === "Client") {
   await handleClient(templateDir, tenantDir);
 } else if (type === "Grant") {
