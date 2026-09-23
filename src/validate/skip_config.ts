@@ -9,7 +9,7 @@ export const SKIP_CONFIG_FILENAME = ".skip-validations.json";
 export interface SkipConfig {
   // Codes suppressed everywhere, for every instance, tenant-wide.
   skipCodes: string[];
-  // Code -> list of instance identifiers (a Finding's clientName or clientId)
+  // Code -> list of instance identifiers (a Finding's entityName or entityId)
   // for which that code alone should be suppressed.
   skipInstances: Record<string, string[]>;
 }
@@ -70,5 +70,5 @@ export function isFindingSkipped(finding: Finding, skipConfig: SkipConfig): bool
   const instances = skipConfig.skipInstances[finding.code];
   if (!instances) return false;
 
-  return instances.some((id) => id === finding.clientName || id === finding.clientId);
+  return instances.some((id) => id === finding.entityName || id === finding.entityId);
 }

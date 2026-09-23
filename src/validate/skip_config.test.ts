@@ -14,7 +14,7 @@ function makeFinding(overrides: Partial<Finding> = {}): Finding {
   return {
     code: "email_template_not_configured",
     level: "recommended",
-    clientName: "Verification Code for Email MFA",
+    entityName: "Verification Code for Email MFA",
     message: "not configured",
     ...overrides,
   };
@@ -128,8 +128,8 @@ describe("isFindingSkipped", () => {
     expect(isFindingSkipped(finding, skipConfig)).toBe(false);
   });
 
-  it("skips a finding matching an instance by clientName", () => {
-    const finding = makeFinding({ clientName: "Verification Code for Email MFA" });
+  it("skips a finding matching an instance by entityName", () => {
+    const finding = makeFinding({ entityName: "Verification Code for Email MFA" });
     const skipConfig = {
       skipCodes: [],
       skipInstances: {
@@ -139,11 +139,11 @@ describe("isFindingSkipped", () => {
     expect(isFindingSkipped(finding, skipConfig)).toBe(true);
   });
 
-  it("skips a finding matching an instance by clientId", () => {
+  it("skips a finding matching an instance by entityId", () => {
     const finding = makeFinding({
       code: "clients_unexpected_fields_for_app_type",
-      clientName: "Actions Connector",
-      clientId: "abc123",
+      entityName: "Actions Connector",
+      entityId: "abc123",
     });
     const skipConfig = {
       skipCodes: [],
@@ -153,7 +153,7 @@ describe("isFindingSkipped", () => {
   });
 
   it("does not skip other instances of the same code", () => {
-    const finding = makeFinding({ clientName: "Welcome Email" });
+    const finding = makeFinding({ entityName: "Welcome Email" });
     const skipConfig = {
       skipCodes: [],
       skipInstances: {

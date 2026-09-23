@@ -3,8 +3,8 @@ export type FindingLevel = "critical" | "important" | "recommended" | "informati
 export interface Finding {
   code: string;
   level: FindingLevel;
-  clientName: string;
-  clientId?: string;
+  entityName: string;
+  entityId?: string;
   field?: string;
   value?: string;
   message: string;

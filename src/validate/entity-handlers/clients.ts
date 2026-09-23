@@ -140,7 +140,7 @@ function mapCheckResult(
 
       const value = report.value !== undefined ? String(report.value) : undefined;
       const code = "clients_" + report.field;
-      const extra = { clientId: report.client_id, value };
+      const extra = { entityId: report.client_id, value };
 
       switch (report.field) {
         case "insecure_callbacks":

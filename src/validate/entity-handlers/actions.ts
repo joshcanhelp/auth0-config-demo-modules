@@ -136,7 +136,7 @@ export async function validateActions(
             "actions_old_node_version",
             actionName,
             `runtime: Node.js version ${r.value} is below the minimum supported version.`,
-            { clientId: trigger }
+            { entityId: trigger }
           )
         );
         break;
@@ -156,7 +156,7 @@ export async function validateActions(
               "actions_hard_coded_value_detected",
               actionName,
               `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
-              { clientId: trigger }
+              { entityId: trigger }
             )
           );
           break;
@@ -177,7 +177,7 @@ export async function validateActions(
               "actions_user_enumeration_vulnerability",
               actionName,
               `code: Use of api.access.deny() at line ${r.line} may expose user enumeration.`,
-              { clientId: trigger }
+              { entityId: trigger }
             )
           );
           break;

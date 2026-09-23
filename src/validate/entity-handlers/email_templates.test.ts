@@ -22,7 +22,7 @@ describe("validateEmailTemplates", () => {
     expect(importantOrCritical).toHaveLength(0);
 
     const blockedAccountFinding = findings.find(
-      (f) => f.clientName === "Blocked Account Email"
+      (f) => f.entityName === "Blocked Account Email"
     );
     expect(blockedAccountFinding).toBeUndefined();
 
@@ -39,7 +39,7 @@ describe("validateEmailTemplates", () => {
     });
 
     const finding = findings.find(
-      (f) => f.code === "email_template_not_enabled" && f.clientName === "Welcome Email"
+      (f) => f.code === "email_template_not_enabled" && f.entityName === "Welcome Email"
     );
     expect(finding).toBeDefined();
     expect(finding?.level).toBe("informational");

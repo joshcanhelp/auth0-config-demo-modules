@@ -7,11 +7,11 @@ import type { Finding, ValidationDefinition } from "./types.js";
 export function buildFinding<Definitions extends Record<string, ValidationDefinition>>(
   definitions: Definitions,
   code: keyof Definitions & string,
-  clientName: string,
+  entityName: string,
   message: string,
-  extra?: Partial<Pick<Finding, "clientId" | "field" | "value">>
+  extra?: Partial<Pick<Finding, "entityId" | "field" | "value">>
 ): Finding {
   const definition = definitions[code];
   assert(definition, `Unknown validation code: ${code}`);
-  return { code, level: definition.level, clientName, message, ...extra };
+  return { code, level: definition.level, entityName, message, ...extra };
 }

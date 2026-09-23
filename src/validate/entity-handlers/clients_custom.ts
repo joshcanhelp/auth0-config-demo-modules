@@ -53,7 +53,7 @@ export function validateCustomClientChecks(
         "clients_unexpected_fields_for_app_type",
         client.name ?? "Unknown Client",
         `${offendingFields.join(", ")}: These fields should be empty for app_type "${client.app_type}".`,
-        { clientId: client.client_id, value: offendingFields.join(", ") }
+        { entityId: client.client_id, value: offendingFields.join(", ") }
       )
     );
   }

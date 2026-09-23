@@ -21,7 +21,7 @@ Discoveries should be reported as one of 4 different levels:
 
 ## Commands
 
-- `npm run validate` => `tsx ./run.ts` - Runs all validations.
+- `npm run validate` => `tsx ./run.ts` - Runs all validations. Pass `--show-passed` to also list, after the findings, every validation code for the selected entities that produced no findings in this run. Pass `--csv <dir>` to also write a CSV report into the existing directory `<dir>`, named `<tenant-name>-<YYYY-MM-DDTHH-MM-SS>.csv`, with one row per fail/skipped finding and per passed code, columned `status,level,code,entity,description,entityName,entityId,field,value,message`. Fails if that filename already exists.
 - `npm run validate:list` => `tsx ./list.ts` - Lists every validation code, grouped by entity and sorted by level, along with a description of what each one checks.
 
 ## Entity discovery
@@ -42,6 +42,6 @@ A tenant can suppress specific findings by adding a `.skip-validations.json` fil
 ```
 
 - `skipCodes` suppresses a code everywhere, for every instance, across the whole tenant.
-- `skipInstances` suppresses a code only for the named instances - the finding's `clientName` or `clientId` must match one of the listed identifiers. This is the way to, for example, accept that one specific email template isn't configured without silencing that check for every other template.
+- `skipInstances` suppresses a code only for the named instances - the finding's `entityName` or `entityId` must match one of the listed identifiers. This is the way to, for example, accept that one specific email template isn't configured without silencing that check for every other template.
 
 The file is optional; a missing or empty file means nothing is skipped. Invalid JSON or an unrecognized code logs a warning and is otherwise ignored rather than failing the run. When any findings are skipped, `run.ts` reports the count in its summary output.
