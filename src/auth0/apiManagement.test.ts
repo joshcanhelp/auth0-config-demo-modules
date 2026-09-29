@@ -120,6 +120,39 @@ describe("createManagementApi", () => {
     });
   });
 
+  describe("with a nested group in the tenant schema", () => {
+    const tenantSchema: UserSchemaDef = {
+      app_metadata: {
+        type: "group",
+        fields: {
+          pods_profile: {
+            type: "group",
+            fields: {
+              firstName: { type: "text", editable: true },
+            },
+          },
+        },
+      },
+    };
+    const apiWithNestedGroup = createManagementApi("example.auth0.com", "test-token", {
+      userSchema: tenantSchema,
+    });
+
+    it("never lets a nested group's fields through, even when marked editable", async () => {
+      const user = { user_id: "auth0|123" };
+      mockFetch.mockResolvedValue(makeResponse(user));
+
+      await apiWithNestedGroup.patchUser("auth0|123", {
+        app_metadata: { pods_profile: { firstName: "Alice" } },
+      } as never);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ body: "{}" })
+      );
+    });
+  });
+
   describe("linkUser", () => {
     it("posts to the identities endpoint with provider and user_id", async () => {
       const identities = [{ provider: "auth0", user_id: "secondary" }];

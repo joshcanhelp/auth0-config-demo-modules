@@ -101,7 +101,6 @@ describe("getUserSchemaFields", () => {
     const schema: UserSchemaDef = {
       app_metadata: {
         type: "group",
-        editable: true,
         fields: {
           c360_id: { type: "text", editable: true, required: true },
           internal_flag: { type: "boolean" },
@@ -133,6 +132,23 @@ describe("getUserSchemaFields", () => {
         type: "group",
         fields: {
           internal_id: { type: "text" },
+        },
+      },
+    };
+    expect(getUserSchemaFields(schema)).toHaveLength(0);
+  });
+
+  it("ignores a nested group sub-field rather than surfacing it as editable", () => {
+    const schema: UserSchemaDef = {
+      app_metadata: {
+        type: "group",
+        fields: {
+          pods_profile: {
+            type: "group",
+            fields: {
+              firstName: { type: "text", editable: true },
+            },
+          },
         },
       },
     };

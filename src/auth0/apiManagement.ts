@@ -22,7 +22,9 @@ function filterEditableFields(
           : {};
       const sub: Record<string, unknown> = {};
       for (const [subName, subDef] of Object.entries(groupDef.fields)) {
-        if (!subDef.editable) continue;
+        // A nested group (e.g. app_metadata.pods_profile) is never settable through this
+        // generic patch/create path - only its own editable primitive sub-fields would be.
+        if (subDef.type === "group" || !subDef.editable) continue;
         const val = groupBody[subName];
         if (val !== undefined) {
           sub[subName] = val;

@@ -15,12 +15,9 @@ export type PrimitiveFieldDef = {
 
 export type GroupFieldDef = {
   type: "group";
-  editable?: boolean;
-  id_token_claim?: string;
-  access_token_claim?: string;
+  fields: Record<string, FieldDef>;
   name?: string;
   description?: string;
-  fields: Record<string, PrimitiveFieldDef>;
 };
 
 export type FieldDef = PrimitiveFieldDef | GroupFieldDef;
@@ -61,16 +58,25 @@ export async function loadTenantUserSchema(
 export function getUserSchemaFields(schema: UserSchemaDef): SchemaField[] {
   return Object.entries(schema).flatMap(([name, def]): SchemaField[] => {
     if (def.type === "group") {
-      const editableSubFields: PrimitiveField[] = Object.entries(def.fields)
-        .filter(([, subDef]) => subDef.editable)
-        .map(([subName, subDef]) => ({
-          kind: subDef.type,
-          name: subName,
-          label: subDef.name ?? subName.replace(/_/g, " "),
-          formName: `${name}[${subName}]`,
-          required: subDef.required ?? false,
-          description: subDef.description,
-        }));
+      // A sub-field can itself be a group (e.g. app_metadata.pods_profile), but the
+      // create-user form only renders one level of grouping, so a nested group is never
+      // surfaced here - only its own editable primitive sub-fields would be, and none of
+      // this tenant's nested groups have any.
+      const editableSubFields: PrimitiveField[] = Object.entries(def.fields).flatMap(
+        ([subName, subDef]): PrimitiveField[] => {
+          if (subDef.type === "group" || !subDef.editable) return [];
+          return [
+            {
+              kind: subDef.type,
+              name: subName,
+              label: subDef.name ?? subName.replace(/_/g, " "),
+              formName: `${name}[${subName}]`,
+              required: subDef.required ?? false,
+              description: subDef.description,
+            },
+          ];
+        }
+      );
       if (editableSubFields.length === 0) return [];
       return [
         {

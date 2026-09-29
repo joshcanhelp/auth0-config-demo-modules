@@ -27,22 +27,27 @@ function formatPrimitiveField(
   return lines.join("\n");
 }
 
-function formatGroupField(key: string, def: GroupFieldDef): string {
+function formatGroupField(
+  key: string,
+  def: GroupFieldDef,
+  headingLevel: string,
+  parentKey?: string
+): string {
+  const fullKey = parentKey ? `${parentKey}.${key}` : key;
   const displayName = def.name ?? key.replace(/_/g, " ");
-  const heading = def.name ? `${displayName} (\`${key}\`)` : `\`${key}\``;
+  const heading = def.name ? `${displayName} (\`${fullKey}\`)` : `\`${fullKey}\``;
 
-  const props: string[] = [];
-  if (def.editable) props.push(`- **Editable:** Yes`);
-  if (def.id_token_claim) props.push(`- **ID token claim:** \`${def.id_token_claim}\``);
-  if (def.access_token_claim)
-    props.push(`- **Access token claim:** \`${def.access_token_claim}\``);
-
-  const lines = [`### ${heading}`];
-  if (props.length > 0) lines.push("", props.join("\n"));
+  const lines = [`${headingLevel} ${heading}`];
   if (def.description) lines.push("", def.description);
 
+  const subHeadingLevel = `${headingLevel}#`;
   for (const [subKey, subDef] of Object.entries(def.fields)) {
-    lines.push("", formatPrimitiveField(subKey, subDef, "####", key));
+    lines.push(
+      "",
+      subDef.type === "group"
+        ? formatGroupField(subKey, subDef, subHeadingLevel, fullKey)
+        : formatPrimitiveField(subKey, subDef, subHeadingLevel, fullKey)
+    );
   }
 
   return lines.join("\n");
@@ -51,7 +56,7 @@ function formatGroupField(key: string, def: GroupFieldDef): string {
 export function buildUserSchemaReport(schema: UserSchemaDef): string {
   const sections = Object.entries(schema).map(([key, def]) =>
     def.type === "group"
-      ? formatGroupField(key, def as GroupFieldDef)
+      ? formatGroupField(key, def as GroupFieldDef, "###")
       : formatPrimitiveField(key, def as PrimitiveFieldDef, "###")
   );
   return ["# User Schema Report", "", sections.join("\n\n---\n\n")].join("\n") + "\n";

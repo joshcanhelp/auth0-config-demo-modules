@@ -42,7 +42,6 @@ describe("buildUserSchemaReport", () => {
     const schema: UserSchemaDef = {
       app_metadata: {
         type: "group",
-        editable: true,
         fields: {
           c360_id: { type: "text", editable: true, required: true },
         },
@@ -79,19 +78,25 @@ describe("buildUserSchemaReport", () => {
     expect(report).not.toContain("Access token claim");
   });
 
-  it("renders a group field's own id_token_claim and access_token_claim", () => {
+  it("renders a group nested inside another group with correctly deepened headings", () => {
     const schema: UserSchemaDef = {
       app_metadata: {
         type: "group",
-        access_token_claim: "petsmart.com/aos_agent_id",
         fields: {
-          agent_id: { type: "text" },
+          pods_profile: {
+            type: "group",
+            fields: {
+              firstName: { type: "text" },
+            },
+          },
         },
       },
     };
     const report = buildUserSchemaReport(schema);
 
-    expect(report).toContain("- **Access token claim:** `petsmart.com/aos_agent_id`");
+    expect(report).toContain("### `app_metadata`");
+    expect(report).toContain("#### `app_metadata.pods_profile`");
+    expect(report).toContain("##### `app_metadata.pods_profile.firstName`");
   });
 
   it("separates multiple top-level sections with a horizontal rule", () => {
