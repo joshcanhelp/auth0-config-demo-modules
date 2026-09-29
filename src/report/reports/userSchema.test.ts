@@ -55,6 +55,45 @@ describe("buildUserSchemaReport", () => {
     expect(report).toContain("#### `app_metadata.c360_id`");
   });
 
+  it("renders id_token_claim and access_token_claim as separate lines", () => {
+    const schema: UserSchemaDef = {
+      email: {
+        type: "email",
+        id_token_claim: "email",
+        access_token_claim: "petsmart.com/email",
+      },
+    };
+    const report = buildUserSchemaReport(schema);
+
+    expect(report).toContain("- **ID token claim:** `email`");
+    expect(report).toContain("- **Access token claim:** `petsmart.com/email`");
+  });
+
+  it("renders only the claim that is set", () => {
+    const schema: UserSchemaDef = {
+      email_verified: { type: "boolean", id_token_claim: "email_verified" },
+    };
+    const report = buildUserSchemaReport(schema);
+
+    expect(report).toContain("- **ID token claim:** `email_verified`");
+    expect(report).not.toContain("Access token claim");
+  });
+
+  it("renders a group field's own id_token_claim and access_token_claim", () => {
+    const schema: UserSchemaDef = {
+      app_metadata: {
+        type: "group",
+        access_token_claim: "petsmart.com/aos_agent_id",
+        fields: {
+          agent_id: { type: "text" },
+        },
+      },
+    };
+    const report = buildUserSchemaReport(schema);
+
+    expect(report).toContain("- **Access token claim:** `petsmart.com/aos_agent_id`");
+  });
+
   it("separates multiple top-level sections with a horizontal rule", () => {
     const schema: UserSchemaDef = {
       email: { type: "email" },

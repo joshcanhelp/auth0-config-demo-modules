@@ -6,7 +6,8 @@ export type FieldType = "text" | "email" | "boolean" | "password";
 export type PrimitiveFieldDef = {
   type: FieldType;
   editable?: boolean;
-  token_claim?: string;
+  id_token_claim?: string;
+  access_token_claim?: string;
   name?: string;
   required?: boolean;
   description?: string;
@@ -15,7 +16,8 @@ export type PrimitiveFieldDef = {
 export type GroupFieldDef = {
   type: "group";
   editable?: boolean;
-  token_claim?: string;
+  id_token_claim?: string;
+  access_token_claim?: string;
   name?: string;
   description?: string;
   fields: Record<string, PrimitiveFieldDef>;

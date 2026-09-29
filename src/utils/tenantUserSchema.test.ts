@@ -57,7 +57,7 @@ describe("getUserSchemaFields", () => {
     const schema: UserSchemaDef = {
       email: { type: "email", editable: true, required: true },
       name: { type: "text", editable: true },
-      email_verified: { type: "boolean", token_claim: "email_verified" },
+      email_verified: { type: "boolean", id_token_claim: "email_verified" },
       sub: { type: "text" },
     };
     const fields = getUserSchemaFields(schema);

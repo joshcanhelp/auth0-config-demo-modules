@@ -16,7 +16,9 @@ function formatPrimitiveField(
 
   const props: string[] = [`- **Type:** \`${def.type}\``];
   if (def.editable) props.push(`- **Editable:** Yes`);
-  if (def.token_claim) props.push(`- **Token claim:** \`${def.token_claim}\``);
+  if (def.id_token_claim) props.push(`- **ID token claim:** \`${def.id_token_claim}\``);
+  if (def.access_token_claim)
+    props.push(`- **Access token claim:** \`${def.access_token_claim}\``);
   if (def.required) props.push(`- **Required:** Yes`);
 
   const lines = [`${headingLevel} ${heading}`, "", props.join("\n")];
@@ -31,7 +33,9 @@ function formatGroupField(key: string, def: GroupFieldDef): string {
 
   const props: string[] = [];
   if (def.editable) props.push(`- **Editable:** Yes`);
-  if (def.token_claim) props.push(`- **Token claim:** \`${def.token_claim}\``);
+  if (def.id_token_claim) props.push(`- **ID token claim:** \`${def.id_token_claim}\``);
+  if (def.access_token_claim)
+    props.push(`- **Access token claim:** \`${def.access_token_claim}\``);
 
   const lines = [`### ${heading}`];
   if (props.length > 0) lines.push("", props.join("\n"));
