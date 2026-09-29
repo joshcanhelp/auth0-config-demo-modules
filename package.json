@@ -9,6 +9,7 @@
     "import": "tsx src/scripts/import.ts",
     "refresh": "tsx src/scripts/refresh.ts",
     "watch": "tsx src/scripts/watch.ts",
+    "report": "tsx src/report/run.ts",
     "validate": "tsx src/validate/run.ts",
     "validate:list": "tsx src/validate/list.ts",
     "deploy-ulp": "tsx src/scripts/deploy-ulp.ts",

@@ -22,7 +22,7 @@ export type Auth0Client = Omit<
   >,
   "app_type" | "token_endpoint_auth_method"
 > &
-  Pick<Client, "logo_uri" | "client_metadata"> & {
+  Pick<Client, "logo_uri" | "client_metadata" | "description"> & {
     app_type: Auth0ClientType;
     token_endpoint_auth_method: string;
   };
