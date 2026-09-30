@@ -1,8 +1,13 @@
 import { createRequire } from "node:module";
 
+import type { UserSchemaDef } from "../../utils/tenantUserSchema.js";
 import { buildFinding } from "../finding.js";
 import type { Finding, ValidationDefinition } from "../types.js";
 import type { TenantTag } from "./clients.js";
+import {
+  DEFINITIONS as CUSTOM_DEFINITIONS,
+  validateActionProfileSchemaChecks,
+} from "./actions_custom.js";
 
 const _require = createRequire(import.meta.url);
 
@@ -47,7 +52,7 @@ const checkUserEnumeration = _require(
 // - checkDependencies: makes external HTTP calls to check npm vulnerability databases
 // - checkPasswordResetMFA: requires database data ({ actions, databases }) in addition to actions
 
-export const DEFINITIONS: Record<string, ValidationDefinition> = {
+export const CHECKMATE_DEFINITIONS: Record<string, ValidationDefinition> = {
   actions_hard_coded_value_detected: {
     level: "important",
     description: "A hardcoded value was detected in the action code.",
@@ -63,6 +68,11 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
     description: "Use of api.access.deny() may expose user enumeration.",
     property: "code",
   },
+};
+
+export const DEFINITIONS: Record<string, ValidationDefinition> = {
+  ...CHECKMATE_DEFINITIONS,
+  ...CUSTOM_DEFINITIONS,
 };
 
 function parseActionName(fullName: string): { actionName: string; trigger: string } {
@@ -101,7 +111,7 @@ export async function validateActionModules(
         case "hard_coded_value_detected":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               "actions_hard_coded_value_detected",
               actionName,
               `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`
@@ -117,7 +127,8 @@ export async function validateActionModules(
 
 export async function validateActions(
   actions: unknown[],
-  _tenantTag?: TenantTag
+  schema?: UserSchemaDef | null,
+  tenantTag?: TenantTag
 ): Promise<Finding[]> {
   const findings: Finding[] = [];
 
@@ -135,7 +146,7 @@ export async function validateActions(
       case "old_node_version":
         findings.push(
           buildFinding(
-            DEFINITIONS,
+            CHECKMATE_DEFINITIONS,
             "actions_old_node_version",
             actionName,
             `runtime: Node.js version ${r.value} is below the minimum supported version.`,
@@ -155,7 +166,7 @@ export async function validateActions(
         case "hard_coded_value_detected":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               "actions_hard_coded_value_detected",
               actionName,
               `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
@@ -176,7 +187,7 @@ export async function validateActions(
         case "user_enumeration_vulnerability":
           findings.push(
             buildFinding(
-              DEFINITIONS,
+              CHECKMATE_DEFINITIONS,
               "actions_user_enumeration_vulnerability",
               actionName,
               `code: Use of api.access.deny() at line ${r.line} may expose user enumeration.`,
@@ -188,5 +199,8 @@ export async function validateActions(
     }
   }
 
-  return findings;
+  return [
+    ...findings,
+    ...validateActionProfileSchemaChecks(actions, schema ?? null, tenantTag),
+  ];
 }

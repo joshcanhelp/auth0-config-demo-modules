@@ -12,7 +12,6 @@
     "report": "tsx src/report/run.ts",
     "validate": "tsx src/validate/run.ts",
     "validate:list": "tsx src/validate/list.ts",
-    "deploy-ulp": "tsx src/scripts/deploy-ulp.ts",
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint .",

@@ -6,6 +6,7 @@ import type { Management } from "auth0";
 import chalk from "chalk";
 
 import { selectTenant } from "../scripts/utils/selectTenant.js";
+import { loadTenantUserSchema } from "../utils/tenantUserSchema.js";
 import { validateClients, TENANT_TAGS } from "./entity-handlers/clients.js";
 import type { TenantTag } from "./entity-handlers/clients.js";
 import { validateActions, validateActionModules } from "./entity-handlers/actions.js";
@@ -61,6 +62,11 @@ if (csvDir !== null && !(existsSync(csvDir) && statSync(csvDir).isDirectory())) 
 }
 
 const { tenantDir } = await selectTenant();
+
+// user-schema.ts lives at the project root, not per-tenant - see loadTenantUserSchema's
+// call site in src/app/createApp.ts. Optional: a project without one just skips any
+// validation that depends on it.
+const userSchema = await loadTenantUserSchema(process.cwd());
 
 const csvPath = csvDir ? resolveCsvPath(csvDir, tenantDir) : null;
 
@@ -182,7 +188,7 @@ async function loadAndValidate(entity: SupportedEntity): Promise<Finding[]> {
 
     if (entity === "actions") {
       console.log(`Validating ${items.length} action(s)...`);
-      return validateActions(items, tenantTag);
+      return validateActions(items, userSchema, tenantTag);
     } else {
       console.log(`Validating ${items.length} action module(s)...`);
       return validateActionModules(items, tenantTag);
