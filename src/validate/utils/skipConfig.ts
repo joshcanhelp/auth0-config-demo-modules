@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ALL_DEFINITIONS } from "./definitions.js";
-import type { Finding } from "./utils/types.js";
+import type { Finding } from "./types.js";
 
 export const SKIP_CONFIG_FILENAME = ".skip-validations.json";
 

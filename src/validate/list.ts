@@ -1,7 +1,7 @@
 import chalk from "chalk";
 
-import { ENTITY_DEFINITIONS } from "./definitions.js";
-import { LEVEL_COLOR, LEVEL_ORDER } from "./levels.js";
+import { ENTITY_DEFINITIONS } from "./utils/definitions.js";
+import { LEVEL_COLOR, LEVEL_ORDER } from "./utils/levels.js";
 
 for (const { entity, definitions } of ENTITY_DEFINITIONS) {
   console.log(chalk.bold.underline(`\n${entity}`));

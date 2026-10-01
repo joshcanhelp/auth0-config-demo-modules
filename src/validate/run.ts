@@ -19,9 +19,13 @@ import { validateEventStreams } from "./entity-handlers/event_streams.js";
 import { validateErrorPageTemplate } from "./entity-handlers/error_page_template.js";
 import { validateResourceServers } from "./entity-handlers/resource_servers.js";
 import { validateTenantSettings } from "./entity-handlers/tenant_settings.js";
-import { ENTITY_DEFINITIONS } from "./definitions.js";
-import { LEVEL_COLOR, LEVEL_ORDER } from "./levels.js";
-import { isFindingSkipped, loadSkipConfig, SKIP_CONFIG_FILENAME } from "./skip_config.js";
+import { ENTITY_DEFINITIONS } from "./utils/definitions.js";
+import { LEVEL_COLOR, LEVEL_ORDER } from "./utils/levels.js";
+import {
+  isFindingSkipped,
+  loadSkipConfig,
+  SKIP_CONFIG_FILENAME,
+} from "./utils/skipConfig.js";
 import type { Finding, FindingLevel, ValidationDefinition } from "./utils/types.js";
 import { buildCsvReport, resolveCsvPath } from "./utils/csvReport.js";
 

@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import type { FindingLevel } from "./utils/types.js";
+import type { FindingLevel } from "./types.js";
 
 export const LEVEL_ORDER: Record<FindingLevel, number> = {
   critical: 0,
