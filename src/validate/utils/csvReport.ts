@@ -1,6 +1,6 @@
 import { basename, join } from "node:path";
 
-import type { Finding, ValidationDefinition } from "../types.js";
+import type { Finding, ValidationDefinition } from "./types.js";
 
 export const CSV_HEADER = [
   "status",

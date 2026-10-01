@@ -1,8 +1,8 @@
 import type { Management } from "auth0";
 import assert from "node:assert";
 
-import { buildFinding } from "../../finding.js";
-import type { Finding, ValidationDefinition } from "../../types.js";
+import { buildFinding } from "../../utils/finding.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { clientDisplayName, loadCheck } from "./shared.js";
 
 const checkPrivateKeyJWT = loadCheck("checkPrivateKeyJWT.js");

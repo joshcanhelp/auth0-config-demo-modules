@@ -1,7 +1,7 @@
 import type { Management } from "auth0";
 
-import { buildFinding } from "../../finding.js";
-import type { Finding, ValidationDefinition } from "../../types.js";
+import { buildFinding } from "../../utils/finding.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
 
 // Fields that Auth0 exposes on every client but that only make sense for
 // browser-redirect flows. Some app types should never have them set.

@@ -1,6 +1,6 @@
 import type { Management } from "auth0";
 
-import type { Finding, ValidationDefinition } from "../../types.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import {
   checkClientAuthenticationMethodsPrivateKeyJwt,
   DEFINITIONS as PRIVATE_KEY_JWT_DEFINITIONS,
@@ -61,10 +61,7 @@ import {
   checkUseRotatingRefreshToken,
   DEFINITIONS as USE_ROTATING_REFRESH_TOKEN_DEFINITIONS,
 } from "./clientsUseRotatingRefreshToken.js";
-import { TENANT_TAGS, type TenantTag } from "./shared.js";
-
-export { TENANT_TAGS };
-export type { TenantTag };
+import type { TenantTag } from "../../utils/tenantTag.js";
 
 // One file per validation code in this folder owns that code's own DEFINITIONS and check
 // logic. This file only wires them together: which checks run, and what their combined

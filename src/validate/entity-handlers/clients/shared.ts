@@ -2,13 +2,10 @@
 // a single validation code belongs in that code's own file, not here.
 import { createRequire } from "node:module";
 
-import { buildFinding } from "../../finding.js";
-import type { Finding, ValidationDefinition } from "../../types.js";
+import { buildFinding } from "../../utils/finding.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
 
 const _require = createRequire(import.meta.url);
-
-export const TENANT_TAGS = ["dev", "stage", "prod"] as const;
-export type TenantTag = (typeof TENANT_TAGS)[number];
 
 export type CheckmateReportItem = {
   name: string;

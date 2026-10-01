@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 
-import { buildFinding } from "../../finding.js";
-import type { Finding, ValidationDefinition } from "../../types.js";
+import { buildFinding } from "../../utils/finding.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { parseActionName, type CheckmateNestedFn } from "./shared.js";
 
 const _require = createRequire(import.meta.url);

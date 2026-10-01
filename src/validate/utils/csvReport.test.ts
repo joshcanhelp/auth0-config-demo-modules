@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { Finding, ValidationDefinition } from "../types.js";
+import type { Finding, ValidationDefinition } from "./types.js";
 import { buildCsvReport, formatCsvTimestamp, resolveCsvPath } from "./csvReport.js";
 
 function makeFinding(overrides: Partial<Finding> = {}): Finding {

@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { isFindingSkipped, loadSkipConfig } from "./skip_config.js";
-import type { Finding } from "./types.js";
+import type { Finding } from "./utils/types.js";
 
 vi.mock("node:fs", () => ({ existsSync: vi.fn(), readFileSync: vi.fn() }));
 

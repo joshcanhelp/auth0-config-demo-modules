@@ -1,7 +1,8 @@
 import type { Management } from "auth0";
 
-import type { Finding, ValidationDefinition } from "../../types.js";
-import { findingsForField, loadCheck, type TenantTag } from "./shared.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
+import type { TenantTag } from "../../utils/tenantTag.js";
+import { findingsForField, loadCheck } from "./shared.js";
 
 // checkApplicationLoginUri reports two distinct fields - this one, and
 // "missing_initiate_login_uri" (see clientsMissingInitiateLoginUri.ts). Calling it once per

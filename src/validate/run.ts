@@ -22,7 +22,7 @@ import { validateTenantSettings } from "./entity-handlers/tenant_settings.js";
 import { ENTITY_DEFINITIONS } from "./definitions.js";
 import { LEVEL_COLOR, LEVEL_ORDER } from "./levels.js";
 import { isFindingSkipped, loadSkipConfig, SKIP_CONFIG_FILENAME } from "./skip_config.js";
-import type { Finding, FindingLevel, ValidationDefinition } from "./types.js";
+import type { Finding, FindingLevel, ValidationDefinition } from "./utils/types.js";
 import { buildCsvReport, resolveCsvPath } from "./utils/csvReport.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");

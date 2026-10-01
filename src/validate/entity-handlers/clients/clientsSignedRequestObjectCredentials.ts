@@ -1,6 +1,6 @@
 import type { Management } from "auth0";
 
-import type { Finding, ValidationDefinition } from "../../types.js";
+import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { findingsForField, loadCheck } from "./shared.js";
 
 // checkJAR reports two distinct fields - this one, and "signed_request_object.required" (see
