@@ -58,3 +58,5 @@ Follow this checklist **in order** after implementing or modifying code:
 - Separate out each API call into it's own module for educational purposes
 - Do not duplicate documentation across README files and code comments
 - Use the built-in Node strict assert to guard against missing values
+- Before starting a new task, check for uncommitted files and prompt the user to commit
+- NEVER interact with version control except to check status

@@ -1,4 +1,4 @@
-import { DEFINITIONS as ACTION_DEFINITIONS } from "./entity-handlers/actions.js";
+import { DEFINITIONS as ACTION_DEFINITIONS } from "./entity-handlers/actions/index.js";
 import { DEFINITIONS as ATTACK_PROTECTION_DEFINITIONS } from "./entity-handlers/attack_protection.js";
 import { DEFINITIONS as CLIENT_DEFINITIONS } from "./entity-handlers/clients.js";
 import { DEFINITIONS as CUSTOM_DOMAIN_DEFINITIONS } from "./entity-handlers/custom_domain.js";
