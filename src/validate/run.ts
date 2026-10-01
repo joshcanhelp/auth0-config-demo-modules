@@ -7,8 +7,8 @@ import chalk from "chalk";
 
 import { selectTenant } from "../scripts/utils/selectTenant.js";
 import { loadTenantUserSchema } from "../utils/tenantUserSchema.js";
-import { validateClients, TENANT_TAGS } from "./entity-handlers/clients/index.js";
-import type { TenantTag } from "./entity-handlers/clients/index.js";
+import { validateClients } from "./entity-handlers/clients/index.js";
+import { TENANT_TAGS, type TenantTag } from "./utils/tenantTag.js";
 import { validateActions, validateActionModules } from "./entity-handlers/actions/index.js";
 import { validateAttackProtection } from "./entity-handlers/attack_protection.js";
 import type { AttackProtectionConfig } from "./entity-handlers/attack_protection.js";
