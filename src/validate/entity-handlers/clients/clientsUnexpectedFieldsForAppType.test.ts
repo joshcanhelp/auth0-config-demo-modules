@@ -1,7 +1,7 @@
 import type { Management } from "auth0";
 import { describe, expect, it } from "vitest";
 
-import { validateCustomClientChecks } from "./clients_custom.js";
+import { checkUnexpectedFieldsForAppType } from "./clientsUnexpectedFieldsForAppType.js";
 
 function makeClient(overrides: Partial<Management.Client>): Management.Client {
   return {
@@ -12,10 +12,10 @@ function makeClient(overrides: Partial<Management.Client>): Management.Client {
   } as Management.Client;
 }
 
-describe("validateCustomClientChecks", () => {
+describe("checkUnexpectedFieldsForAppType", () => {
   it("returns no findings for a non_interactive client with no browser-redirect fields set", () => {
     const client = makeClient({ app_type: "non_interactive" });
-    expect(validateCustomClientChecks([client])).toHaveLength(0);
+    expect(checkUnexpectedFieldsForAppType([client])).toHaveLength(0);
   });
 
   it("reports one combined finding when multiple disallowed fields are set", () => {
@@ -24,7 +24,7 @@ describe("validateCustomClientChecks", () => {
       callbacks: ["https://example.com/callback"],
       web_origins: ["https://example.com"],
     });
-    const findings = validateCustomClientChecks([client]);
+    const findings = checkUnexpectedFieldsForAppType([client]);
 
     expect(findings).toHaveLength(1);
     expect(findings[0].code).toBe("clients_unexpected_fields_for_app_type");
@@ -38,7 +38,7 @@ describe("validateCustomClientChecks", () => {
       app_type: "regular_web",
       allowed_origins: ["https://example.com"],
     });
-    const findings = validateCustomClientChecks([client]);
+    const findings = checkUnexpectedFieldsForAppType([client]);
 
     expect(findings).toHaveLength(1);
     expect(findings[0].message).toContain("allowed_origins");
@@ -49,7 +49,7 @@ describe("validateCustomClientChecks", () => {
       app_type: "spa",
       allowed_origins: ["https://example.com"],
     });
-    expect(validateCustomClientChecks([client])).toHaveLength(0);
+    expect(checkUnexpectedFieldsForAppType([client])).toHaveLength(0);
   });
 
   it("skips the global client", () => {
@@ -58,7 +58,7 @@ describe("validateCustomClientChecks", () => {
       global: true,
       callbacks: ["https://example.com/callback"],
     });
-    expect(validateCustomClientChecks([client])).toHaveLength(0);
+    expect(checkUnexpectedFieldsForAppType([client])).toHaveLength(0);
   });
 
   it("skips clients with no app_type", () => {
@@ -66,6 +66,6 @@ describe("validateCustomClientChecks", () => {
       app_type: undefined,
       callbacks: ["https://example.com/callback"],
     });
-    expect(validateCustomClientChecks([client])).toHaveLength(0);
+    expect(checkUnexpectedFieldsForAppType([client])).toHaveLength(0);
   });
 });

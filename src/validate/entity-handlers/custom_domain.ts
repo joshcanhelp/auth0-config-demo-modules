@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 
 import { buildFinding } from "../finding.js";
 import type { Finding, ValidationDefinition } from "../types.js";
-import type { TenantTag } from "./clients.js";
+import type { TenantTag } from "./clients/index.js";
 
 const _require = createRequire(import.meta.url);
 

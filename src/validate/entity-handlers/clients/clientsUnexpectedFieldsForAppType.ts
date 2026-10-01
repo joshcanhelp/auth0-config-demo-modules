@@ -1,8 +1,7 @@
 import type { Management } from "auth0";
 
-import { buildFinding } from "../finding.js";
-import type { Finding, ValidationDefinition } from "../types.js";
-import type { TenantTag } from "./clients.js";
+import { buildFinding } from "../../finding.js";
+import type { Finding, ValidationDefinition } from "../../types.js";
 
 // Fields that Auth0 exposes on every client but that only make sense for
 // browser-redirect flows. Some app types should never have them set.
@@ -32,10 +31,7 @@ function isNotEmpty(value: unknown): boolean {
   return true;
 }
 
-export function validateCustomClientChecks(
-  clients: Management.Client[],
-  _tenantTag?: TenantTag
-): Finding[] {
+export function checkUnexpectedFieldsForAppType(clients: Management.Client[]): Finding[] {
   const findings: Finding[] = [];
 
   for (const client of clients) {

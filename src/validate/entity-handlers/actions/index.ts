@@ -1,6 +1,6 @@
 import type { UserSchemaDef } from "../../../utils/tenantUserSchema.js";
 import type { Finding, ValidationDefinition } from "../../types.js";
-import type { TenantTag } from "../clients.js";
+import type { TenantTag } from "../clients/index.js";
 import {
   checkHardCodedValues,
   DEFINITIONS as HARD_CODED_VALUE_DEFINITIONS,
