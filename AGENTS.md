@@ -60,3 +60,4 @@ Follow this checklist **in order** after implementing or modifying code:
 - Use the built-in Node strict assert to guard against missing values
 - Before starting a new task, check for uncommitted files and prompt the user to commit
 - NEVER interact with version control except to check status
+- Directories should be kebab-case, files should be camelCase

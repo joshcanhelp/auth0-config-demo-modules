@@ -1,13 +1,13 @@
 import { DEFINITIONS as ACTION_DEFINITIONS } from "../entity-handlers/actions/index.js";
-import { DEFINITIONS as ATTACK_PROTECTION_DEFINITIONS } from "../entity-handlers/attack_protection.js";
+import { DEFINITIONS as ATTACK_PROTECTION_DEFINITIONS } from "../entity-handlers/attackProtection/index.js";
 import { DEFINITIONS as CLIENT_DEFINITIONS } from "../entity-handlers/clients/index.js";
-import { DEFINITIONS as CUSTOM_DOMAIN_DEFINITIONS } from "../entity-handlers/custom_domain.js";
-import { DEFINITIONS as DATABASE_DEFINITIONS } from "../entity-handlers/databases.js";
-import { DEFINITIONS as EMAIL_TEMPLATE_DEFINITIONS } from "../entity-handlers/email_templates.js";
-import { DEFINITIONS as ERROR_PAGE_TEMPLATE_DEFINITIONS } from "../entity-handlers/error_page_template.js";
-import { DEFINITIONS as EVENT_STREAM_DEFINITIONS } from "../entity-handlers/event_streams.js";
-import { DEFINITIONS as RESOURCE_SERVER_DEFINITIONS } from "../entity-handlers/resource_servers.js";
-import { DEFINITIONS as TENANT_SETTINGS_DEFINITIONS } from "../entity-handlers/tenant_settings.js";
+import { DEFINITIONS as CUSTOM_DOMAIN_DEFINITIONS } from "../entity-handlers/customDomain/index.js";
+import { DEFINITIONS as DATABASE_DEFINITIONS } from "../entity-handlers/databases/index.js";
+import { DEFINITIONS as EMAIL_TEMPLATE_DEFINITIONS } from "../entity-handlers/emailTemplates/index.js";
+import { DEFINITIONS as ERROR_PAGE_TEMPLATE_DEFINITIONS } from "../entity-handlers/errorPageTemplate/index.js";
+import { DEFINITIONS as EVENT_STREAM_DEFINITIONS } from "../entity-handlers/eventStreams/index.js";
+import { DEFINITIONS as RESOURCE_SERVER_DEFINITIONS } from "../entity-handlers/resourceServers/index.js";
+import { DEFINITIONS as TENANT_SETTINGS_DEFINITIONS } from "../entity-handlers/tenantSettings/index.js";
 import type { ValidationDefinition } from "./types.js";
 
 // Single registry of every entity's DEFINITIONS map, used by both the
