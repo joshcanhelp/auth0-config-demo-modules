@@ -21,6 +21,7 @@ import { buildAppUrls } from "../app/updateClientUrls.js";
 import type { AppUrls } from "../app/updateClientUrls.js";
 import { selectTenant } from "./utils/selectTenant.js";
 import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
+import { loadDeployConfig } from "./utils/deployConfig.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
 const entityFlag =
@@ -63,19 +64,34 @@ const DIR_TO_ASSET: Record<string, AssetTypes> = {
   "themes": "themes",
 };
 
+const { skipEntities } = loadDeployConfig(tenantDir);
+const skipSet = new Set(skipEntities);
+
 const dirOptions = readdirSync(tenantDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name in DIR_TO_ASSET)
+  .filter(
+    (entry) =>
+      entry.isDirectory() && entry.name in DIR_TO_ASSET && !skipSet.has(entry.name)
+  )
   .map((entry) => ({ label: entry.name, value: DIR_TO_ASSET[entry.name]! }));
 
 const options = [
   { label: "All", value: "__all__" as const },
-  { label: "tenant.json", value: "tenant" as AssetTypes },
+  ...(skipSet.has("tenant")
+    ? []
+    : [{ label: "tenant.json", value: "tenant" as AssetTypes }]),
   ...dirOptions,
 ];
 
 let selected: string;
 
 if (entityFlag !== null) {
+  if (skipSet.has(entityFlag)) {
+    console.error(
+      `Entity "${entityFlag}" is configured as skipped in .deploy-config.json.`
+    );
+    process.exit(1);
+  }
+
   const validDirs = new Set([...Object.keys(DIR_TO_ASSET), "tenant"]);
 
   if (!validDirs.has(entityFlag)) {
@@ -95,7 +111,10 @@ if (entityFlag !== null) {
   selected = await selectPrompt("Select an entity type to import:", options);
 }
 
-const allAssets: AssetTypes[] = ["tenant", ...dirOptions.map((o) => o.value)];
+const allAssets: AssetTypes[] = [
+  ...(skipSet.has("tenant") ? [] : (["tenant"] as AssetTypes[])),
+  ...dirOptions.map((o) => o.value),
+];
 const selectedTypes: AssetTypes[] =
   selected === "__all__" ? allAssets : [selected as AssetTypes];
 

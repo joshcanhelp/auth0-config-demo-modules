@@ -9,6 +9,7 @@ import { withRetryOnInsufficientScope } from "../auth0/withRetryOnInsufficientSc
 import { createFileCache } from "./utils/fileCache.js";
 import { confirmPrompt, selectPrompt } from "./utils/selectPrompt.js";
 import { selectTenant } from "./utils/selectTenant.js";
+import { loadDeployConfig } from "./utils/deployConfig.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
 const entityFlag =
@@ -62,18 +63,34 @@ function dirToAssetType(dir: string): AssetTypes {
   }
 }
 
+const { skipEntities } = loadDeployConfig(outputdir);
+const skipSet = new Set(skipEntities);
+
 const dirOptions = readdirSync(outputdir, { withFileTypes: true })
   .filter(
     (entry) =>
-      entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "_static"
+      entry.isDirectory() &&
+      !entry.name.startsWith(".") &&
+      entry.name !== "_static" &&
+      !skipSet.has(entry.name)
   )
   .map((entry) => ({ label: entry.name, value: dirToAssetType(entry.name) }));
 
-const allAssets: AssetTypes[] = ["tenant", ...dirOptions.map((o) => o.value)];
+const allAssets: AssetTypes[] = [
+  ...(skipSet.has("tenant") ? [] : (["tenant"] as AssetTypes[])),
+  ...dirOptions.map((o) => o.value),
+];
 
 let includedOnly: AssetTypes[] | undefined;
 
 if (entityFlag !== null) {
+  if (skipSet.has(entityFlag)) {
+    console.error(
+      `Entity "${entityFlag}" is configured as skipped in .deploy-config.json.`
+    );
+    process.exit(1);
+  }
+
   const validDirNames = new Set(["tenant", ...dirOptions.map((o) => o.label)]);
 
   if (!validDirNames.has(entityFlag)) {
@@ -88,7 +105,9 @@ if (entityFlag !== null) {
   const options = [
     { label: "All", value: "__all__" as const },
     { label: "All (local)", value: "__all_local__" as const },
-    { label: "tenant.json", value: "tenant" as AssetTypes },
+    ...(skipSet.has("tenant")
+      ? []
+      : [{ label: "tenant.json", value: "tenant" as AssetTypes }]),
     ...dirOptions,
   ];
 
@@ -127,6 +146,9 @@ await withRetryOnInsufficientScope(
                 "hooks",
                 "rules",
                 "rulesConfigs",
+                ...skipEntities.map((e) =>
+                  e === "tenant" ? "tenant" : dirToAssetType(e)
+                ),
               ],
             }
           : {}),

@@ -6,6 +6,7 @@ import { buildPromptPartials } from "../deploy/buildPromptPartials.js";
 import { buildTriggers } from "../deploy/buildTriggers.js";
 import { selectTenant } from "./utils/selectTenant.js";
 import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
+import { loadDeployConfig } from "./utils/deployConfig.js";
 
 const { tenantDir: TENANT_DIR, tenantType } = await selectTenant();
 
@@ -53,6 +54,9 @@ function assetTypeFromPath(relativePath: string): string | null {
   }
   return DIR_TO_ASSET[topLevel] ?? null;
 }
+
+const { skipEntities } = loadDeployConfig(TENANT_DIR);
+const skipAssetTypes = new Set(skipEntities.map((e) => DIR_TO_ASSET[e] ?? e));
 
 const pendingDeploys = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -127,6 +131,13 @@ async function deployAsset(assetType: string): Promise<void> {
 }
 
 function scheduleDeploy(assetType: string): void {
+  if (skipAssetTypes.has(assetType)) {
+    console.log(
+      `[watch] Skipping ${assetType} - configured as skipped in .deploy-config.json`
+    );
+    return;
+  }
+
   const existing = pendingDeploys.get(assetType);
   if (existing) {
     clearTimeout(existing);

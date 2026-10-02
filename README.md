@@ -26,6 +26,20 @@ AUTH0_LOG="debug"
 
 All commands that interact with a tenant prompt for tenant selection unless `--tenant <name>` is passed. The flag matches the tenant directory name exactly (e.g. `--tenant my-tenant` matches `tenants/my-tenant`). If only one tenant directory exists, selection is skipped automatically. Every tenant's `.env` must set `TENANT_TYPE` to `PUSH` or `PULL`.
 
+### Skipping entities
+
+Add a `.deploy-config.json` file to a tenant directory to exclude specific entity types from both `export` and `import`/`watch`. Entity names match the same values accepted by `--entity` (e.g. `clients`, `action-modules`, `tenant`).
+
+```json
+{
+  "skipEntities": ["hooks", "rules"]
+}
+```
+
+Skipped entities are hidden from the interactive selection menus, excluded from `All`/`All (local)` runs, rejected if passed explicitly via `--entity`, and ignored by `watch`.
+
+This is separate from the fixed set of types always excluded from a full `export -- All` run (see below) - those are hardcoded and apply to export only, regardless of `.deploy-config.json`.
+
 ### `npm run export`
 
 Exports tenant configuration from Auth0 to local files. Selecting "All" exports every asset type Deploy CLI supports, minus the globally-excluded types (`guardianFactorProviders`, `guardianFactorTemplates`, `guardianPhoneFactorSelectedProvider`, `hooks`, `rules`, `rulesConfigs`). Selecting "All (local)" only exports the asset types that already have a directory in the tenant folder.
