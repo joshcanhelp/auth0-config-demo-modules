@@ -2,6 +2,7 @@ import { createApp } from "./src/app/createApp.js";
 import { selectTenant } from "./src/scripts/utils/selectTenant.js";
 import { handleChangePasswordEmail } from "./src/app/handleChangePasswordEmail.js";
 import { handleChangePasswordLink } from "./src/app/handleChangePasswordLink.js";
+import { handleVerifyEmail } from "./src/app/handleVerifyEmail.js";
 import { handleLoginRedirect } from "./src/app/handleLoginRedirect.js";
 import { renderClientListPage } from "./src/app/pages/renderClientListPage.js";
 import { renderClientPage } from "./src/app/pages/renderClientPage.js";
@@ -43,6 +44,14 @@ app.post(
   loginableClientMiddleware,
   async (request, response) => {
     return handleChangePasswordLink({ request, response, env: process.env });
+  }
+);
+
+app.get(
+  "/verify-email/:clientId",
+  loginableClientMiddleware,
+  async (request, response) => {
+    return handleVerifyEmail({ request, response, env: process.env });
   }
 );
 

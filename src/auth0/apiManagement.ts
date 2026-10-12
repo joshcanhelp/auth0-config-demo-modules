@@ -170,6 +170,18 @@ export function createManagementApi(
     );
   };
 
+  // https://auth0.com/docs/api/management/v2/jobs/post-verification-email
+  const createVerificationEmailJob = async (
+    userId: string,
+    clientId: string
+  ): Promise<unknown> => {
+    const apiPath = `/jobs/verification-email`;
+    return handleResponse<unknown>(
+      await postRequest(apiPath, { user_id: userId, client_id: clientId }),
+      apiPath
+    );
+  };
+
   // https://auth0.com/docs/api/management/v2/guardian/post-ticket
   const createMfaEnrollmentTicket = async (
     userId: string,
@@ -226,6 +238,7 @@ export function createManagementApi(
     createUser,
     createPasswordTicket,
     createEmailVerificationTicket,
+    createVerificationEmailJob,
     createMfaEnrollmentTicket,
     getMfaFactors,
     addMfaFactor,

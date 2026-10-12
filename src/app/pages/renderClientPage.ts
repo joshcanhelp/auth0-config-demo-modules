@@ -211,31 +211,86 @@ function renderM2MClientPage(
   });
 }
 
+export interface SelfServiceRow {
+  label: string;
+  href: string;
+  available: boolean;
+  reason: string;
+}
+
+export function getSelfServiceRows(
+  client: Auth0Client,
+  dbConnections: Connection[],
+  loginMethod: LoginMethod
+): SelfServiceRow[] {
+  const hasDbConnection = dbConnections.length > 0;
+  const hasClientCredentialsGrant = client.grant_types.includes("client_credentials");
+  const hasBffClientId = Boolean(client.client_metadata?.bff_client_id);
+  const noDbConnectionReason = "Requires a database connection.";
+
+  const changePasswordLinkAvailable =
+    loginMethod === "backend" ? hasClientCredentialsGrant : hasBffClientId;
+  const changePasswordLinkReason = !hasDbConnection
+    ? noDbConnectionReason
+    : loginMethod === "backend"
+      ? "Requires the client_credentials grant."
+      : "Requires a bff_client_id in client metadata.";
+
+  return [
+    {
+      label: "Change Password (email)",
+      href: `/change-password-email/${client.client_id}`,
+      available: hasDbConnection,
+      reason: noDbConnectionReason,
+    },
+    {
+      label: "Change Password (link)",
+      href: `/change-password-link/${client.client_id}`,
+      available: hasDbConnection && changePasswordLinkAvailable,
+      reason: changePasswordLinkReason,
+    },
+    {
+      label: "Verify Email",
+      href: `/verify-email/${client.client_id}`,
+      available: loginMethod === "backend" && hasClientCredentialsGrant,
+      reason:
+        loginMethod === "backend"
+          ? "Requires the client_credentials grant."
+          : "Requires a backend login - this client authenticates in the browser.",
+    },
+  ];
+}
+
+function renderSelfServiceRow(row: SelfServiceRow): string {
+  const dd = row.available
+    ? `<a href="${row.href}"><button>${row.label}</button></a>`
+    : `<span style="color:#cf222e;">${row.reason}</span>`;
+  return `<dt>${row.label}</dt><dd>${dd}</dd>`;
+}
+
 function renderSelfServiceSection(
   client: Auth0Client,
   connections: Connection[],
+  loginMethod: LoginMethod,
   session?: SessionData
 ): string {
   const dbConnections = getDatabaseConnections(connections);
   const header = "<h2>Self-Service</h2>";
   const noUserError = "No user in context. Login to see self-service options.";
 
-  if (dbConnections.length === 0) {
-    return `${header}<p>No database connection is configured for this client. Self-service features require a database connection.</p>`;
-  }
-
   if (client.app_type === "regular_web" && !session?.auth0UserId) {
     return `${header}<p>${noUserError}</p>`;
   }
 
+  const rows = getSelfServiceRows(client, dbConnections, loginMethod)
+    .map(renderSelfServiceRow)
+    .join("\n    ");
+
   return `${header}
-  <div id="client-self-service-actions">
-    <p>
-      <a href="/change-password-email/${client.client_id}"><button>Change Password (email)</button></a>
-      ${client.client_metadata?.bff_client_id ? `<a href="/change-password-link/${client.client_id}"><button>Change Password (link)</button></a>` : ""}
-    </p>
-  </div>
-  <script>if (!localStorage.getItem("auth0_user_id")) document.getElementById("client-self-service-actions").innerHTML = "<p>${noUserError}</p>"</script>`;
+  <dl id="client-self-service-actions">
+    ${rows}
+  </dl>
+  <script>if (!localStorage.getItem("auth0_user_id")) document.getElementById("client-self-service-actions").outerHTML = "<p>${noUserError}</p>"</script>`;
 }
 
 function renderLoginClientPage(
@@ -306,7 +361,7 @@ function renderLoginClientPage(
     </div>
     <button type="submit">Login</button>
   </form>
-  ${renderSelfServiceSection(client, connections, session)}`,
+  ${renderSelfServiceSection(client, connections, method, session)}`,
   });
 }
 
