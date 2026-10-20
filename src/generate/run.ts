@@ -27,7 +27,7 @@ function parseTemplatesPathFlag(): string | undefined {
 const templatesPathFlag = parseTemplatesPathFlag();
 const TEMPLATES_DIR = templatesPathFlag
   ? resolve(process.cwd(), templatesPathFlag)
-  : join(__dirname, "templates");
+  : join(__dirname, "../../../auth0-templates/templates");
 
 if (!existsSync(TEMPLATES_DIR)) {
   console.error(`No templates directory found at: ${TEMPLATES_DIR}`);
