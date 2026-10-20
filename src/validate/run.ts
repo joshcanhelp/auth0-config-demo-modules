@@ -375,8 +375,8 @@ for (const finding of sorted) {
   if (verbose) {
     const property = relevantDefinitions[finding.code]?.property ?? "unknown";
     console.log(chalk.gray(`  code: ${finding.code}  setting: ${property}`));
+    console.log("");
   }
-  console.log("");
 }
 
 printPassed();
