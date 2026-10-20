@@ -19,6 +19,7 @@ vi.mock("./buildAuthorizeUrl.js", () => ({
     state: "encoded-state",
     codeVerifier: "verifier-abc",
     codeChallenge: "challenge-xyz",
+    scope: "openid profile email offline_access",
   })),
 }));
 
@@ -88,6 +89,13 @@ describe("handleLoginRedirect", () => {
       expect(html).toContain("encoded-state");
       expect(html).toContain("verifier-abc");
       expect(html).toContain("challenge-xyz");
+    });
+
+    it("embeds the computed scope in the page config", () => {
+      const { req, res } = makeReqRes(frontendClient);
+      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      const html = res.send.mock.calls[0][0] as string;
+      expect(html).toContain("openid profile email offline_access");
     });
 
     it("inlines the spaLogin script", () => {

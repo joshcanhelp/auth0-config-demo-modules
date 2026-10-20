@@ -10,7 +10,7 @@
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", config.clientId);
   url.searchParams.set("redirect_uri", config.redirectUri);
-  url.searchParams.set("scope", "openid profile email");
+  url.searchParams.set("scope", config.scope);
   url.searchParams.set("state", config.state);
   url.searchParams.set("code_challenge", config.codeChallenge);
   url.searchParams.set("code_challenge_method", "S256");

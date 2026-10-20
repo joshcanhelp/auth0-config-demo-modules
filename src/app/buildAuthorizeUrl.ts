@@ -8,6 +8,7 @@ export interface AuthorizeResult {
   state: string;
   codeVerifier: string;
   codeChallenge: string;
+  scope: string;
 }
 
 export interface AuthorizeOptions {
@@ -31,11 +32,17 @@ export function buildAuthorizeUrl(
   const pkce = generatePkce();
   const callbackUrl = `${baseUrl}/callback/${client.client_id}`;
 
+  const scopes = ["openid", "profile", "email"];
+
+  if (client.grant_types.includes("refresh_token")) {
+    scopes.push("offline_access");
+  }
+
   const params = new URLSearchParams({
     response_type: "code",
     client_id: client.client_id,
     redirect_uri: callbackUrl,
-    scope: "openid profile email",
+    scope: scopes.join(" "),
     state: encodedState,
     code_challenge: pkce.challenge,
     code_challenge_method: "S256",
@@ -56,5 +63,6 @@ export function buildAuthorizeUrl(
     state: encodedState,
     codeVerifier: pkce.verifier,
     codeChallenge: pkce.challenge,
+    scope: scopes.join(" "),
   };
 }

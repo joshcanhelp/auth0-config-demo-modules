@@ -89,6 +89,29 @@ describe("buildAuthorizeUrl", () => {
     expect(url).toContain("connection=google-oauth2");
   });
 
+  it("omits offline_access from scope when the client has no refresh_token grant", () => {
+    const { url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain("scope=openid+profile+email&");
+    expect(url).not.toContain("offline_access");
+  });
+
+  it("adds offline_access to scope when the client has a refresh_token grant", () => {
+    const refreshClient: Auth0Client = {
+      ...client,
+      grant_types: ["authorization_code", "refresh_token"],
+    };
+    const { url } = buildAuthorizeUrl(
+      refreshClient,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain("scope=openid+profile+email+offline_access&");
+  });
+
   it("appends extra params to the URL when provided", () => {
     const { url } = buildAuthorizeUrl(
       client,

@@ -38,7 +38,7 @@ export function handleLoginRedirect({
   const loginDomain =
     login_domain || getDefaultLoginDomain(client, tenantConfig, loginDomains);
 
-  const { url, state, codeVerifier, codeChallenge } = buildAuthorizeUrl(
+  const { url, state, codeVerifier, codeChallenge, scope } = buildAuthorizeUrl(
     client,
     loginDomain,
     response.locals.baseUrl,
@@ -57,6 +57,7 @@ export function handleLoginRedirect({
       state,
       codeVerifier,
       codeChallenge,
+      scope,
       ...(connection ? { connection } : {}),
       ...(Object.keys(extraParams).length > 0 ? { extraParams } : {}),
     });
