@@ -61,6 +61,7 @@ const DIR_TO_ASSET: Record<string, AssetTypes> = {
   "forms": "forms",
   "grants": "clientGrants",
   "prompts": "prompts",
+  "resource-servers": "resourceServers",
   "themes": "themes",
 };
 
