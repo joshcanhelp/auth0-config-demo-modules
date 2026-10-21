@@ -2,11 +2,14 @@ import process from "node:process";
 import { watch, statSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import type { AssetTypes } from "auth0-deploy-cli/lib/types.js";
+
 import { buildPromptPartials } from "../deploy/buildPromptPartials.js";
 import { buildTriggers } from "../deploy/buildTriggers.js";
 import { selectTenant } from "./utils/selectTenant.js";
 import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
 import { loadDeployConfig } from "./utils/deployConfig.js";
+import { DIR_TO_ASSET_TYPE } from "./utils/assetDirectories.js";
 
 const { tenantDir: TENANT_DIR, tenantType } = await selectTenant();
 
@@ -24,41 +27,19 @@ if (!TENANT_DOMAIN || !M2M_CLIENT_ID || !M2M_CLIENT_SECRET) {
 
 const DEBOUNCE_MS = 500;
 
-// Maps top-level tenant directory names to Deploy CLI asset types.
-// "tenant" is used for tenant.json which has no subdirectory.
-const DIR_TO_ASSET: Record<string, string> = {
-  "actions": "actions",
-  "action-modules": "actionModules",
-  "branding": "branding",
-  "clients": "clients",
-  "connections": "connections",
-  "custom-domains": "customDomains",
-  "database-connections": "databases",
-  "grants": "clientGrants",
-  "event-streams": "eventStreams",
-  "forms": "forms",
-  "flows": "flows",
-  "flow-vault-connections": "flowVaultConnections",
-  "prompts": "prompts",
-  "themes": "themes",
-  "tenant": "tenant",
-  "emails": "emailTemplates",
-  "triggers": "triggers",
-};
-
-function assetTypeFromPath(relativePath: string): string | null {
+function assetTypeFromPath(relativePath: string): AssetTypes | null {
   const topLevel = relativePath.split(/[\\/]/)[0];
   // tenant.json sits at the root — its "topLevel" is the filename itself
   if (topLevel === "tenant.json") {
-    return DIR_TO_ASSET["tenant"] ?? null;
+    return DIR_TO_ASSET_TYPE["tenant"] ?? null;
   }
-  return DIR_TO_ASSET[topLevel] ?? null;
+  return DIR_TO_ASSET_TYPE[topLevel] ?? null;
 }
 
 const { skipEntities } = loadDeployConfig(TENANT_DIR);
-const skipAssetTypes = new Set(skipEntities.map((e) => DIR_TO_ASSET[e] ?? e));
+const skipAssetTypes = new Set(skipEntities.map((e) => DIR_TO_ASSET_TYPE[e] ?? e));
 
-const pendingDeploys = new Map<string, ReturnType<typeof setTimeout>>();
+const pendingDeploys = new Map<AssetTypes, ReturnType<typeof setTimeout>>();
 
 function hasUnimportedClients(): boolean {
   const clientsDir = join(TENANT_DIR, "clients");
@@ -86,7 +67,7 @@ function hasUnimportedActions(): boolean {
     });
 }
 
-async function deployAsset(assetType: string): Promise<void> {
+async function deployAsset(assetType: AssetTypes): Promise<void> {
   if (assetType === "clients" && hasUnimportedClients()) {
     console.log(
       "[watch] Skipping clients deploy - unimported clients found. Run npm run import first."
@@ -130,7 +111,7 @@ async function deployAsset(assetType: string): Promise<void> {
   }
 }
 
-function scheduleDeploy(assetType: string): void {
+function scheduleDeploy(assetType: AssetTypes): void {
   if (skipAssetTypes.has(assetType)) {
     console.log(
       `[watch] Skipping ${assetType} - configured as skipped in .deploy-config.json`

@@ -22,6 +22,7 @@ import type { AppUrls } from "../app/updateClientUrls.js";
 import { selectTenant } from "./utils/selectTenant.js";
 import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
 import { loadDeployConfig } from "./utils/deployConfig.js";
+import { DIR_TO_ASSET_TYPE } from "./utils/assetDirectories.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
 const entityFlag =
@@ -47,33 +48,15 @@ if (!PORT) {
   process.exit(1);
 }
 
-const DIR_TO_ASSET: Record<string, AssetTypes> = {
-  "action-modules": "actionModules",
-  "actions": "actions",
-  "branding": "branding",
-  "clients": "clients",
-  "connections": "connections",
-  "custom-domains": "customDomains",
-  "database-connections": "databases",
-  "event-streams": "eventStreams",
-  "flow-vault-connections": "flowVaultConnections",
-  "flows": "flows",
-  "forms": "forms",
-  "grants": "clientGrants",
-  "prompts": "prompts",
-  "resource-servers": "resourceServers",
-  "themes": "themes",
-};
-
 const { skipEntities } = loadDeployConfig(tenantDir);
 const skipSet = new Set(skipEntities);
 
 const dirOptions = readdirSync(tenantDir, { withFileTypes: true })
   .filter(
     (entry) =>
-      entry.isDirectory() && entry.name in DIR_TO_ASSET && !skipSet.has(entry.name)
+      entry.isDirectory() && entry.name in DIR_TO_ASSET_TYPE && !skipSet.has(entry.name)
   )
-  .map((entry) => ({ label: entry.name, value: DIR_TO_ASSET[entry.name]! }));
+  .map((entry) => ({ label: entry.name, value: DIR_TO_ASSET_TYPE[entry.name]! }));
 
 const options = [
   { label: "All", value: "__all__" as const },
@@ -93,7 +76,7 @@ if (entityFlag !== null) {
     process.exit(1);
   }
 
-  const validDirs = new Set([...Object.keys(DIR_TO_ASSET), "tenant"]);
+  const validDirs = new Set([...Object.keys(DIR_TO_ASSET_TYPE), "tenant"]);
 
   if (!validDirs.has(entityFlag)) {
     console.error(
@@ -107,7 +90,7 @@ if (entityFlag !== null) {
     process.exit(1);
   }
 
-  selected = entityFlag === "tenant" ? "tenant" : DIR_TO_ASSET[entityFlag]!;
+  selected = entityFlag === "tenant" ? "tenant" : DIR_TO_ASSET_TYPE[entityFlag]!;
 } else {
   selected = await selectPrompt("Select an entity type to import:", options);
 }

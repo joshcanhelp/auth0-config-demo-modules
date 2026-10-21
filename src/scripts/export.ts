@@ -10,6 +10,7 @@ import { createFileCache } from "./utils/fileCache.js";
 import { confirmPrompt, selectPrompt } from "./utils/selectPrompt.js";
 import { selectTenant } from "./utils/selectTenant.js";
 import { loadDeployConfig } from "./utils/deployConfig.js";
+import { DIR_TO_ASSET_TYPE } from "./utils/assetDirectories.js";
 
 const entityFlagIndex = process.argv.indexOf("--entity");
 const entityFlag =
@@ -37,30 +38,7 @@ if (tenantFlagUsed) {
 }
 
 function dirToAssetType(dir: string): AssetTypes {
-  switch (dir) {
-    case "emails":
-      return "emailTemplates";
-    case "database-connections":
-      return "databases";
-    case "custom-domains":
-      return "customDomains";
-    case "resource-servers":
-      return "resourceServers";
-    case "attack-protection":
-      return "attackProtection";
-    case "event-streams":
-      return "eventStreams";
-    case "grants":
-      return "clientGrants";
-    case "guardian":
-      return "guardianFactors";
-    case "action-modules":
-      return "actionModules";
-    case "risk-assessment":
-      return "riskAssessment";
-    default:
-      return dir as AssetTypes;
-  }
+  return DIR_TO_ASSET_TYPE[dir] ?? (dir as AssetTypes);
 }
 
 const { skipEntities } = loadDeployConfig(outputdir);
