@@ -9,6 +9,7 @@ import { handleAction } from "./entity-handlers/actions.js";
 import { handleClient } from "./entity-handlers/clients.js";
 import { handleGrant } from "./entity-handlers/grants.js";
 import { handleSolution } from "./entity-handlers/solutions.js";
+import { handleTokenExchangeProfile } from "./entity-handlers/tokenExchangeProfiles.js";
 import { getTemplateTypes, getTemplatesForType } from "./templateSelection.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -63,6 +64,8 @@ if (type === "Action") {
   await handleClient(templateDir, tenantDir);
 } else if (type === "Grant") {
   await handleGrant(templateDir, tenantDir);
+} else if (type === "Token Exchange") {
+  await handleTokenExchangeProfile(templateDir, tenantDir);
 } else {
   console.error(`No handler implemented for type: "${type}"`);
   process.exit(1);
