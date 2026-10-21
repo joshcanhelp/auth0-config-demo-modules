@@ -15,6 +15,10 @@
   url.searchParams.set("code_challenge", config.codeChallenge);
   url.searchParams.set("code_challenge_method", "S256");
 
+  if (config.audience) {
+    url.searchParams.set("audience", config.audience);
+  }
+
   if (config.connection) {
     url.searchParams.set("connection", config.connection);
   }

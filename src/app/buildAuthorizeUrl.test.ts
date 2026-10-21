@@ -112,6 +112,46 @@ describe("buildAuthorizeUrl", () => {
     expect(url).toContain("scope=openid+profile+email+offline_access&");
   });
 
+  it("omits audience when client_metadata has no default_audience", () => {
+    const { url, audience } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).not.toContain("audience=");
+    expect(audience).toBeUndefined();
+  });
+
+  it("adds audience from client_metadata.default_audience when present", () => {
+    const audienceClient: Auth0Client = {
+      ...client,
+      client_metadata: { default_audience: "https://api.example.com/" },
+    };
+    const { url, audience } = buildAuthorizeUrl(
+      audienceClient,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain(`audience=${encodeURIComponent("https://api.example.com/")}`);
+    expect(audience).toBe("https://api.example.com/");
+  });
+
+  it("lets extraParams override the default_audience", () => {
+    const audienceClient: Auth0Client = {
+      ...client,
+      client_metadata: { default_audience: "https://api.example.com/" },
+    };
+    const { url, audience } = buildAuthorizeUrl(
+      audienceClient,
+      "login.example.com",
+      "http://localhost:3000",
+      { extraParams: { audience: "https://api.override.com/" } }
+    );
+    expect(url).toContain(`audience=${encodeURIComponent("https://api.override.com/")}`);
+    expect(url).not.toContain(encodeURIComponent("https://api.example.com/"));
+    expect(audience).toBe("https://api.override.com/");
+  });
+
   it("appends extra params to the URL when provided", () => {
     const { url } = buildAuthorizeUrl(
       client,

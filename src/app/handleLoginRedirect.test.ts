@@ -20,6 +20,7 @@ vi.mock("./buildAuthorizeUrl.js", () => ({
     codeVerifier: "verifier-abc",
     codeChallenge: "challenge-xyz",
     scope: "openid profile email offline_access",
+    audience: "https://api.example.com/",
   })),
 }));
 
@@ -96,6 +97,13 @@ describe("handleLoginRedirect", () => {
       handleLoginRedirect({ request: req as never, response: res as never, env: {} });
       const html = res.send.mock.calls[0][0] as string;
       expect(html).toContain("openid profile email offline_access");
+    });
+
+    it("embeds the computed audience in the page config", () => {
+      const { req, res } = makeReqRes(frontendClient);
+      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      const html = res.send.mock.calls[0][0] as string;
+      expect(html).toContain("https://api.example.com/");
     });
 
     it("inlines the spaLogin script", () => {

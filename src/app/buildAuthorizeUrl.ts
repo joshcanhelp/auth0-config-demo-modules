@@ -9,6 +9,7 @@ export interface AuthorizeResult {
   codeVerifier: string;
   codeChallenge: string;
   scope: string;
+  audience?: string;
 }
 
 export interface AuthorizeOptions {
@@ -48,6 +49,11 @@ export function buildAuthorizeUrl(
     code_challenge_method: "S256",
   });
 
+  const defaultAudience = client.client_metadata?.default_audience as string | undefined;
+  if (defaultAudience) {
+    params.set("audience", defaultAudience);
+  }
+
   if (options?.connection) {
     params.set("connection", options.connection);
   }
@@ -64,5 +70,6 @@ export function buildAuthorizeUrl(
     codeVerifier: pkce.verifier,
     codeChallenge: pkce.challenge,
     scope: scopes.join(" "),
+    audience: params.get("audience") ?? undefined,
   };
 }
