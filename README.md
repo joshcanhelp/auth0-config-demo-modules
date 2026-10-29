@@ -10,9 +10,9 @@ Rough notes on how to get started with a new tenant:
 4. Create a `.env` in the tenant directory you made with the following:
 
 ```bash
-TENANT_DOMAIN="discounttire-dev.discounttire.auth0app.com"
-M2M_CLIENT_ID="wE43MwoUElTxNSDraI4KCkndjkOFKPWT"
-M2M_CLIENT_SECRET="FgUSPy4mDyzHTIFbBFNO8LRZ8gsofeB28IQm_yBiXY2M_foncHTUkFIMn8AEgOKf"
+TENANT_DOMAIN="tenant.region.auth0.com"
+M2M_CLIENT_ID="CLIENT_ID"
+M2M_CLIENT_SECRET="CLIENT_SECRET"
 TENANT_TYPE="PUSH" # or "PULL" for a read-only tenant
 
 PORT=3333 # something cool and funny
