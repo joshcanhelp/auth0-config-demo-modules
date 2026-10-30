@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import process from "node:process";
 
 import { deploy } from "auth0-deploy-cli";
@@ -6,6 +7,7 @@ import { AssetTypes } from "auth0-deploy-cli/lib/types.js";
 import { getClientCredentialsToken } from "../../auth0/clientCredentials.js";
 import { withRetryOnInsufficientScope } from "../../auth0/withRetryOnInsufficientScope.js";
 import { createFileCache } from "../../scripts/utils/fileCache.js";
+import { loadDeployConfig } from "../../scripts/utils/deployConfig.js";
 import { decodeJwtPayload } from "../jwt.js";
 
 function hasNonReadScope(token: string): boolean {
@@ -36,6 +38,18 @@ export const deployCliPush = async ({
     process.exit(1);
   }
 
+  const { keywordReplaceMappings } = loadDeployConfig(tenantDir);
+  const customKeywordMappings: Record<string, string> = {};
+
+  for (const name of keywordReplaceMappings) {
+    const value = process.env[name];
+    assert(
+      value,
+      `"${name}" is listed in .deploy-config.json's keywordReplaceMappings but is not set in the environment.`
+    );
+    customKeywordMappings[name] = value;
+  }
+
   const cache = createFileCache(`${tenantDir}/.management-token.json`);
   await withRetryOnInsufficientScope(
     () =>
@@ -61,6 +75,7 @@ export const deployCliPush = async ({
             TENANT_DOMAIN,
             AUTH0_TO_AUTH0_CLIENT_ID,
             AUTH0_TO_AUTH0_CLIENT_SECRET,
+            ...customKeywordMappings,
           },
         },
       });

@@ -40,6 +40,18 @@ Skipped entities are hidden from the interactive selection menus, excluded from 
 
 This is separate from the fixed set of types always excluded from a full `export -- All` run (see below) - those are hardcoded and apply to export only, regardless of `.deploy-config.json`.
 
+### Keyword replacement
+
+List env var names under `keywordReplaceMappings` in `.deploy-config.json` to make them available as `"##VAR_NAME##"` placeholders in that tenant's config files during `import`/`watch`. Each listed var is read from `process.env` at deploy time and must be set, or the deploy fails with an error naming the missing var.
+
+```json
+{
+  "keywordReplaceMappings": ["C360_BASE_URL", "C360_CLIENT_ID"]
+}
+```
+
+`TENANT_DOMAIN`, `AUTH0_TO_AUTH0_CLIENT_ID`, and `AUTH0_TO_AUTH0_CLIENT_SECRET` are always available as keyword replacements and don't need to be listed here.
+
 ### `npm run export`
 
 Exports tenant configuration from Auth0 to local files. Selecting "All" exports every asset type Deploy CLI supports, minus the globally-excluded types (`guardianFactorProviders`, `guardianFactorTemplates`, `guardianPhoneFactorSelectedProvider`, `hooks`, `rules`, `rulesConfigs`). Selecting "All (local)" only exports the asset types that already have a directory in the tenant folder.
