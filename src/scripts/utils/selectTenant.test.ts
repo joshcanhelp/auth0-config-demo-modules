@@ -121,6 +121,29 @@ describe("selectTenant", () => {
     });
   });
 
+  describe("requireTenantType: false", () => {
+    it("returns undefined tenantType when TENANT_TYPE is missing", async () => {
+      delete process.env.TENANT_TYPE;
+      const result = await selectTenant({ requireTenantType: false });
+      expect(result.tenantType).toBeUndefined();
+      expect(process.exit).not.toHaveBeenCalled();
+    });
+
+    it("still returns tenantType when TENANT_TYPE is set", async () => {
+      process.env.TENANT_TYPE = "PULL";
+      const result = await selectTenant({ requireTenantType: false });
+      expect(result.tenantType).toBe("PULL");
+    });
+
+    it("exits with error when TENANT_TYPE is invalid", async () => {
+      process.env.TENANT_TYPE = "bogus";
+      await expect(selectTenant({ requireTenantType: false })).rejects.toThrow(
+        "process.exit called"
+      );
+      expect(process.exit).toHaveBeenCalledWith(1);
+    });
+  });
+
   describe("--tenant flag", () => {
     it("matches a directory by exact name", async () => {
       process.argv = ["node", "script.ts", "--tenant", "tenant-a"];

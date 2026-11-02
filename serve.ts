@@ -10,7 +10,7 @@ import { renderCallbackPage } from "./src/app/pages/renderCallbackPage.js";
 import { resolveBaseUrl } from "./src/app/updateClientUrls.js";
 import { handleLogout } from "./src/app/handleLogout.js";
 
-const { tenantDir } = await selectTenant();
+const { tenantDir } = await selectTenant({ requireTenantType: false });
 
 const { app, anyClientMiddleware, loginableClientMiddleware } =
   await createApp(tenantDir);
