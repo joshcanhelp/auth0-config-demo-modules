@@ -23,7 +23,7 @@
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.19.0",
     "eslint": "^9.0.0",
-    "eslint-plugin-unused-imports": "^4.0.0",
+    "eslint-plugin-unused-imports": "^1.1.3",
     "prettier": "^3.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
@@ -36,6 +36,7 @@
     "auth0-deploy-cli": "file:../auth0-deploy-cli",
     "chalk": "^4.1.2",
     "dotenv": "^17.4.2",
+    "eslint-config-prettier": "^6.15.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "zod": "^4.4.3"

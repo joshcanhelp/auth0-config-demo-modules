@@ -24,7 +24,7 @@ AUTH0_LOG="debug"
 
 ## Commands
 
-All commands that interact with a tenant prompt for tenant selection unless `--tenant <name>` is passed. The flag matches the tenant directory name exactly (e.g. `--tenant my-tenant` matches `tenants/my-tenant`). If only one tenant directory exists, selection is skipped automatically. Every tenant's `.env` must set `TENANT_TYPE` to `PUSH` or `PULL`.
+All commands that interact with a tenant prompt for tenant selection unless `--tenant <name>` is passed. The flag matches the tenant directory name exactly (e.g. `--tenant my-tenant` matches `tenants/my-tenant`). If only one tenant directory exists, selection is skipped automatically. Every tenant's `.env` must set `TENANT_TYPE` to `PUSH` or `PULL` for commands that export from or import to a tenant (`export`, `import`, `watch`, `validate`, `generate`, `report`). Serving the app (`serve.ts`) does not require `TENANT_TYPE`.
 
 ### Skipping entities
 
