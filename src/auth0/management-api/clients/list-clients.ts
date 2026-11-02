@@ -3,7 +3,8 @@ import type { Management } from "auth0";
 import type { RequestDescriptor } from "../client.js";
 
 export type ListClientsParams = Management.ListClientsRequestParameters;
-export type ListClientsPaginatedResponse = Management.ListClientsOffsetPaginatedResponseContent;
+export type ListClientsPaginatedResponse =
+  Management.ListClientsOffsetPaginatedResponseContent;
 export type Client = Management.Client;
 
 // https://auth0.com/docs/api/management/v2/clients/get-clients

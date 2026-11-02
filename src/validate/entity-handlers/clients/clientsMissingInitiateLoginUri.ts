@@ -27,6 +27,7 @@ export async function checkMissingInitiateLoginUri(
     "missing_initiate_login_uri",
     DEFINITIONS,
     "clients_missing_initiate_login_uri",
-    () => "initiate_login_uri: No initiate_login_uri configured. Third-party initiated login will not work."
+    () =>
+      "initiate_login_uri: No initiate_login_uri configured. Third-party initiated login will not work."
   );
 }

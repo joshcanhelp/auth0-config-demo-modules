@@ -17,7 +17,9 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
 };
 
 // Session lifetime checks surface the current config as informational.
-export async function checkTenantSettingsSessionLifetime(tenant: unknown): Promise<Finding[]> {
+export async function checkTenantSettingsSessionLifetime(
+  tenant: unknown
+): Promise<Finding[]> {
   const findings: Finding[] = [];
   const result = await checkSessionLifetime({ tenant });
 

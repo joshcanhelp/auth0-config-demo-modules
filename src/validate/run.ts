@@ -9,7 +9,10 @@ import { selectTenant } from "../scripts/utils/selectTenant.js";
 import { loadTenantUserSchema } from "../utils/tenantUserSchema.js";
 import { validateClients } from "./entity-handlers/clients/index.js";
 import { TENANT_TAGS, type TenantTag } from "./utils/tenantTag.js";
-import { validateActions, validateActionModules } from "./entity-handlers/actions/index.js";
+import {
+  validateActions,
+  validateActionModules,
+} from "./entity-handlers/actions/index.js";
 import { validateAttackProtection } from "./entity-handlers/attackProtection/index.js";
 import type { AttackProtectionConfig } from "./entity-handlers/attackProtection/index.js";
 import { validateCustomDomains } from "./entity-handlers/customDomain/index.js";

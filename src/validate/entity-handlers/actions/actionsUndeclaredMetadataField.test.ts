@@ -72,7 +72,9 @@ describe("checkUndeclaredMetadataField", () => {
     const findings = checkUndeclaredMetadataField([action], SCHEMA);
 
     expect(findings).toHaveLength(2);
-    expect(findings.every((f) => f.code === "actions_undeclared_metadata_field")).toBe(true);
+    expect(findings.every((f) => f.code === "actions_undeclared_metadata_field")).toBe(
+      true
+    );
   });
 
   it("does not flag a declared user_metadata field read or write", () => {

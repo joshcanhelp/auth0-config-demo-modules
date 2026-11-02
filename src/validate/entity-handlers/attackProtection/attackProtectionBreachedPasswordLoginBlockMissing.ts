@@ -22,7 +22,10 @@ export async function checkAttackProtectionBreachedPasswordLoginBlockMissing(
   });
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "stage_login_shields_block_not_configured") {
+    if (
+      item.status !== "red" ||
+      item.field !== "stage_login_shields_block_not_configured"
+    ) {
       continue;
     }
     findings.push(

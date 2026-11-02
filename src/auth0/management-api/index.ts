@@ -6,7 +6,11 @@ import { createManagementApiClient as createCoreClient } from "./client.js";
 import type { ManagementApiClient, ManagementApiClientOptions } from "./client.js";
 import { createClientsNamespace } from "./clients/index.js";
 
-export type { RequestDescriptor, ManagementApiClient, ManagementApiClientOptions } from "./client.js";
+export type {
+  RequestDescriptor,
+  ManagementApiClient,
+  ManagementApiClientOptions,
+} from "./client.js";
 
 export function createManagementApiClient(options: ManagementApiClientOptions) {
   const core: ManagementApiClient = createCoreClient(options);

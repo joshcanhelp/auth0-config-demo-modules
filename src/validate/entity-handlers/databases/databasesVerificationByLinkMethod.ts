@@ -6,7 +6,9 @@ import { loadFlatCheck } from "./shared.js";
 // "flexible_identifiers_disabled" (see databasesFlexibleIdentifiersDisabled.ts). Calling it
 // once per field costs a little duplicate work, traded for each validation code having its
 // own self-contained file.
-const checkEmailAttributeVerification = loadFlatCheck("checkEmailAttributeVerification.js");
+const checkEmailAttributeVerification = loadFlatCheck(
+  "checkEmailAttributeVerification.js"
+);
 
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   databases_verification_by_link_method: {

@@ -17,7 +17,9 @@ export type CheckmateReportItem = {
 };
 export type CheckmateClientReport = { name: string; report: CheckmateReportItem[] };
 export type CheckmateCheckResult = { details: CheckmateClientReport[] };
-export type CheckmateFn = (options: { clients: unknown[] }) => Promise<CheckmateCheckResult>;
+export type CheckmateFn = (options: {
+  clients: unknown[];
+}) => Promise<CheckmateCheckResult>;
 
 export function loadCheck(filename: string): CheckmateFn {
   return _require(`auth0-checkmate/analyzer/lib/clients/${filename}`) as CheckmateFn;
@@ -50,10 +52,16 @@ export function findingsForField(
 
       const value = report.value !== undefined ? String(report.value) : undefined;
       findings.push(
-        buildFinding(definitions, code, clientDisplayName(report), buildMessage(report, value), {
-          entityId: report.client_id,
-          value,
-        })
+        buildFinding(
+          definitions,
+          code,
+          clientDisplayName(report),
+          buildMessage(report, value),
+          {
+            entityId: report.client_id,
+            value,
+          }
+        )
       );
     }
   }

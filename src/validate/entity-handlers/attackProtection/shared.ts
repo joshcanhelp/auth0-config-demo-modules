@@ -8,10 +8,18 @@ export interface AttackProtectionConfig {
   suspiciousIpThrottling?: unknown;
 }
 
-export type CheckmateItem = { field: string; status: string; value?: string | number | boolean };
+export type CheckmateItem = {
+  field: string;
+  status: string;
+  value?: string | number | boolean;
+};
 export type CheckmateResult = { details: CheckmateItem[] };
-export type CheckmateFn = (options: { attackProtection: unknown }) => Promise<CheckmateResult>;
+export type CheckmateFn = (options: {
+  attackProtection: unknown;
+}) => Promise<CheckmateResult>;
 
 export function loadCheck(filename: string): CheckmateFn {
-  return _require(`auth0-checkmate/analyzer/lib/attack_protection/${filename}`) as CheckmateFn;
+  return _require(
+    `auth0-checkmate/analyzer/lib/attack_protection/${filename}`
+  ) as CheckmateFn;
 }

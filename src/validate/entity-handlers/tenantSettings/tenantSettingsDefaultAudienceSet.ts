@@ -14,7 +14,9 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
 };
 
 // INFO status (no_default_audience) means it's not set - no finding needed.
-export async function checkTenantSettingsDefaultAudienceSet(tenant: unknown): Promise<Finding[]> {
+export async function checkTenantSettingsDefaultAudienceSet(
+  tenant: unknown
+): Promise<Finding[]> {
   const findings: Finding[] = [];
   const result = await checkDefaultAudience({ tenant });
 

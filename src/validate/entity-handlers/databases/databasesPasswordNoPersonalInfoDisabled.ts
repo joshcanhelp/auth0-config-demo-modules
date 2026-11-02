@@ -19,7 +19,8 @@ export async function checkDatabasesPasswordNoPersonalInfoDisabled(
   const result = await checkPasswordNoPersonalInfo({ databases });
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "password_no_personal_info_disabled") continue;
+    if (item.status !== "red" || item.field !== "password_no_personal_info_disabled")
+      continue;
     findings.push(
       buildFinding(
         DEFINITIONS,

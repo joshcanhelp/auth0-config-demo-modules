@@ -23,7 +23,8 @@ export async function checkDatabasesPasswordComplexityNotConfigured(
   const result = await checkPasswordComplexity({ databases });
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "password_complexity_not_configured") continue;
+    if (item.status !== "red" || item.field !== "password_complexity_not_configured")
+      continue;
     findings.push(
       buildFinding(
         DEFINITIONS,

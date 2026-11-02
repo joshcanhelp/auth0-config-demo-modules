@@ -2,7 +2,12 @@ import { createRequire } from "node:module";
 
 const _require = createRequire(import.meta.url);
 
-export type CheckmateItem = { field: string; status: string; value?: string; attr?: string };
+export type CheckmateItem = {
+  field: string;
+  status: string;
+  value?: string;
+  attr?: string;
+};
 export type CheckmateResult = { details: CheckmateItem[] };
 type CheckmateFn = (options: { emailTemplates: unknown[] }) => Promise<CheckmateResult>;
 

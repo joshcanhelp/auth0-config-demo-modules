@@ -29,9 +29,7 @@ function toMarkdown(rows: ClientReportRow[], tenantName: string): string {
     "",
     "| Name | Client ID | Type |",
     "| --- | --- | --- |",
-    ...rows.map(
-      (row) => `| ${row.name} | ${row.client_id} | ${row.app_type} |`
-    ),
+    ...rows.map((row) => `| ${row.name} | ${row.client_id} | ${row.app_type} |`),
   ];
   return lines.join("\n") + "\n";
 }

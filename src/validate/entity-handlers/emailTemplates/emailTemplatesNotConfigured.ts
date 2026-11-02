@@ -17,7 +17,8 @@ export async function checkEmailTemplatesNotConfigured(
   const result = await runEmailTemplatesCheck(templatesByType);
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "email_templates_not_configured") continue;
+    if (item.status !== "red" || item.field !== "email_templates_not_configured")
+      continue;
     findings.push(
       buildFinding(
         DEFINITIONS,

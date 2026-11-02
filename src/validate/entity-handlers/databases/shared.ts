@@ -9,7 +9,9 @@ export type CheckmateFlatItem = {
   value?: string | number;
 };
 export type CheckmateFlatResult = { details: CheckmateFlatItem[] };
-export type CheckmateFlatFn = (options: { databases: unknown[] }) => Promise<CheckmateFlatResult>;
+export type CheckmateFlatFn = (options: {
+  databases: unknown[];
+}) => Promise<CheckmateFlatResult>;
 
 export type CheckmateNestedItem = {
   scriptName?: string;
@@ -27,9 +29,13 @@ export type CheckmateNestedFn = (options: {
 }) => Promise<{ details: (CheckmateNestedReport | CheckmateFallbackItem)[] }>;
 
 export function loadFlatCheck(filename: string): CheckmateFlatFn {
-  return _require(`auth0-checkmate/analyzer/lib/databases/${filename}`) as CheckmateFlatFn;
+  return _require(
+    `auth0-checkmate/analyzer/lib/databases/${filename}`
+  ) as CheckmateFlatFn;
 }
 
 export function loadNestedCheck(filename: string): CheckmateNestedFn {
-  return _require(`auth0-checkmate/analyzer/lib/databases/${filename}`) as CheckmateNestedFn;
+  return _require(
+    `auth0-checkmate/analyzer/lib/databases/${filename}`
+  ) as CheckmateNestedFn;
 }

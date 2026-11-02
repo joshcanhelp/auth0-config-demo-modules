@@ -32,6 +32,7 @@ export async function checkInsecureInitiateLoginUri(
     "insecure_initiate_login_uri",
     DEFINITIONS,
     "clients_insecure_initiate_login_uri",
-    (_report, value) => `initiate_login_uri: Insecure pattern in initiate_login_uri: ${value}`
+    (_report, value) =>
+      `initiate_login_uri: Insecure pattern in initiate_login_uri: ${value}`
   );
 }

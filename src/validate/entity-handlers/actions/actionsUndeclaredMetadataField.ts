@@ -21,7 +21,8 @@ const APP_METADATA_READ_PATTERN =
 const USER_METADATA_READ_PATTERN =
   /\bevent\.user\.user_metadata\.([A-Za-z_][A-Za-z0-9_]*)(?!\s*\()/g;
 const APP_METADATA_WRITE_PATTERN = /\bapi\.user\.setAppMetadata\(\s*['"`]([^'"`]+)['"`]/g;
-const USER_METADATA_WRITE_PATTERN = /\bapi\.user\.setUserMetadata\(\s*['"`]([^'"`]+)['"`]/g;
+const USER_METADATA_WRITE_PATTERN =
+  /\bapi\.user\.setUserMetadata\(\s*['"`]([^'"`]+)['"`]/g;
 
 // The field names a schema group (app_metadata or user_metadata) declares at its top level -
 // the names actually passed as setAppMetadata/setUserMetadata's first argument, or read as

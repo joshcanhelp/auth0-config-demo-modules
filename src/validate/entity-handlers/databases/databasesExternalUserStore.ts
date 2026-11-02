@@ -2,7 +2,9 @@ import { buildFinding } from "../../utils/finding.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { loadFlatCheck } from "./shared.js";
 
-const checkEnabledDatabaseCustomization = loadFlatCheck("checkEnabledDatabaseCustomization.js");
+const checkEnabledDatabaseCustomization = loadFlatCheck(
+  "checkEnabledDatabaseCustomization.js"
+);
 
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   databases_external_user_store: {

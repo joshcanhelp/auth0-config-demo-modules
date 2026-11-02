@@ -28,7 +28,8 @@ export async function checkTenantSettingsInvalidDefaultRedirectionUri(
   const result = await checkTenantLoginUrl({ tenant });
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "invalid_default_redirection_uri") continue;
+    if (item.status !== "red" || item.field !== "invalid_default_redirection_uri")
+      continue;
     findings.push(
       buildFinding(
         DEFINITIONS,

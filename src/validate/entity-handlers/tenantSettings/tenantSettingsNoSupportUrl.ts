@@ -12,7 +12,9 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   },
 };
 
-export async function checkTenantSettingsNoSupportUrl(tenant: unknown): Promise<Finding[]> {
+export async function checkTenantSettingsNoSupportUrl(
+  tenant: unknown
+): Promise<Finding[]> {
   const findings: Finding[] = [];
   const result = await checkSupportUrl({ tenant });
 

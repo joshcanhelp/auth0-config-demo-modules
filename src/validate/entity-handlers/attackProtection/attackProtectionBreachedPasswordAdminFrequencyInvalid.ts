@@ -22,7 +22,8 @@ export async function checkAttackProtectionBreachedPasswordAdminFrequencyInvalid
   });
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "admin_frequency_invalid_values") continue;
+    if (item.status !== "red" || item.field !== "admin_frequency_invalid_values")
+      continue;
     findings.push(
       buildFinding(
         DEFINITIONS,

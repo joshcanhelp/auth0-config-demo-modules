@@ -4,8 +4,12 @@ const _require = createRequire(import.meta.url);
 
 export type CheckmateItem = { field: string; status: string; value?: string };
 export type CheckmateResult = { details: CheckmateItem[] };
-export type CheckmateFn = (options: { customDomains: unknown[] }) => Promise<CheckmateResult>;
+export type CheckmateFn = (options: {
+  customDomains: unknown[];
+}) => Promise<CheckmateResult>;
 
 export function loadCheck(filename: string): CheckmateFn {
-  return _require(`auth0-checkmate/analyzer/lib/custom_domain/${filename}`) as CheckmateFn;
+  return _require(
+    `auth0-checkmate/analyzer/lib/custom_domain/${filename}`
+  ) as CheckmateFn;
 }

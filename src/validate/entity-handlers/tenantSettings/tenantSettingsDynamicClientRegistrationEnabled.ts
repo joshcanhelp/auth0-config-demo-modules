@@ -22,7 +22,8 @@ export async function checkTenantSettingsDynamicClientRegistrationEnabled(
   const result = await checkEnabledDynamicClientRegistration({ tenant });
 
   for (const item of result.details) {
-    if (item.status !== "red" || item.field !== "enabled_dynamic_client_registration") continue;
+    if (item.status !== "red" || item.field !== "enabled_dynamic_client_registration")
+      continue;
     findings.push(
       buildFinding(
         DEFINITIONS,
