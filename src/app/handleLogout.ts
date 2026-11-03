@@ -20,10 +20,12 @@ export function handleLogout({
 }) {
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   const loginDomain = request.session.loginDomain ?? tenantConfig.loginDomain;
+  const clientId = request.session.auth0ClientId;
 
   request.session.destroy(() => {
     const auth0LogoutUrl = buildLogoutUrl({
       loginDomain,
+      clientId,
       returnTo: response.locals.baseUrl,
     });
 

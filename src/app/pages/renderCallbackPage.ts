@@ -23,6 +23,14 @@ export async function renderCallbackPage({
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   const client = response.locals.client!;
 
+  const pageHeader = `
+    <h1>Logging in to ${client.name}</h1>
+    <p>
+      <a href="/client/${client.client_id}">&larr; Back to ${client.name}</a> &bull;
+      <a href="/login/${client.client_id}">Login again &rarr;</a>
+    </p>
+  `;
+
   if (detectLoginMethod(client, env) === "frontend") {
     const spaCallbackScript = readFileSync(
       join(dir, "..", "browser", "spaCallback.js"),
@@ -38,12 +46,12 @@ export async function renderCallbackPage({
         title: `Callback - ${client.name}`,
         tenantConfig,
         body: `
-  <h1>Logging in to ${client.name}</h1>
-  <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>
-  <div id="steps"></div>
-  <div id="tokens"></div>
-  <script id="spa-callback-config" type="application/json">${callbackConfig}</script>
-  <script>${spaCallbackScript}</script>`,
+          ${pageHeader}
+          <div id="steps"></div>
+          <div id="tokens"></div>
+          <script id="spa-callback-config" type="application/json">${callbackConfig}</script>
+          <script>${spaCallbackScript}</script>
+        `,
       })
     );
   }
@@ -66,6 +74,8 @@ export async function renderCallbackPage({
     request.session.auth0UserEmail = email;
   }
 
+  request.session.auth0ClientId = client.client_id;
+
   const accessTokenClaims =
     rawAccessToken && rawAccessToken.split(".").length === 3
       ? decodeJwtPayload(rawAccessToken)
@@ -80,13 +90,13 @@ export async function renderCallbackPage({
       title: `Logged in - ${client.name}`,
       tenantConfig,
       body: `
-  <h1>Logged in to ${client.name}</h1>
-  <p><a href="/client/${client.client_id}">&larr; Back to ${client.name}</a></p>
-  <h2>ID Token Claims</h2>
-  <pre>${JSON.stringify(idTokenClaims, null, 2)}</pre>
-  ${accessTokenSection}
-  <h2>Token Response</h2>
-  <pre>${JSON.stringify(tokens, null, 2)}</pre>`,
+        ${pageHeader}
+        <h2>ID Token Claims</h2>
+        <pre>${JSON.stringify(idTokenClaims, null, 2)}</pre>
+        ${accessTokenSection}
+        <h2>Token Response</h2>
+        <pre>${JSON.stringify(tokens, null, 2)}</pre>
+      `,
     })
   );
 }

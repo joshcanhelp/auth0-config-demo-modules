@@ -1,16 +1,14 @@
-import type { Auth0Client } from "../types.js";
-
 export function buildLogoutUrl({
   loginDomain,
-  client,
+  clientId,
   returnTo,
 }: {
   loginDomain: string;
-  client?: Auth0Client;
+  clientId?: string;
   returnTo?: string;
 }): string {
   const params = new URLSearchParams({
-    ...(client ? { client_id: client.client_id } : {}),
+    ...(clientId ? { client_id: clientId } : {}),
     ...(returnTo ? { returnTo } : {}),
   });
   return `https://${loginDomain}/v2/logout?${params.toString()}`;
