@@ -6,8 +6,9 @@ import { pageLayout } from "./pageLayout.js";
 import { readTenantConfig } from "./../readTenantConfig.js";
 
 export interface SessionTransferConfig {
-  clientId: string;
-  clientSecret: string;
+  // Only needed for a confidential client - a public client (token_endpoint_auth_method:
+  // none, e.g. Apivant Demo App) doesn't have one and can omit this.
+  clientSecret?: string;
   subjectTokenType: string;
   targetInitiateLoginUri: string;
   audience?: string;
@@ -50,9 +51,19 @@ export async function renderSessionTransferPage({
   // Single-use: this ID token is only meant to authorize the one exchange.
   request.session.auth0IdToken = undefined;
 
+  // The token-exchange request must come from the same client the actor logged
+  // in with (set alongside auth0IdToken in renderCallbackPage) - not a separately
+  // configured client, since the resulting session transfer token is meant to
+  // pick up that same login session.
+  const clientId = request.session.auth0ClientId;
+  if (!clientId) {
+    renderError(400, "No client identity in session - please log in again.");
+    return;
+  }
+
   const authenticationApi = createAuthenticationApi(
     response.locals.auth0Domain,
-    config.clientId,
+    clientId,
     config.clientSecret
   );
 
@@ -89,7 +100,7 @@ export async function renderSessionTransferPage({
   // https://auth0.com/docs/authenticate/single-sign-on/session-delegation/implement-session-delegation
   const continueUrl = buildLogoutUrl({
     loginDomain: tenantConfig.loginDomain,
-    clientId: config.clientId,
+    clientId,
     returnTo: targetUrl.toString(),
   });
 

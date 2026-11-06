@@ -22,6 +22,7 @@ export const DIR_TO_ASSET_TYPE: Record<string, AssetTypes> = {
   "grants": "clientGrants",
   "guardian": "guardianFactors",
   "log-streams": "logStreams",
+  "pages": "pages",
   "phone-providers": "phoneProviders",
   "phone-templates": "phoneTemplates",
   "prompts": "prompts",

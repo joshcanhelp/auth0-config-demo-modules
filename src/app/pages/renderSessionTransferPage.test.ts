@@ -16,8 +16,9 @@ vi.mock("../../auth0/apiAuthentication.js", () => ({
 
 import { renderSessionTransferPage } from "./renderSessionTransferPage.js";
 
+const SESSION_CLIENT_ID = "session-client-id";
+
 const config = {
-  clientId: "exchange_client_id",
   clientSecret: "exchange_client_secret",
   subjectTokenType: "https://example.com/subject",
   targetInitiateLoginUri: "https://target.example.com",
@@ -42,7 +43,7 @@ beforeEach(() => {
 
 describe("renderSessionTransferPage", () => {
   it("responds 400 when subject_token is missing", async () => {
-    const { request, response } = makeReqRes({}, { auth0IdToken: "actor-id-token" });
+    const { request, response } = makeReqRes({}, { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID });
 
     await renderSessionTransferPage({
       request: request as never,
@@ -69,11 +70,28 @@ describe("renderSessionTransferPage", () => {
     expect(mockTokenExchange).not.toHaveBeenCalled();
   });
 
+  it("responds 400 when there is no client identity in session", async () => {
+    const { request, response } = makeReqRes(
+      { subject_token: "subject-jwt" },
+      { auth0IdToken: "actor-id-token" }
+    );
+
+    await renderSessionTransferPage({
+      request: request as never,
+      response: response as never,
+      env: {},
+      config,
+    });
+
+    expect(response.status).toHaveBeenCalledWith(400);
+    expect(mockTokenExchange).not.toHaveBeenCalled();
+  });
+
   it("exchanges the subject and actor tokens and clears the session actor token", async () => {
     mockTokenExchange.mockResolvedValue({ access_token: "session-transfer-token" });
     const { request, response, session } = makeReqRes(
       { subject_token: "subject-jwt" },
-      { auth0IdToken: "actor-id-token" }
+      { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID }
     );
 
     await renderSessionTransferPage({
@@ -97,7 +115,7 @@ describe("renderSessionTransferPage", () => {
     mockTokenExchange.mockResolvedValue({ access_token: "session-transfer-token" });
     const { request, response } = makeReqRes(
       { subject_token: "subject-jwt" },
-      { auth0IdToken: "actor-id-token" }
+      { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID }
     );
 
     await renderSessionTransferPage({
@@ -112,7 +130,7 @@ describe("renderSessionTransferPage", () => {
       "https://target.example.com/?session_transfer_token=session-transfer-token"
     );
     expect(html).toContain("https://example.auth0.com/v2/logout?");
-    expect(html).toContain(`client_id=${config.clientId}`);
+    expect(html).toContain(`client_id=${SESSION_CLIENT_ID}`);
     expect(html).toContain(`returnTo=${expectedReturnTo}`);
   });
 
@@ -120,7 +138,7 @@ describe("renderSessionTransferPage", () => {
     mockTokenExchange.mockResolvedValue({ access_token: "tok" });
     const { request, response } = makeReqRes(
       { subject_token: "subject-jwt" },
-      { auth0IdToken: "actor-id-token" }
+      { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID }
     );
 
     await renderSessionTransferPage({
@@ -139,7 +157,7 @@ describe("renderSessionTransferPage", () => {
     mockTokenExchange.mockRejectedValue(new Error("Invalid subject_token"));
     const { request, response } = makeReqRes(
       { subject_token: "subject-jwt" },
-      { auth0IdToken: "actor-id-token" }
+      { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID }
     );
 
     await renderSessionTransferPage({
@@ -156,7 +174,7 @@ describe("renderSessionTransferPage", () => {
     mockTokenExchange.mockResolvedValue({});
     const { request, response } = makeReqRes(
       { subject_token: "subject-jwt" },
-      { auth0IdToken: "actor-id-token" }
+      { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID }
     );
 
     await renderSessionTransferPage({
