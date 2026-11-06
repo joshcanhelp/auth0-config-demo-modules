@@ -43,7 +43,10 @@ beforeEach(() => {
 
 describe("renderSessionTransferPage", () => {
   it("responds 400 when subject_token is missing", async () => {
-    const { request, response } = makeReqRes({}, { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID });
+    const { request, response } = makeReqRes(
+      {},
+      { auth0IdToken: "actor-id-token", auth0ClientId: SESSION_CLIENT_ID }
+    );
 
     await renderSessionTransferPage({
       request: request as never,

@@ -9,6 +9,12 @@ function makeReqRes(body: Record<string, unknown> = {}) {
   return { request, response, session };
 }
 
+function makeIdToken(payload: Record<string, unknown>): string {
+  const encode = (value: unknown) =>
+    Buffer.from(JSON.stringify(value)).toString("base64url");
+  return `${encode({ alg: "HS256" })}.${encode(payload)}.signature`;
+}
+
 describe("handleStoreIdToken", () => {
   it("stores a well-formed JWT in the session", () => {
     const { request, response, session } = makeReqRes({ id_token: "a.b.c" });
@@ -16,6 +22,17 @@ describe("handleStoreIdToken", () => {
     handleStoreIdToken({ request: request as never, response: response as never });
 
     expect(session.auth0IdToken).toBe("a.b.c");
+    expect(response.status).toHaveBeenCalledWith(204);
+  });
+
+  it("stores the client_id from the ID token's aud claim", () => {
+    const idToken = makeIdToken({ aud: "client-abc123", sub: "auth0|user1" });
+    const { request, response, session } = makeReqRes({ id_token: idToken });
+
+    handleStoreIdToken({ request: request as never, response: response as never });
+
+    expect(session.auth0IdToken).toBe(idToken);
+    expect(session.auth0ClientId).toBe("client-abc123");
     expect(response.status).toHaveBeenCalledWith(204);
   });
 
