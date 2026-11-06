@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 
 import { createAuthenticationApi } from "../../auth0/apiAuthentication.js";
+import { buildLogoutUrl } from "./../buildLogoutUrl.js";
 import { pageLayout } from "./pageLayout.js";
 import { readTenantConfig } from "./../readTenantConfig.js";
 
@@ -78,8 +79,19 @@ export async function renderSessionTransferPage({
     return;
   }
 
-  const redirectUrl = new URL(config.targetInitiateLoginUri);
-  redirectUrl.searchParams.set("session_transfer_token", sessionTransferToken);
+  const targetUrl = new URL(config.targetInitiateLoginUri);
+  targetUrl.searchParams.set("session_transfer_token", sessionTransferToken);
+
+  // Redeeming a session transfer token fails with session_conflict while the
+  // actor still has an active session, so route through /v2/logout first
+  // (clearing that session) with returnTo pointing at the target - no
+  // Management API grant needed. See the Security Model section:
+  // https://auth0.com/docs/authenticate/single-sign-on/session-delegation/implement-session-delegation
+  const continueUrl = buildLogoutUrl({
+    loginDomain: tenantConfig.loginDomain,
+    clientId: config.clientId,
+    returnTo: targetUrl.toString(),
+  });
 
   response.send(
     pageLayout({
@@ -88,7 +100,7 @@ export async function renderSessionTransferPage({
       body: `
         <h1>${PAGE_TITLE}</h1>
         <p>A new session is ready.</p>
-        <a href="${redirectUrl.toString()}"><button>Continue</button></a>
+        <a href="${continueUrl}"><button>Continue</button></a>
       `,
     })
   );

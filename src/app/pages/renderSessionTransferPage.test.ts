@@ -69,7 +69,7 @@ describe("renderSessionTransferPage", () => {
     expect(mockTokenExchange).not.toHaveBeenCalled();
   });
 
-  it("exchanges the subject and actor tokens, clears the session actor token, and links to the target with the session transfer token", async () => {
+  it("exchanges the subject and actor tokens and clears the session actor token", async () => {
     mockTokenExchange.mockResolvedValue({ access_token: "session-transfer-token" });
     const { request, response, session } = makeReqRes(
       { subject_token: "subject-jwt" },
@@ -91,11 +91,29 @@ describe("renderSessionTransferPage", () => {
       actorToken: "actor-id-token",
     });
     expect(session.auth0IdToken).toBeUndefined();
+  });
+
+  it("links to /v2/logout (to clear the actor's existing session first) with returnTo pointing at the target and session transfer token", async () => {
+    mockTokenExchange.mockResolvedValue({ access_token: "session-transfer-token" });
+    const { request, response } = makeReqRes(
+      { subject_token: "subject-jwt" },
+      { auth0IdToken: "actor-id-token" }
+    );
+
+    await renderSessionTransferPage({
+      request: request as never,
+      response: response as never,
+      env: {},
+      config,
+    });
 
     const html = response.send.mock.calls[0][0] as string;
-    expect(html).toContain(
+    const expectedReturnTo = encodeURIComponent(
       "https://target.example.com/?session_transfer_token=session-transfer-token"
     );
+    expect(html).toContain("https://example.auth0.com/v2/logout?");
+    expect(html).toContain(`client_id=${config.clientId}`);
+    expect(html).toContain(`returnTo=${expectedReturnTo}`);
   });
 
   it("uses a custom audience when provided", async () => {
