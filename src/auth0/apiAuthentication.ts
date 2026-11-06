@@ -89,6 +89,30 @@ export function createAuthenticationApi(
     );
   };
 
+  // https://auth0.com/docs/api/authentication/custom-token-exchange/get-token
+  const tokenExchange = async (params: {
+    audience?: string;
+    subjectTokenType: string;
+    subjectToken: string;
+    actorTokenType?: string;
+    actorToken?: string;
+  }): Promise<Record<string, unknown>> => {
+    const body: Record<string, string | undefined> = {
+      grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+      client_id: clientId,
+      client_secret: clientSecret,
+      audience: params.audience,
+      subject_token_type: params.subjectTokenType,
+      subject_token: params.subjectToken,
+      actor_token_type: params.actorTokenType,
+      actor_token: params.actorToken,
+    };
+    return handleResponse<Record<string, unknown>>(
+      await postRequest("/oauth/token", body),
+      "exchange token"
+    );
+  };
+
   // https://auth0.com/docs/api/authentication/change-password/change-password
   const changePassword = async (connection: string, email: string): Promise<void> => {
     const body = { client_id: clientId, email, connection };
@@ -124,6 +148,7 @@ export function createAuthenticationApi(
     getToken,
     verifyOobCode,
     exchangeCodeForToken,
+    tokenExchange,
     changePassword,
     startPasswordless,
   };

@@ -22,16 +22,24 @@ export function handleLoginRedirect({
 }) {
   const client = response.locals.client!;
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
-  const { connection, extra_params, login_domain } = request.query as Record<
-    string,
-    string
-  >;
+  const { connection, extra_params, login_domain, session_transfer_token, organization } =
+    request.query as Record<string, string>;
 
   const extraParams: Record<string, string> = {};
   for (const line of (extra_params ?? "").split("\n")) {
     const eqIdx = line.indexOf("=");
     if (eqIdx < 1) continue;
     extraParams[line.slice(0, eqIdx).trim()] = line.slice(eqIdx + 1).trim();
+  }
+
+  // Redeeming a Session Transfer Token (e.g. from a client's initiate_login_uri
+  // redirect) requires forwarding it - and an organization, if present - to
+  // the fresh /authorize request. See https://auth0.com/docs/authenticate/single-sign-on/session-delegation
+  if (session_transfer_token) {
+    extraParams.session_transfer_token = session_transfer_token;
+  }
+  if (organization) {
+    extraParams.organization = organization;
   }
 
   const loginDomains = getLoginDomains(client, tenantConfig);

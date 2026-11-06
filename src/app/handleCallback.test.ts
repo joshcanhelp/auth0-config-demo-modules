@@ -16,6 +16,7 @@ const authenticationApi = {
   exchangeCodeForToken: mockExchangeCodeForToken,
   getToken: vi.fn(),
   verifyOobCode: vi.fn(),
+  tokenExchange: vi.fn(),
   changePassword: vi.fn(),
   startPasswordless: vi.fn(),
 };

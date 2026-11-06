@@ -41,6 +41,7 @@ declare module "express-session" {
     auth0UserId?: string;
     auth0UserEmail?: string;
     auth0ClientId?: string;
+    auth0IdToken?: string;
     loginDomain?: string;
   }
 }

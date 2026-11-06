@@ -25,6 +25,7 @@ vi.mock("./buildAuthorizeUrl.js", () => ({
 }));
 
 import { handleLoginRedirect } from "./handleLoginRedirect.js";
+import { buildAuthorizeUrl } from "./buildAuthorizeUrl.js";
 import type { Auth0Client } from "../types.js";
 
 const frontendClient: Auth0Client = {
@@ -144,6 +145,63 @@ describe("handleLoginRedirect", () => {
       });
       expect(session.oauthState).toBe("encoded-state");
       expect(session.pkceVerifier).toBe("verifier-abc");
+    });
+
+    it("forwards an incoming session_transfer_token to buildAuthorizeUrl", () => {
+      const { req, res } = makeReqRes(backendClient, {
+        session_transfer_token: "stt-abc",
+      });
+      handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+      expect(buildAuthorizeUrl).toHaveBeenCalledWith(
+        backendClient,
+        "example.auth0.com",
+        "http://localhost:3000",
+        expect.objectContaining({
+          extraParams: expect.objectContaining({ session_transfer_token: "stt-abc" }),
+        })
+      );
+    });
+
+    it("forwards an incoming organization alongside the session_transfer_token", () => {
+      const { req, res } = makeReqRes(backendClient, {
+        session_transfer_token: "stt-abc",
+        organization: "org_123",
+      });
+      handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+      expect(buildAuthorizeUrl).toHaveBeenCalledWith(
+        backendClient,
+        "example.auth0.com",
+        "http://localhost:3000",
+        expect.objectContaining({
+          extraParams: expect.objectContaining({
+            session_transfer_token: "stt-abc",
+            organization: "org_123",
+          }),
+        })
+      );
+    });
+
+    it("omits extraParams when there is no session_transfer_token or extra_params", () => {
+      const { req, res } = makeReqRes(backendClient);
+      handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: backendEnv,
+      });
+      expect(buildAuthorizeUrl).toHaveBeenCalledWith(
+        backendClient,
+        "example.auth0.com",
+        "http://localhost:3000",
+        expect.objectContaining({ extraParams: undefined })
+      );
     });
   });
 });

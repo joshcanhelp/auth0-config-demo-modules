@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
 import { decodeJwtPayload } from "../../utils/jwt.js";
+import type { Auth0Client } from "../../types.js";
 import { handleCallback } from "./../handleCallback.js";
 import { detectLoginMethod } from "./../detectLoginMethod.js";
 import { pageLayout } from "./pageLayout.js";
@@ -11,14 +12,40 @@ import { readTenantConfig } from "./../readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
+// A callout lets a project inject its own HTML into the backend callback page
+// based on the tokens/claims from this specific login, without this module
+// needing to know anything about that project's features. Return null to
+// render nothing.
+export type CallbackCallout = (context: {
+  idTokenClaims: unknown;
+  tokens: Record<string, unknown>;
+  client: Auth0Client;
+  env: NodeJS.ProcessEnv;
+}) => string | null;
+
+// The frontend (SPA) login flow decodes its ID token in the browser, after
+// this page has already been sent - so a callout for it can't be an arbitrary
+// server-side function like CallbackCallout. Instead it's plain data:
+// spaCallback.js checks `claim` against the decoded ID token client-side, and
+// if present, fills {value} into hrefTemplate and renders a link.
+export interface FrontendCallout {
+  claim: string;
+  hrefTemplate: string;
+  label: string;
+}
+
 export async function renderCallbackPage({
   request,
   response,
   env,
+  callouts = [],
+  frontendCallouts = [],
 }: {
   request: Request;
   response: Response;
   env: NodeJS.ProcessEnv;
+  callouts?: CallbackCallout[];
+  frontendCallouts?: FrontendCallout[];
 }) {
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   const client = response.locals.client!;
@@ -40,6 +67,7 @@ export async function renderCallbackPage({
       auth0Domain: response.locals.auth0Domain,
       clientId: client.client_id,
       redirectUri: `${response.locals.baseUrl}/callback/${client.client_id}`,
+      frontendCallouts,
     });
     return response.send(
       pageLayout({
@@ -48,6 +76,7 @@ export async function renderCallbackPage({
         body: `
           ${pageHeader}
           <div id="steps"></div>
+          <div id="callouts"></div>
           <div id="tokens"></div>
           <script id="spa-callback-config" type="application/json">${callbackConfig}</script>
           <script>${spaCallbackScript}</script>
@@ -76,6 +105,11 @@ export async function renderCallbackPage({
 
   request.session.auth0ClientId = client.client_id;
 
+  const idToken = tokens.id_token;
+  if (typeof idToken === "string") {
+    request.session.auth0IdToken = idToken;
+  }
+
   const accessTokenClaims =
     rawAccessToken && rawAccessToken.split(".").length === 3
       ? decodeJwtPayload(rawAccessToken)
@@ -85,12 +119,18 @@ export async function renderCallbackPage({
     ? `<h2>Access Token Claims</h2>\n  <pre>${JSON.stringify(accessTokenClaims, null, 2)}</pre>`
     : "";
 
+  const calloutsHtml = callouts
+    .map((callout) => callout({ idTokenClaims, tokens, client, env }))
+    .filter((html): html is string => Boolean(html))
+    .join("\n");
+
   response.send(
     pageLayout({
       title: `Logged in - ${client.name}`,
       tenantConfig,
       body: `
         ${pageHeader}
+        ${calloutsHtml}
         <h2>ID Token Claims</h2>
         <pre>${JSON.stringify(idTokenClaims, null, 2)}</pre>
         ${accessTokenSection}

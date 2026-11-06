@@ -94,6 +94,65 @@ describe("createAuthenticationApi", () => {
     });
   });
 
+  describe("tokenExchange", () => {
+    it("posts to /oauth/token with the token-exchange grant", async () => {
+      mockFetch.mockResolvedValue(makeResponse({ access_token: "tok" }));
+
+      await api.tokenExchange({
+        subjectTokenType: "https://example.com/subject",
+        subjectToken: "subject-jwt",
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        "https://example.auth0.com/oauth/token",
+        expect.objectContaining({ method: "POST" })
+      );
+      const sentBody = JSON.parse(
+        (mockFetch.mock.calls[0][1] as RequestInit).body as string
+      );
+      expect(sentBody).toMatchObject({
+        grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
+        subject_token_type: "https://example.com/subject",
+        subject_token: "subject-jwt",
+      });
+      expect(sentBody).not.toHaveProperty("actor_token");
+    });
+
+    it("includes actor_token and actor_token_type when provided", async () => {
+      mockFetch.mockResolvedValue(makeResponse({ access_token: "tok" }));
+
+      await api.tokenExchange({
+        audience: "urn:example.auth0.com:session_transfer",
+        subjectTokenType: "https://example.com/subject",
+        subjectToken: "subject-jwt",
+        actorTokenType: "urn:ietf:params:oauth:token-type:id_token",
+        actorToken: "actor-id-token",
+      });
+
+      const sentBody = JSON.parse(
+        (mockFetch.mock.calls[0][1] as RequestInit).body as string
+      );
+      expect(sentBody).toMatchObject({
+        audience: "urn:example.auth0.com:session_transfer",
+        actor_token_type: "urn:ietf:params:oauth:token-type:id_token",
+        actor_token: "actor-id-token",
+      });
+    });
+
+    it("throws when the response is not ok", async () => {
+      mockFetch.mockResolvedValue(
+        makeResponse({ message: "Invalid subject_token" }, false, 400)
+      );
+
+      await expect(
+        api.tokenExchange({
+          subjectTokenType: "https://example.com/subject",
+          subjectToken: "bad",
+        })
+      ).rejects.toThrow("Invalid subject_token");
+    });
+  });
+
   describe("changePassword", () => {
     it("posts to /dbconnections/change_password", async () => {
       mockFetch.mockResolvedValue(

@@ -3,6 +3,7 @@
 (function () {
   const config = JSON.parse(document.getElementById("spa-callback-config").textContent);
   const stepsEl = document.getElementById("steps");
+  const calloutsEl = document.getElementById("callouts");
   const tokensEl = document.getElementById("tokens");
 
   function addStep(label, success, detail) {
@@ -22,6 +23,25 @@
     } catch {
       return null;
     }
+  }
+
+  function renderCallouts(idClaims) {
+    if (!idClaims || !config.frontendCallouts) return;
+    const html = config.frontendCallouts
+      .map(function (callout) {
+        const value = idClaims[callout.claim];
+        if (typeof value !== "string") return "";
+        const href = callout.hrefTemplate.replace("{value}", encodeURIComponent(value));
+        return (
+          '<div class="callout"><a href="' +
+          href +
+          '"><button>' +
+          callout.label +
+          "</button></a></div>"
+        );
+      })
+      .join("\n");
+    calloutsEl.innerHTML = html;
   }
 
   function renderTokens(tokenResponse, idClaims) {
@@ -115,10 +135,9 @@
     }
 
     // Step 5: Decode tokens, store userId, and display
+    let idClaims = null;
     try {
-      const idClaims = tokenResponse.id_token
-        ? decodeJwtPayload(tokenResponse.id_token)
-        : null;
+      idClaims = tokenResponse.id_token ? decodeJwtPayload(tokenResponse.id_token) : null;
       if (idClaims && idClaims.sub) {
         localStorage.setItem("auth0_user_id", String(idClaims.sub));
       }
@@ -126,9 +145,26 @@
         localStorage.setItem("auth0_user_email", String(idClaims.email));
       }
       renderTokens(tokenResponse, idClaims);
+      renderCallouts(idClaims);
       addStep("Decode and display tokens", true);
     } catch (err) {
       addStep("Decode and display tokens", false, String(err));
+    }
+
+    // Step 6: Report the ID token back to the server session, for server-side
+    // features that need it afterward (e.g. acting as the actor_token in a
+    // later Custom Token Exchange request)
+    if (tokenResponse.id_token) {
+      try {
+        await fetch("/store-id-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_token: tokenResponse.id_token }),
+        });
+        addStep("Store ID token in session", true);
+      } catch (err) {
+        addStep("Store ID token in session", false, String(err));
+      }
     }
   }
 
