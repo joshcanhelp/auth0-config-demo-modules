@@ -2,6 +2,10 @@ import type { Management } from "auth0";
 
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import {
+  checkCimdFieldsNotEditable,
+  DEFINITIONS as CIMD_FIELDS_NOT_EDITABLE_DEFINITIONS,
+} from "./clientsCimdFieldsNotEditable.js";
+import {
   checkClientAuthenticationMethodsPrivateKeyJwt,
   DEFINITIONS as PRIVATE_KEY_JWT_DEFINITIONS,
 } from "./clientsClientAuthenticationMethodsPrivateKeyJwt.js";
@@ -9,6 +13,10 @@ import {
   checkCrossOriginAuthenticationEnabled,
   DEFINITIONS as CROSS_ORIGIN_AUTHENTICATION_DEFINITIONS,
 } from "./clientsCrossOriginAuthenticationEnabled.js";
+import {
+  checkDeprecatedFieldNames,
+  DEFINITIONS as DEPRECATED_FIELD_NAMES_DEFINITIONS,
+} from "./clientsDeprecatedFieldNames.js";
 import {
   checkInsecureAllowedLogoutUrls,
   DEFINITIONS as INSECURE_ALLOWED_LOGOUT_URLS_DEFINITIONS,
@@ -50,6 +58,10 @@ import {
   DEFINITIONS as SIGNED_REQUEST_OBJECT_REQUIRED_DEFINITIONS,
 } from "./clientsSignedRequestObjectRequired.js";
 import {
+  checkTokenVaultPrivilegedAccessNotDeployable,
+  DEFINITIONS as TOKEN_VAULT_PRIVILEGED_ACCESS_NOT_DEPLOYABLE_DEFINITIONS,
+} from "./clientsTokenVaultPrivilegedAccessNotDeployable.js";
+import {
   checkUnexpectedFieldsForAppType,
   DEFINITIONS as UNEXPECTED_FIELDS_FOR_APP_TYPE_DEFINITIONS,
 } from "./clientsUnexpectedFieldsForAppType.js";
@@ -82,6 +94,9 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   ...REQUIRE_PUSHED_AUTHORIZATION_REQUESTS_DEFINITIONS,
   ...PRIVATE_KEY_JWT_DEFINITIONS,
   ...UNEXPECTED_FIELDS_FOR_APP_TYPE_DEFINITIONS,
+  ...DEPRECATED_FIELD_NAMES_DEFINITIONS,
+  ...TOKEN_VAULT_PRIVILEGED_ACCESS_NOT_DEPLOYABLE_DEFINITIONS,
+  ...CIMD_FIELDS_NOT_EDITABLE_DEFINITIONS,
 };
 
 // Skipped checks for clients:
@@ -113,5 +128,11 @@ export async function validateClients(
     checkClientAuthenticationMethodsPrivateKeyJwt(nonGlobalClients),
   ]);
 
-  return [...results.flat(), ...checkUnexpectedFieldsForAppType(nonGlobalClients)];
+  return [
+    ...results.flat(),
+    ...checkUnexpectedFieldsForAppType(nonGlobalClients),
+    ...checkDeprecatedFieldNames(nonGlobalClients),
+    ...checkTokenVaultPrivilegedAccessNotDeployable(nonGlobalClients),
+    ...checkCimdFieldsNotEditable(nonGlobalClients),
+  ];
 }
