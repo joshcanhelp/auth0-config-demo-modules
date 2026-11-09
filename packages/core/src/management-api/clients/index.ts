@@ -6,11 +6,21 @@ import { buildGetClientRequest } from "./get-client.js";
 import type { GetClientParams } from "./get-client.js";
 import { buildListClientsRequest } from "./list-clients.js";
 import type { ListClientsParams } from "./list-clients.js";
+import { buildCreateClientRequest } from "./create-client.js";
+import type { CreateClientParams, RegisterCimdClientParams } from "./create-client.js";
+import { buildUpdateClientRequest } from "./update-client.js";
+import type { UpdateClientParams } from "./update-client.js";
+import { buildDeleteClientRequest } from "./delete-client.js";
 
 export { buildGetClientRequest } from "./get-client.js";
 export type { GetClientParams } from "./get-client.js";
 export { buildListClientsRequest } from "./list-clients.js";
 export type { ListClientsParams, ListClientsPaginatedResponse } from "./list-clients.js";
+export { buildCreateClientRequest } from "./create-client.js";
+export type { CreateClientParams, RegisterCimdClientParams } from "./create-client.js";
+export { buildUpdateClientRequest } from "./update-client.js";
+export type { UpdateClientParams } from "./update-client.js";
+export { buildDeleteClientRequest } from "./delete-client.js";
 
 export type Client = Management.Client;
 
@@ -34,5 +44,12 @@ export function createClientsNamespace(client: ManagementApiClient) {
           client.request<Client[]>(buildListClientsRequest({ ...params, ...pageParams })),
         { perPage: params?.per_page ?? undefined }
       ),
+    create: (params: CreateClientParams | RegisterCimdClientParams) =>
+      client.request<Client | Management.RegisterCimdClientResponseContent>(
+        buildCreateClientRequest(params)
+      ),
+    update: (id: string, params: UpdateClientParams) =>
+      client.request<Client>(buildUpdateClientRequest(id, params)),
+    delete: (id: string) => client.request<void>(buildDeleteClientRequest(id)),
   };
 }

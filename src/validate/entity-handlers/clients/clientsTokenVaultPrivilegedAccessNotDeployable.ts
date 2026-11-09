@@ -4,7 +4,7 @@ import { buildFinding } from "../../utils/finding.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 
 // token_vault_privileged_access is always stripped before create/update (see
-// src/auth0/management-api/clients/sanitize.ts) because Auth0 requires tenant-specific credential
+// packages/core/src/management-api/clients/sanitize.ts) because Auth0 requires tenant-specific credential
 // ids that this app never persists - there's no local config fix that makes it deployable, so
 // this just surfaces the limitation before a push instead of leaving it to deploy-log output.
 export const DEFINITIONS: Record<string, ValidationDefinition> = {

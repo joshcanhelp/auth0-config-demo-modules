@@ -21,6 +21,25 @@ Assume, for now, that the tenant configuration is manually added to this repo an
 
 Note that this app code will be used as an example and needs to be developed step-by-step. Please check in with the operator regularly with status and questions about how to implement.
 
+### Before Each Coding Block
+
+- Clarify instructions received if there is any ambiguity
+- Check the solution against the overall project goals
+- Determine whether the implementation should be split into chunks
+- Check for any uncommitted code in relevant areas
+
+### Code Style
+
+- Code comments should only be placed to help understand the nearby code, not document the system at large.
+- README documents should concisely describe endpoints and usage, not add technical information about the system.
+- One module at a time - complete workflow before moving on
+- Use guard clauses to return/break/continue early; rely on the built-in Node strict assert
+- Bias towards more clear variable names rather than short ones
+- Separate out each API call into it's own module for educational purposes
+- Do not duplicate documentation across README files and code comments
+- NEVER interact with version control except to check status
+- Directories should be kebab-case, files should be camelCase
+
 ### After Each Coding Block
 
 Follow this checklist **in order** after implementing or modifying code:
@@ -47,17 +66,3 @@ Follow this checklist **in order** after implementing or modifying code:
 
 6. **Update Documentation**
    - Update `README.md` if user-facing tasks have changed
-
-### Code Style
-
-- Use `//` for single-line comments, not `/** */`
-- Minimize comments - code should be self-documenting
-- One module at a time - complete workflow before moving on
-- Use guard clauses to return/break/continue early
-- Bias towards more clear variable names rather than short ones
-- Separate out each API call into it's own module for educational purposes
-- Do not duplicate documentation across README files and code comments
-- Use the built-in Node strict assert to guard against missing values
-- Before starting a new task, check for uncommitted files and prompt the user to commit
-- NEVER interact with version control except to check status
-- Directories should be kebab-case, files should be camelCase

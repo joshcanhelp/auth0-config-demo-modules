@@ -1,8 +1,5 @@
 {
-  "include": ["src"],
-  "exclude": ["node_modules/**"],
-  "extends": "@tsconfig/node22/tsconfig.json",
-  "compilerOptions": {
-    "noEmit": true
-  }
+  "extends": "./tsconfig.base.json",
+  "include": ["src", "bin", "packages"],
+  "exclude": ["node_modules/**", "packages/*/node_modules/**"]
 }

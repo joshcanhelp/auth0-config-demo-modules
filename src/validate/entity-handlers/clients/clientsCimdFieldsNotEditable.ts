@@ -4,7 +4,7 @@ import { buildFinding } from "../../utils/finding.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 
 // Mirrors the editable-field allowlist in
-// src/auth0/management-api/clients/update-client.ts - keep both in sync. Once a CIMD (Client ID
+// packages/core/src/management-api/clients/update-client.ts - keep both in sync. Once a CIMD (Client ID
 // Metadata Document) client exists (external_client_id is set), update-client.ts restricts the
 // write to this field set, so anything else set in local config for one of these clients is
 // silently ignored on deploy.

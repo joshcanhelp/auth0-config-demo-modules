@@ -12,14 +12,17 @@ code directly between sessions and this doc will drift.
 custom branch `josh-main`, pulled into this repo as `"auth0-deploy-cli": "file:../auth0-deploy-cli"`
 in `package.json`) is being replaced with custom push/pull logic, **entity by entity**, not a
 big-bang rewrite. `clients` was picked as the first entity to migrate - partly to validate the
-architecture, even though a prior survey (see below) flagged `clients` as one of the *riskiest*
+architecture, even though a prior survey (see below) flagged `clients` as one of the _riskiest_
 entities to migrate, not the easiest. Expect the shape built for `clients` to become the template
 every other entity follows.
 
-The new code lives at `src/auth0/management-api/` in this repo
-(`auth0-config-demo-modules`). Nothing wires it into the actual deploy flow yet -
-`src/utils/deploy-cli/push-deploy.ts` still calls `deploy()` from `auth0-deploy-cli` wholesale.
-That integration point does not exist yet and hasn't been discussed.
+The new code lives at `packages/core/src/management-api/` in this repo
+(`auth0-config-demo-modules`) - moved there from `src/auth0/management-api/` by
+`projects/003 Restructure.md`'s workspace restructure, since it wasn't wired into anything yet.
+Nothing wires it into the actual deploy flow yet - `src/utils/deploy-cli/push-deploy.ts` still
+calls `deploy()` from `auth0-deploy-cli` wholesale. That integration point does not exist yet and
+hasn't been discussed - see `projects/003 Restructure.md` for the planned `push`/`pull`/`watch`
+commands this will eventually become part of.
 
 ## Why this approach (compressed findings from a prior deep-survey)
 
@@ -65,7 +68,7 @@ or replace it. Key findings that shaped everything below:
 
 ## Architecture - current accepted shape
 
-Three layers, in `src/auth0/management-api/`:
+Three layers, in `packages/core/src/management-api/` (moved here from `src/auth0/management-api/` - see `projects/003 Restructure.md`):
 
 1. **Pure request builders**, one file per Management API endpoint, named after the operation
    (`clients/get-client.ts`, `clients/list-clients.ts`). Each exports a synchronous function that
@@ -84,15 +87,18 @@ Three layers, in `src/auth0/management-api/`:
 
 3. **Per-entity namespace + composition root.** `clients/index.ts` exports
    `createClientsNamespace(client: ManagementApiClient)` which wires each builder to
-   `client.request(...)` and returns the entity's callable methods (today: `{ get, list }`).
+   `client.request(...)` and returns the entity's callable methods (today:
+   `{ get, list, create, update, delete }`).
    Top-level `management-api/index.ts` is the single place that knows about every entity -
    `createManagementApiClient(options)` composes the core client with each entity's namespace:
    `{ ...core, clients: createClientsNamespace(core) }`. Call site:
+
    ```ts
    const client = createManagementApiClient({ domain, token });
    await client.clients.get("abc123");
    await client.clients.list({ app_type: "spa" }); // see pagination note below
    ```
+
    Adding a new entity means writing its directory and adding one line in
    `management-api/index.ts` - `client.ts` never changes.
 
@@ -115,16 +121,67 @@ Three layers, in `src/auth0/management-api/`:
 
 This boundary was explicitly negotiated and is easy to get wrong:
 
-- **Not allowed in a builder or namespace method:** cross-entity coordination, stripping
-  tenant-specific/ephemeral fields, anything matching the deploy-cli quirks cataloged above. That
-  belongs "one layer up" - in code that doesn't exist yet (referred to as "the deploy scripts").
-- **Allowed, and wanted:** a builder may *refuse to build a request* (throw) to block a single
-  parameter that should never be sent through that path. This was scoped narrowly to "usability
-  guardrails on the shape of one call," not business logic. The only concrete example discussed:
-  `create-client.ts`/`update-client.ts` should reject `client_secret` in the body (via
-  `Omit<..., "client_secret">` in the type plus a runtime `if ("client_secret" in body) throw`),
-  since Auth0 wants secret rotation done through the dedicated rotate-secret endpoint. **These two
-  files do not currently exist** - see below.
+- **Not allowed in a builder or namespace method:** cross-entity coordination (diffing,
+  exclusion lists, name-to-id resolution via other entities like connection profiles or other
+  clients), or coordination across separate handlers (the `client_authentication_methods` /
+  `token_endpoint_auth_method` split between `clients` and a future `clientAuthCredentials`
+  handler). That belongs "one layer up" - in code that doesn't exist yet (referred to as "the
+  deploy scripts").
+- **Allowed, and wanted:** a builder may _refuse to build a request_ (throw) to block a single
+  parameter that should never be sent through that path, or strip/restrict fields that are purely
+  mechanical - required for the call to succeed, true regardless of what the local config says, and
+  **not fixable by editing local config**. Not business logic spanning multiple records or entities.
+  - `client_secret` rejected on create/update - via `Omit<..., "client_secret">` in the type plus
+    a runtime `if ("client_secret" in body) throw` - rotate through the dedicated endpoint instead.
+  - CIMD (Client ID Metadata Document) clients: create routes to the dedicated registration
+    endpoint when `external_client_id` is set; update restricts the payload to the CIMD-editable
+    field subset (inlined directly in `update-client.ts` - CIMD does **not** get its own file or
+    directory; see "Second correction" below).
+  - Fields the API itself rejects or sets (`created_at`, `updated_at`, `jwks_uri`,
+    `third_party_security_mode` on update, etc.) are stripped before the request is built, via the
+    generic `stripFields` util at `management-api/stripFields.ts` (entity-agnostic, reusable by any
+    future entity's create/update - this was pulled out of `clients/` specifically because it was
+    generic).
+  - `token_vault_privileged_access` is stripped on write (its credentials are tenant-specific ids
+    this app never persists) - via the two remaining entity-specific helpers in
+    `clients/sanitize.ts` (shared between create/update, not generic enough for `stripFields.ts`).
+  - Every one of these logs what it did and why, in gray (`chalk.gray`), per explicit request -
+    "I want these to be verbose so we avoid black box behavior." Don't make this logging quieter
+    without being asked.
+  - Still deliberately **not** ported: the `client_authentication_methods` cross-handler
+    sequencing - stays out per the "not allowed" bullet above.
+
+### Second correction: validation-shaped problems moved to `src/validate`, not fixed up silently
+
+A first pass (same session) also silently **renamed** deprecated field names
+(`cross_origin_auth` → `cross_origin_authentication`, `oidc_backchannel_logout` → `oidc_logout`)
+inside `create-client.ts`/`update-client.ts`. The user corrected this: "the data structure
+tests/validation" should happen in `src/validate` and run **before** deployment, not inside the
+deploy modules. The distinction drawn: stripping fields and throwing before a call both still make
+sense in the deploy modules (above); but anything that represents a _problem in the user's local
+config_ that they could actually go fix - not a field the API will reject no matter what - belongs
+in `src/validate` as a `Finding`, so the user sees it before a push, not as an unannounced rewrite.
+
+Net effect: `create-client.ts`/`update-client.ts` no longer rename deprecated fields at all - if
+the user doesn't fix their config, Auth0 just receives the old field name (harmlessly ignored for
+`cross_origin_auth`, since it's gone from the API's own schema entirely; still accepted for
+`oidc_backchannel_logout`, which the API still honors as deprecated). Three checks were added to
+`src/validate/entity-handlers/clients/` instead:
+
+- `clientsDeprecatedFieldNames.ts` - flags `cross_origin_auth`/`oidc_backchannel_logout` in use.
+- `clientsTokenVaultPrivilegedAccessNotDeployable.ts` - `token_vault_privileged_access` still gets
+  a runtime strip too (see above) since no local config edit makes it deployable; this is a
+  visibility note, not a replacement for the strip.
+- `clientsCimdFieldsNotEditable.ts` - flags fields set on a CIMD client outside the editable
+  allowlist (mirrored from `update-client.ts`'s own list - **keep both in sync by hand**, these two
+  files deliberately don't import each other, since `validate` and `management-api` are meant to
+  stay independent layers - one reads local JSON, the other executes calls).
+
+The user also clarified, in the same correction: CIMD should never get its own directory/entity
+grouping anywhere in this codebase - not in `management-api/clients/` (already true - it was never
+split out) and not in `validate/entity-handlers/` (a literal per-entity directory structure, so
+this was worth saying explicitly). CIMD logic stays inlined inside the regular `clients` files on
+both sides.
 
 ## Explicitly rejected shapes (do not re-propose these)
 
@@ -139,7 +196,7 @@ redone:
    call site still had to thread domain/token through, even via the factory. The old shared
    helper this produced (`management-api/httpRequest.ts`) was deleted and replaced by `client.ts`.
 
-2. **Rejected (implicitly, by the same feedback): endpoint files that build *and* execute in one
+2. **Rejected (implicitly, by the same feedback): endpoint files that build _and_ execute in one
    step** (`async function getClient(client, id, params) { return client.request({...}) }`).
    Replaced by the pure-builder-plus-executor split in Architecture above, specifically so a
    builder is synchronously testable (when tests resume) without mocking `fetch`, and so a
@@ -157,9 +214,10 @@ keep it simple," that's the same rejected shape - don't.
   until we get an agreed-upon shape." All prior test files for this module were deleted. Do not
   add new ones until asked, even for new entity work, even though the rest of this repo tests
   almost everything.
-- **`create-client.ts` and `update-client.ts` do not exist.** They were built once (with the
-  `client_secret` guardrail described above) and the user removed them: "we're not ready for that
-  yet." Don't recreate them until asked - `clients/index.ts` currently only exposes `get`/`list`.
+- **`create-client.ts`, `update-client.ts`, and `delete-client.ts` now exist** (as of the session
+  that added this note). `clients/index.ts` exposes `get`/`list`/`create`/`update`/`delete`. The
+  guardrail scope for create/update was explicitly widened past the single `client_secret` example
+  below - see the updated "Where entity-specific logic is and isn't allowed" section.
 - Validation approach for request bodies was explicitly decided as **TypeScript types only for
   now, no zod** - even though `userProfile.ts` elsewhere in this repo uses zod
   (`CreateUserSchema`/`PatchUserSchema`) for the same kind of thing. Revisit only if asked.
@@ -169,6 +227,11 @@ keep it simple," that's the same rejected shape - don't.
 The user wants a short list of "canonical code sample" modules under this same umbrella -
 pagination (done, see above) plus at least:
 
+- **Wiring `src/validate` into the push flow** - the user wants local-config validation to run
+  before a deploy (see "Second correction" above), but `src/validate` is still only a standalone
+  `npm run validate` command today; nothing in `src/utils/deploy-cli/push-deploy.ts` calls it, and
+  this hasn't been discussed. Don't assume "run before" means "block on any finding" vs. "warn and
+  continue" vs. "block only on critical/important" - confirm before wiring it in.
 - **Rate limit handling** - deploy-cli's reference implementation (exponential backoff on 429,
   `Retry-After` header support, concurrency pool capped at 80% of Auth0's documented limit) is in
   `auth0-deploy-cli/src/tools/auth0/client.ts` (~220 lines) and was explicitly flagged as the one
@@ -184,12 +247,12 @@ pagination (done, see above) plus at least:
   been discussed.
 - An unconfirmed assumption baked into `clients/index.ts` right now: `identifierField` (e.g.
   `"client_id"`) and `isSingleton` (boolean) were added as entity metadata based on the user's
-  phrase "whether the entity has an ID or not," interpreted as *singleton vs. collection
-  resource* (branding/attackProtection have no ID and exactly one record per tenant, vs. clients
+  phrase "whether the entity has an ID or not," interpreted as _singleton vs. collection
+  resource_ (branding/attackProtection have no ID and exactly one record per tenant, vs. clients
   being a normal collection). **This interpretation was never explicitly confirmed by the user.**
   It's low-risk for `clients` (unambiguously a collection resource either way) but will matter
   for the first singleton-shaped entity - confirm the meaning before relying on it structurally.
-- The user has a standalone note at `src/auth0/management-api/actions-modules/README.md` (just a
+- The user has a standalone note at `packages/core/src/management-api/actions-modules/README.md` (just a
   README, no code yet) flagging a concern for a future `actions` entity migration: action module
   version numbers need to be pulled down after deployment and reconciled with the module file,
   and "need to think about whether it should be updated in the Actions themselves." Not acted on,

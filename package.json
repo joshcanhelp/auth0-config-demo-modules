@@ -2,8 +2,13 @@
   "name": "auth0-config-demo-modules",
   "version": "0.2.0",
   "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "tsx serve.ts",
+    "cli": "tsx bin/demo.ts",
     "export": "tsx src/scripts/export.ts",
     "generate": "tsx src/generate/run.ts",
     "import": "tsx src/scripts/import.ts",
@@ -15,7 +20,7 @@
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint .",
-    "format": "prettier --write ./src"
+    "format": "prettier --write ./src ./packages ./bin"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -35,6 +40,7 @@
     "auth0-checkmate": "file:../auth0-checkmate",
     "auth0-deploy-cli": "file:../auth0-deploy-cli",
     "chalk": "^4.1.2",
+    "commander": "^12.0.0",
     "dotenv": "^17.4.2",
     "eslint-config-prettier": "^6.15.0",
     "express": "^5.2.1",

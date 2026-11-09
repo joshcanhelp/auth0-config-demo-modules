@@ -6,7 +6,7 @@ import type { Finding, ValidationDefinition } from "../../utils/types.js";
 // cross_origin_auth and oidc_backchannel_logout were both renamed in the Auth0 Management API
 // (to cross_origin_authentication and oidc_logout, respectively), but Auth0 still accepts the old
 // names - so stale config keeps working with no signal that it's out of date. Flags local config
-// still using either old name; src/auth0/management-api/clients doesn't rewrite these for you,
+// still using either old name; packages/core/src/management-api/clients doesn't rewrite these for you,
 // since that's a judgment call on the user's data, not a mechanical field strip.
 export const DEFINITIONS: Record<string, ValidationDefinition> = {
   clients_deprecated_cross_origin_auth: {
