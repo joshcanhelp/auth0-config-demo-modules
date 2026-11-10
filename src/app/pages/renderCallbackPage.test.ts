@@ -62,7 +62,7 @@ describe("renderCallbackPage", () => {
     });
 
     const html = response.send.mock.calls[0][0] as string;
-    expect(html).toContain(`<a href="/login/${client.client_id}">Login again</a>`);
+    expect(html).toContain(`<a href="/login/${client.client_id}">Login again &rarr;</a>`);
   });
 
   it("embeds frontendCallouts in the SPA page config for the frontend flow", async () => {
@@ -105,7 +105,7 @@ describe("renderCallbackPage", () => {
     });
 
     const html = response.send.mock.calls[0][0] as string;
-    expect(html).toContain(`<a href="/login/${client.client_id}">Login again</a>`);
+    expect(html).toContain(`<a href="/login/${client.client_id}">Login again &rarr;</a>`);
     expect(session.auth0ClientId).toBe(client.client_id);
   });
 
