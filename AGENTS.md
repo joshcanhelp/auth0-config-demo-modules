@@ -44,25 +44,26 @@ Note that this app code will be used as an example and needs to be developed ste
 
 Follow this checklist **in order** after implementing or modifying code:
 
-1. **Write/Update Tests**
-   - Create or update unit tests in `*.test.ts` files
+1. **Write/update Tests if needed**
+   - Determine if the functionality would benefit from unit tests
+   - Create or update unit tests in `*.test.ts` files, as needed
    - Cover all new functionality and edge cases
 
 2. **Build**
    - Run `npm run build` to check TypeScript
    - Fix any compilation errors
 
-3. **Run Tests**
+3. **Run tests**
    - Run `npm test` to execute all tests
    - All tests must pass - fix failures before proceeding
 
-4. **Lint Code**
+4. **Lint code**
    - Run `npm run lint` to check TypeScript types and ESLint rules
    - Fix all linting errors before proceeding
 
-5. **Format Code**
+5. **Format code**
    - Run `npm run format` to apply prettier formatting
    - Commit formatted code only
 
-6. **Update Documentation**
+6. **Update documentation**
    - Update `README.md` if user-facing tasks have changed

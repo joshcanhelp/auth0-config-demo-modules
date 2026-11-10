@@ -1,10 +1,10 @@
 I need to get this in the hands of the folks working here and need a path to do so. Big things getting in the way:
 
+- Working on the system versus working on a client demo
 - The modules pulled from local repos in GitHub
 - Deploying all files at once for a certain entity type instead of changed files
 - Generate -> import process
 - New project setup
-- Working on the system versus working on a client demo
 
 General packages/commands we need:
 
