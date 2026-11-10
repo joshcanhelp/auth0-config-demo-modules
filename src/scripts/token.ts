@@ -4,7 +4,7 @@ import { readdirSync } from "node:fs";
 import dotenv from "dotenv";
 
 import { selectPrompt } from "./utils/selectPrompt.js";
-import { getClientCredentialsToken } from "../auth0/clientCredentials.js";
+import { getClientCredentialsToken } from "../../packages/core/src/clientCredentials.js";
 import { createFileCache } from "./utils/fileCache.js";
 
 const TENANTS_DIR = "./tenants";

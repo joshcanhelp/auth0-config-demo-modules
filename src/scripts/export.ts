@@ -4,7 +4,7 @@ import { readdirSync } from "node:fs";
 import { dump } from "auth0-deploy-cli";
 import { AssetTypes } from "auth0-deploy-cli/lib/types.js";
 
-import { getClientCredentialsToken } from "../auth0/clientCredentials.js";
+import { getClientCredentialsToken } from "../../packages/core/src/clientCredentials.js";
 import { withRetryOnInsufficientScope } from "../auth0/withRetryOnInsufficientScope.js";
 import { createFileCache } from "./utils/fileCache.js";
 import { confirmPrompt, selectPrompt } from "./utils/selectPrompt.js";

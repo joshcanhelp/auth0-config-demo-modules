@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 
 import { pageLayout } from "./pages/pageLayout.js";
 import { readTenantConfig } from "./readTenantConfig.js";
-import { getClientCredentialsTokenResponse } from "../auth0/clientCredentials.js";
+import { getClientCredentialsTokenResponse } from "../../packages/core/src/clientCredentials.js";
 import { createManagementApi } from "../auth0/apiManagement.js";
 
 interface Step {

@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
 
-import type { TokenCache } from "../../auth0/clientCredentials.js";
+import type { TokenCache } from "../../../packages/core/src/clientCredentials.js";
 
 interface CacheEntry {
   access_token: string;

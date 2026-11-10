@@ -17,7 +17,7 @@ vi.mock("./readClients.js", () => ({
   readClients: vi.fn(),
 }));
 
-vi.mock("../auth0/clientCredentials.js", () => ({
+vi.mock("../../packages/core/src/clientCredentials.js", () => ({
   getClientCredentialsTokenResponse: vi.fn(),
 }));
 
@@ -27,7 +27,7 @@ vi.mock("../auth0/apiManagement.js", () => ({
 
 import { handleChangePasswordLink } from "./handleChangePasswordLink.js";
 import { readClients } from "./readClients.js";
-import { getClientCredentialsTokenResponse } from "../auth0/clientCredentials.js";
+import { getClientCredentialsTokenResponse } from "../../packages/core/src/clientCredentials.js";
 import { createManagementApi } from "../auth0/apiManagement.js";
 import type { Auth0Client } from "../types.js";
 

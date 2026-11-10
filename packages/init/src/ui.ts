@@ -30,9 +30,14 @@ export function printWarning(message: string): void {
 }
 
 // For "go do this in another tab before continuing" instructions - not a completed step, so it
-// doesn't get a checkmark.
+// doesn't get a checkmark. Plain lines stay dim, same as printStepInfo; only the actual URL (once
+// trimmed) gets color and an underline, so it reads as a link instead of blending in with the
+// surrounding instructions.
 export function printCallout(lines: string[]): void {
   console.log();
-  lines.forEach((line) => console.log(chalk.cyan(line)));
+  lines.forEach((line) => {
+    const style = line.trim().startsWith("http") ? chalk.cyan.underline : chalk.dim;
+    console.log(style(line));
+  });
   console.log();
 }

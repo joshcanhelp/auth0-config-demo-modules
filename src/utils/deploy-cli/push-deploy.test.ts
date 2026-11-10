@@ -3,13 +3,13 @@ import process from "node:process";
 import { deploy } from "auth0-deploy-cli";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getClientCredentialsToken } from "../../auth0/clientCredentials.js";
+import { getClientCredentialsToken } from "../../../packages/core/src/clientCredentials.js";
 import { createFileCache } from "../../scripts/utils/fileCache.js";
 import { loadDeployConfig } from "../../scripts/utils/deployConfig.js";
 import { deployCliPush } from "./push-deploy.js";
 
 vi.mock("auth0-deploy-cli", () => ({ deploy: vi.fn().mockResolvedValue(undefined) }));
-vi.mock("../../auth0/clientCredentials.js", () => ({
+vi.mock("../../../packages/core/src/clientCredentials.js", () => ({
   getClientCredentialsToken: vi.fn(),
 }));
 vi.mock("../../scripts/utils/fileCache.js", () => ({

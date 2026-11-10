@@ -1,4 +1,4 @@
-import type { TokenCache } from "../auth0/clientCredentials.js";
+import type { TokenCache } from "../../packages/core/src/clientCredentials.js";
 
 export function createMemoryCache(): TokenCache {
   let stored: { access_token: string; expires_at: number } | null = null;

@@ -86,9 +86,10 @@ export async function writeTenantEnvValue(
   await writeEnvLines(envPath, setEnvValue(lines, key, value));
 }
 
-// A tenant counts as configured once every value `init` currently knows how to collect is
-// present. This only checks that the values are there, not that the client id/secret actually
-// work against the tenant with the right scopes - see init.ts's TODO for that remaining check.
+// A tenant counts as configured once every value `init` collects is present. The client
+// id/secret are only ever written after `init` has already verified them live against the
+// tenant (see resolveClientCredentials in init.ts), so presence here implies they were valid at
+// that time - not that they still are.
 export function isTenantConfigured(env: TenantEnv): boolean {
   return Boolean(
     env.TENANT_TYPE &&

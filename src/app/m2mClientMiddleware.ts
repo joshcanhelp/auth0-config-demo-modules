@@ -4,7 +4,7 @@ import type { UserSchemaDef } from "../utils/tenantUserSchema.js";
 import {
   getClientCredentialsToken,
   type TokenCache,
-} from "../auth0/clientCredentials.js";
+} from "../../packages/core/src/clientCredentials.js";
 import { createManagementApi } from "../auth0/apiManagement.js";
 import type { Auth0Client } from "../types.js";
 import { readGrants, clientHasScope } from "./readGrants.js";

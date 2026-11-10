@@ -6,7 +6,7 @@ import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import session from "express-session";
 
-import type { TokenCache } from "../auth0/clientCredentials.js";
+import type { TokenCache } from "../../packages/core/src/clientCredentials.js";
 import { createMemoryCache } from "../utils/memoryCache.js";
 import {
   loadTenantUserSchema,

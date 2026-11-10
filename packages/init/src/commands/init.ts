@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import { join, resolve } from "node:path";
 import chalk from "chalk";
 import type { Command } from "commander";
-import { buildDashboardUrl } from "auth0-demo-core";
+import { buildDashboardUrl, getClientCredentialsTokenResponse } from "auth0-demo-core";
 import { checkDomainIsReachable } from "../checkDomainIsReachable.js";
 import { ensureDirectory } from "../ensureDirectory.js";
 import { PromptSession } from "../prompts.js";
@@ -96,6 +96,65 @@ async function resolveDomain(
       printWarning(err instanceof Error ? err.message : String(err));
       domain = undefined;
     }
+  }
+}
+
+// Loops so a wrong client id/secret, or a PULL tenant's client having write access, can be fixed
+// (re-entered, or corrected in the Dashboard) and re-checked without restarting the whole
+// command. Only returns once a token was actually issued and its scopes look right.
+async function resolveClientCredentials(
+  prompts: PromptSession,
+  domain: string,
+  tenantType: TenantType,
+  knownClientId?: string,
+  knownClientSecret?: string
+): Promise<{ clientId: string; clientSecret: string }> {
+  let clientId = knownClientId;
+  let clientSecret = knownClientSecret;
+
+  for (;;) {
+    while (!clientId) {
+      clientId = await prompts.text("M2M client ID");
+    }
+    while (!clientSecret) {
+      clientSecret = await prompts.text("M2M client secret");
+    }
+
+    let scope: string | undefined;
+    try {
+      ({ scope } = await getClientCredentialsTokenResponse(
+        domain,
+        clientId,
+        clientSecret
+      ));
+    } catch (err) {
+      printWarning(err instanceof Error ? err.message : String(err));
+      clientId = undefined;
+      clientSecret = undefined;
+      continue;
+    }
+
+    const writeScopeCount = (scope?.split(" ").filter(Boolean) ?? []).filter(
+      (s) => !s.startsWith("read:")
+    ).length;
+    if (tenantType === "PULL" && writeScopeCount > 0) {
+      printWarning(
+        `This client has ${writeScopeCount} non-read scope${writeScopeCount === 1 ? "" : "s"}, ` +
+          `but this tenant is set up as PULL (read-only). Remove the extra scopes for the ` +
+          `Management API in the Auth0 Dashboard and try again, or quit and change this ` +
+          `tenant's type to PUSH if the client should have write access.`
+      );
+      const tryAgain = await prompts.confirm("Try again?");
+      if (!tryAgain) {
+        throw new Error(
+          "Stopped - to change this tenant to PUSH, edit TENANT_TYPE in its .env, then run " +
+            "init again."
+        );
+      }
+      continue;
+    }
+
+    return { clientId, clientSecret };
   }
 }
 
@@ -197,29 +256,20 @@ export function registerInitCommand(program: Command): void {
           ]);
         }
 
-        let clientId = existingEnv.M2M_CLIENT_ID;
-        while (!clientId) {
-          clientId = await prompts.text("M2M client ID");
-        }
-        await writeTenantEnvValue(tenantDir, "M2M_CLIENT_ID", clientId);
-        printStepDone(`Client ID: ${chalk.cyan(clientId)}`);
-
-        let clientSecret = existingEnv.M2M_CLIENT_SECRET;
-        while (!clientSecret) {
-          clientSecret = await prompts.text("M2M client secret");
-        }
-        await writeTenantEnvValue(tenantDir, "M2M_CLIENT_SECRET", clientSecret);
-        printStepDone("Client secret saved.");
-
-        // TODO (next step): confirm we can get a Management API token with this client id/secret
-        // and that its scopes make sense for `tenantType`, rather than just saving the values -
-        // see tenantEnv.ts's isTenantConfigured, which currently only checks presence.
-        console.log();
-        printStepInfo(
-          "Setup saved. Checking that this client's scopes actually work against the tenant " +
-            "isn't implemented yet - double-check them in the dashboard before running " +
-            "demo pull/push."
+        const { clientId, clientSecret } = await resolveClientCredentials(
+          prompts,
+          domain,
+          tenantType as TenantType,
+          existingEnv.M2M_CLIENT_ID,
+          existingEnv.M2M_CLIENT_SECRET
         );
+        await writeTenantEnvValue(tenantDir, "M2M_CLIENT_ID", clientId);
+        await writeTenantEnvValue(tenantDir, "M2M_CLIENT_SECRET", clientSecret);
+        printStepDone(`Client ID: ${chalk.cyan(clientId)}`);
+        printStepDone("Verified Management API access.");
+
+        console.log();
+        printStepInfo(`"${tenantName}" is ready to use.`);
       } finally {
         prompts.close();
       }

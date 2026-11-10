@@ -7,7 +7,7 @@ import { detectLoginMethod } from "./detectLoginMethod.js";
 import { pageLayout } from "./pages/pageLayout.js";
 import { readTenantConfig } from "./readTenantConfig.js";
 import { readClients } from "./readClients.js";
-import { getClientCredentialsTokenResponse } from "../auth0/clientCredentials.js";
+import { getClientCredentialsTokenResponse } from "../../packages/core/src/clientCredentials.js";
 import { createManagementApi } from "../auth0/apiManagement.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
