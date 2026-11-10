@@ -87,10 +87,16 @@ export async function writeTenantEnvValue(
 }
 
 // A tenant counts as configured once every value `init` currently knows how to collect is
-// present. Client id/secret aren't collected yet (see init.ts's TODO for the token/scope check),
-// so this only checks tenant type and domain for now - it'll grow alongside that command.
+// present. This only checks that the values are there, not that the client id/secret actually
+// work against the tenant with the right scopes - see init.ts's TODO for that remaining check.
 export function isTenantConfigured(env: TenantEnv): boolean {
-  return Boolean(env.TENANT_TYPE && isTenantType(env.TENANT_TYPE) && env.TENANT_DOMAIN);
+  return Boolean(
+    env.TENANT_TYPE &&
+    isTenantType(env.TENANT_TYPE) &&
+    env.TENANT_DOMAIN &&
+    env.M2M_CLIENT_ID &&
+    env.M2M_CLIENT_SECRET
+  );
 }
 
 export async function listTenantDirectories(

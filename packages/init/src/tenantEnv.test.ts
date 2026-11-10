@@ -46,21 +46,29 @@ describe("setEnvValue", () => {
 });
 
 describe("isTenantConfigured", () => {
-  it("is true once tenant type and domain are both set", () => {
-    expect(
-      isTenantConfigured({ TENANT_TYPE: "PUSH", TENANT_DOMAIN: "x.auth0.com" })
-    ).toBe(true);
+  const complete = {
+    TENANT_TYPE: "PUSH",
+    TENANT_DOMAIN: "x.auth0.com",
+    M2M_CLIENT_ID: "abc123",
+    M2M_CLIENT_SECRET: "shh",
+  };
+
+  it("is true once every value is set", () => {
+    expect(isTenantConfigured(complete)).toBe(true);
   });
 
-  it("is false when domain is missing", () => {
-    expect(isTenantConfigured({ TENANT_TYPE: "PUSH" })).toBe(false);
+  it.each([
+    "TENANT_TYPE",
+    "TENANT_DOMAIN",
+    "M2M_CLIENT_ID",
+    "M2M_CLIENT_SECRET",
+  ] as const)("is false when %s is missing", (key) => {
+    const { [key]: _omitted, ...rest } = complete;
+    expect(isTenantConfigured(rest)).toBe(false);
   });
 
-  it("is false when tenant type is missing or invalid", () => {
-    expect(isTenantConfigured({ TENANT_DOMAIN: "x.auth0.com" })).toBe(false);
-    expect(
-      isTenantConfigured({ TENANT_TYPE: "READ_ONLY", TENANT_DOMAIN: "x.auth0.com" })
-    ).toBe(false);
+  it("is false when tenant type is invalid", () => {
+    expect(isTenantConfigured({ ...complete, TENANT_TYPE: "READ_ONLY" })).toBe(false);
   });
 });
 

@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import { join, resolve } from "node:path";
 import chalk from "chalk";
 import type { Command } from "commander";
+import { buildDashboardUrl } from "auth0-demo-core";
 import { checkDomainIsReachable } from "../checkDomainIsReachable.js";
 import { ensureDirectory } from "../ensureDirectory.js";
 import { PromptSession } from "../prompts.js";
@@ -28,7 +29,7 @@ const STEPS = [
   "Find or create your tenant folder",
   "Choose how this project connects to Auth0 (PUSH or PULL)",
   "Connect to your Auth0 tenant",
-  "Create deployment credentials (coming soon)",
+  "Save deployment credentials",
 ];
 
 // Figures out which tenant this run should configure: an existing one that was left
@@ -181,14 +182,43 @@ export function registerInitCommand(program: Command): void {
         await writeTenantEnvValue(tenantDir, "TENANT_DOMAIN", domain);
         printStepDone(`Connected to tenant: ${chalk.cyan(domain)}`);
 
-        // TODO (next step): tell the user to create an M2M client for deployment (link to docs),
-        // prompt for the client id/secret, confirm we can get a token with scopes that make
-        // sense for `tenantType`, and only then write those to tenants/<name>/.env too (and
-        // extend tenantEnv.ts's isTenantConfigured to require them).
+        if (!existingEnv.M2M_CLIENT_ID || !existingEnv.M2M_CLIENT_SECRET) {
+          printCallout([
+            `Create (or pick an existing) M2M application on "${domain}" for this project:`,
+            "",
+            `${buildDashboardUrl(domain) + "/applications"}`,
+            "",
+            "On that application's APIs tab, authorize it for the Auth0 Management API",
+            "and grant it " +
+              (tenantType === "PUSH"
+                ? "read, create, update, and delete scopes"
+                : "read scopes") +
+              " for every entity this tool should manage.",
+          ]);
+        }
+
+        let clientId = existingEnv.M2M_CLIENT_ID;
+        while (!clientId) {
+          clientId = await prompts.text("M2M client ID");
+        }
+        await writeTenantEnvValue(tenantDir, "M2M_CLIENT_ID", clientId);
+        printStepDone(`Client ID: ${chalk.cyan(clientId)}`);
+
+        let clientSecret = existingEnv.M2M_CLIENT_SECRET;
+        while (!clientSecret) {
+          clientSecret = await prompts.text("M2M client secret");
+        }
+        await writeTenantEnvValue(tenantDir, "M2M_CLIENT_SECRET", clientSecret);
+        printStepDone("Client secret saved.");
+
+        // TODO (next step): confirm we can get a Management API token with this client id/secret
+        // and that its scopes make sense for `tenantType`, rather than just saving the values -
+        // see tenantEnv.ts's isTenantConfigured, which currently only checks presence.
         console.log();
         printStepInfo(
-          `Next: create an M2M client on "${domain}" for deployment, then re-run init to ` +
-            `finish setup.`
+          "Setup saved. Checking that this client's scopes actually work against the tenant " +
+            "isn't implemented yet - double-check them in the dashboard before running " +
+            "demo pull/push."
         );
       } finally {
         prompts.close();

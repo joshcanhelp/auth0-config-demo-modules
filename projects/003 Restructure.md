@@ -11,6 +11,8 @@ General packages/commands we need:
 - **Init**
 	- Spin up all the files we need
 	- Prompt for tenant connection
+	- Check existing tenant configuration
+	- Prompt to add a new tenant
 - **Serve app**
 	- Rendering various pages
 	- A-API calls

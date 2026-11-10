@@ -1,3 +1,5 @@
+// Builds the Auth0 Dashboard URL for a tenant from its domain; returns "" for a domain that
+// doesn't match either known pattern (e.g. a custom domain).
 export function buildDashboardUrl(tenantDomain: string): string {
   const cicMatch = tenantDomain.match(/^([^.]+)\.cic-demo-platform\.auth0app\.com$/);
   if (cicMatch) {

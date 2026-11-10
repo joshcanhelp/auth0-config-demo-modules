@@ -1,4 +1,6 @@
-import { buildDashboardUrl } from "../buildDashboardUrl.js";
+// Relative path, not the auth0-demo-core package, since the root app isn't wired up as an npm
+// workspace dependency on it.
+import { buildDashboardUrl } from "../../../packages/core/src/buildDashboardUrl.js";
 import type { TenantConfig } from "../../types.js";
 
 interface PageOptions {
