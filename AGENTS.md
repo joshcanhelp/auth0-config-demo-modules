@@ -39,6 +39,8 @@ Note that this app code will be used as an example and needs to be developed ste
 - Do not duplicate documentation across README files and code comments
 - NEVER interact with version control except to check status
 - Directories should be kebab-case, files should be camelCase
+- Split logic into its own function/module only when there's real validation, parsing, or branching worth isolating (and maybe testing); keep a single-call-site, no-branching step inline in whatever calls it rather than giving it a name of its own
+- Occasional, human-run setup commands (e.g. `init`) should rely on prompts and positional args, not flags - flags are for things that run unattended or in CI/CD
 
 ### After Each Coding Block
 

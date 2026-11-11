@@ -161,6 +161,13 @@ Dependency direction is one-way: `init`, `app`, `tenant-config`, and `bulk-impor
 `core`; `core` depends on nothing in this repo. The root `bin/demo.ts` is the only file that
 depends on all four command packages at once.
 
+Root `src/` isn't itself a workspace package, so it isn't a declared dependent of `auth0-demo-core`
+the way `init`/`app`/`tenant-config`/`bulk-import` are. A module moved from `src/` into
+`packages/core` (e.g. `buildDashboardUrl.ts`, `clientCredentials.ts`) still gets imported back into
+`src/` by a relative file path straight into `packages/core/src/`, not as the `auth0-demo-core`
+package - adding it as an installed dependency of the root `package.json` just to import it that
+way is the wrong fix. This goes away once root `src/` itself becomes a package.
+
 ### Commands, as actually stubbed (real `--help` output today via `npm run cli -- <command> --help`)
 
 **`demo init`**

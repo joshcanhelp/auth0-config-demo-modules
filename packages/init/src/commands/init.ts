@@ -1,10 +1,16 @@
 import { strict as assert } from "node:assert";
+import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { buildDashboardUrl, getClientCredentialsTokenResponse } from "auth0-demo-core";
+import {
+  buildProjectPackageJson,
+  type SourcePackageJson,
+} from "../buildProjectPackageJson.js";
 import { checkDomainIsReachable } from "../checkDomainIsReachable.js";
 import { ensureDirectory } from "../ensureDirectory.js";
+import { REPO_ROOT } from "../getRepoRoot.js";
 import { PromptSession } from "../prompts.js";
 import { isValidTenantName, pickDefaultTenantName } from "../tenantName.js";
 import {
@@ -23,14 +29,45 @@ import {
   printStepInfo,
   printWarning,
 } from "../ui.js";
+import { writeFileIfMissing } from "../writeFileIfMissing.js";
 
 const STEPS = [
   "Create your project folder",
+  "Scaffold project files (package.json, serve.ts)",
   "Find or create your tenant folder",
   "Choose how this project connects to Auth0 (PUSH or PULL)",
   "Connect to your Auth0 tenant",
   "Save deployment credentials",
 ];
+
+// Copies this repo's own serve.ts as-is (it already imports via the "auth0-config-demo-modules"
+// package specifier a scaffolded project depends on - resolved there as a real dependency,
+// resolved here through this repo's own package self-reference) and builds a package.json from
+// this repo's own dependency versions - both skipped if the project already has one, so a
+// project someone has started customizing is never overwritten by a re-run.
+async function scaffoldProjectFiles(projectDir: string): Promise<void> {
+  const serveFileSource = await readFile(join(REPO_ROOT, "serve.ts"), "utf-8");
+  const serveFileResult = await writeFileIfMissing(
+    join(projectDir, "serve.ts"),
+    serveFileSource
+  );
+  printStepDone(
+    serveFileResult === "created" ? "Created serve.ts" : "Using existing serve.ts"
+  );
+
+  const rootPackageJson = JSON.parse(
+    await readFile(join(REPO_ROOT, "package.json"), "utf-8")
+  ) as SourcePackageJson;
+  const packageJsonResult = await writeFileIfMissing(
+    join(projectDir, "package.json"),
+    buildProjectPackageJson(rootPackageJson)
+  );
+  printStepDone(
+    packageJsonResult === "created"
+      ? "Created package.json"
+      : "Using existing package.json"
+  );
+}
 
 // Figures out which tenant this run should configure: an existing one that was left
 // half-configured by an earlier run, or (once every existing tenant is complete) a brand-new
@@ -190,6 +227,8 @@ export function registerInitCommand(program: Command): void {
             chalk.cyan(projectDir)
         );
 
+        await scaffoldProjectFiles(projectDir);
+
         const tenantsRoot = join(projectDir, "tenants");
         const existingTenants = await listTenantDirectories(tenantsRoot);
 
@@ -233,7 +272,8 @@ export function registerInitCommand(program: Command): void {
         if (!existingEnv.TENANT_DOMAIN) {
           printCallout([
             "Create (or pick an existing) tenant for this demo in the Auth0 Dashboard:",
-            "  https://manage.auth0.com/",
+            "",
+            "https://manage.auth0.com/",
           ]);
         }
 

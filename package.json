@@ -3,6 +3,9 @@
   "version": "0.2.0",
   "type": "module",
   "private": true,
+  "exports": {
+    "./src/*": "./src/*"
+  },
   "workspaces": [
     "packages/*"
   ],
@@ -17,6 +20,8 @@
     "report": "tsx src/report/run.ts",
     "validate": "tsx src/validate/run.ts",
     "validate:list": "tsx src/validate/list.ts",
+    "modules:local": "npm install auth0-config-demo-modules@file:.",
+    "modules:remote": "npm install auth0-config-demo-modules@github:joshcanhelp/auth0-config-demo-modules#main",
     "build": "tsc",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint .",
