@@ -1,22 +1,27 @@
 {
-  "is_token_endpoint_ip_header_trusted": false,
-  "name": "Auth0 Actions Connector",
-  "is_first_party": true,
-  "oidc_conformant": true,
-  "cross_origin_authentication": false,
-  "sso_disabled": false,
-  "refresh_token": {
-    "expiration_type": "non-expiring",
-    "leeway": 0,
-    "infinite_token_lifetime": true,
-    "infinite_idle_token_lifetime": true,
-    "token_lifetime": 31557600,
-    "idle_token_lifetime": 2592000,
-    "rotation_type": "non-rotating"
-  },
   "allowed_clients": [],
+  "app_type": "non_interactive",
   "callbacks": [],
+  "client_aliases": [],
+  "client_id": "DiSIp42W5bq4KhZYLD78u8EUpt144zzI",
+  "client_metadata": {
+    "hide_from_demo": "true"
+  },
+  "created_at": "2026-08-05T15:49:07.000Z",
+  "cross_origin_authentication": false,
+  "custom_login_page_on": true,
+  "grant_types": [
+    "client_credentials"
+  ],
+  "is_first_party": true,
+  "is_token_endpoint_ip_header_trusted": false,
+  "jwt_configuration": {
+    "alg": "RS256",
+    "lifetime_in_seconds": 36000,
+    "secret_encoded": false
+  },
   "logo_uri": "https://identicons.dev/identicons/mono/png/icon-auth0-logo-dark.png",
+  "name": "Auth0 Actions Connector",
   "native_social_login": {
     "apple": {
       "enabled": false
@@ -25,23 +30,18 @@
       "enabled": false
     }
   },
+  "oidc_conformant": true,
+  "refresh_token": {
+    "expiration_type": "non-expiring",
+    "idle_token_lifetime": 2592000,
+    "infinite_idle_token_lifetime": true,
+    "infinite_token_lifetime": true,
+    "leeway": 0,
+    "rotation_type": "non-rotating",
+    "token_lifetime": 31557600
+  },
   "sso": true,
-  "client_metadata": {
-    "hide_from_demo": "true"
-  },
-  "created_at": "2026-08-05T15:49:07.000Z",
-  "updated_at": "2026-10-29T17:09:27.081Z",
-  "client_id": "DiSIp42W5bq4KhZYLD78u8EUpt144zzI",
-  "jwt_configuration": {
-    "alg": "RS256",
-    "lifetime_in_seconds": 36000,
-    "secret_encoded": false
-  },
-  "client_aliases": [],
+  "sso_disabled": false,
   "token_endpoint_auth_method": "client_secret_post",
-  "app_type": "non_interactive",
-  "grant_types": [
-    "client_credentials"
-  ],
-  "custom_login_page_on": true
+  "updated_at": "2026-10-29T17:09:27.081Z"
 }
