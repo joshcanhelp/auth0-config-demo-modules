@@ -5,3 +5,7 @@ export * from "./management-api/index.js";
 export { buildDashboardUrl } from "./buildDashboardUrl.js";
 export * from "./clientCredentials.js";
 export { notImplemented } from "./notImplemented.js";
+export * from "./prompts.js";
+export * from "./tenantEnv.js";
+export * from "./tenantType.js";
+export * from "./ui.js";

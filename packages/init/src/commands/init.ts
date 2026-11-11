@@ -3,7 +3,25 @@ import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import chalk from "chalk";
 import type { Command } from "commander";
-import { buildDashboardUrl, getClientCredentialsTokenResponse } from "auth0-demo-core";
+import {
+  buildDashboardUrl,
+  getClientCredentialsTokenResponse,
+  isTenantConfigured,
+  isTenantType,
+  listTenantDirectories,
+  PromptSession,
+  printBanner,
+  printCallout,
+  printChecklistOverview,
+  printStepDone,
+  printStepInfo,
+  printWarning,
+  TENANT_TYPE_OPTIONS,
+  writeTenantEnvValue,
+  type ExistingTenant,
+  type TenantEnv,
+  type TenantType,
+} from "auth0-demo-core";
 import {
   buildProjectPackageJson,
   type SourcePackageJson,
@@ -11,24 +29,7 @@ import {
 import { checkDomainIsReachable } from "../checkDomainIsReachable.js";
 import { ensureDirectory } from "../ensureDirectory.js";
 import { REPO_ROOT } from "../getRepoRoot.js";
-import { PromptSession } from "../prompts.js";
 import { isValidTenantName, pickDefaultTenantName } from "../tenantName.js";
-import {
-  isTenantConfigured,
-  listTenantDirectories,
-  writeTenantEnvValue,
-  type ExistingTenant,
-  type TenantEnv,
-} from "../tenantEnv.js";
-import { isTenantType, TENANT_TYPE_OPTIONS, type TenantType } from "../tenantType.js";
-import {
-  printBanner,
-  printCallout,
-  printChecklistOverview,
-  printStepDone,
-  printStepInfo,
-  printWarning,
-} from "../ui.js";
 import { writeFileIfMissing } from "../writeFileIfMissing.js";
 
 const STEPS = [
