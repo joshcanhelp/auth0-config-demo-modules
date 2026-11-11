@@ -1,6 +1,6 @@
 import type { Management } from "auth0";
 
-import type { ManagementApiClient } from "../client.js";
+import type { ManagementApiClient } from "../api-client.js";
 import { paginateAll } from "../pagination.js";
 import { buildGetClientRequest } from "./get-client.js";
 import type { GetClientParams } from "./get-client.js";

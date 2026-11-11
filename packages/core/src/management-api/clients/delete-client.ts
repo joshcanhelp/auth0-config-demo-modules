@@ -1,4 +1,4 @@
-import type { RequestDescriptor } from "../client.js";
+import type { RequestDescriptor } from "../api-client.js";
 
 // https://auth0.com/docs/api/management/v2/clients/delete-clients-by-id
 //

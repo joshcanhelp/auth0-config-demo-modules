@@ -1,6 +1,6 @@
 import type { Management } from "auth0";
 
-import type { RequestDescriptor } from "../client.js";
+import type { RequestDescriptor } from "../api-client.js";
 
 export type ListClientsParams = Management.ListClientsRequestParameters;
 export type ListClientsPaginatedResponse =

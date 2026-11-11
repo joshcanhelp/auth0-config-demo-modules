@@ -41,7 +41,8 @@ export function buildProjectPackageJson(rootPackageJson: SourcePackageJson): str
       // checkout, for developing against local edits to it. "remote" installs from its main
       // branch directly, so a push there can reach a deploy on its next build - run it before
       // the deploy's own `npm install` (which installs everything else).
-      "modules:local": "npm install auth0-config-demo-modules@file:../auth0-config-demo-modules",
+      "modules:local":
+        "npm install auth0-config-demo-modules@file:../auth0-config-demo-modules",
       "modules:remote": `npm install auth0-config-demo-modules@github:${MODULES_GITHUB_PATH}#main`,
     },
     dependencies: {

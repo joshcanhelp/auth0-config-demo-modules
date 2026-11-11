@@ -1,7 +1,7 @@
 import type { Management } from "auth0";
 import chalk from "chalk";
 
-import type { RequestDescriptor } from "../client.js";
+import type { RequestDescriptor } from "../api-client.js";
 import { stripFields } from "../stripFields.js";
 import { stripSecretEncoded, stripTokenVaultPrivilegedAccess } from "./sanitize.js";
 
