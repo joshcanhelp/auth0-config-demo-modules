@@ -16,6 +16,17 @@
     "rotation_type": "non-rotating"
   },
   "logo_uri": "https://cdn.prod.website-files.com/66e9c2166392185c80ae1910/66e9c2166392185c80ae1968_ios-256x256.png",
+  "allowed_logout_urls": [
+    "http://localhost:2748"
+  ],
+  "callbacks": [
+    "http://localhost:2748/callback/EtUc9a2Bpn3PbTm5gmzlYU9LZuz0bAQV"
+  ],
+  "created_at": "2026-08-27T17:58:16.000Z",
+  "updated_at": "2026-08-27T17:58:23.363Z",
+  "allowed_origins": [
+    "http://localhost:2748"
+  ],
   "client_id": "EtUc9a2Bpn3PbTm5gmzlYU9LZuz0bAQV",
   "jwt_configuration": {
     "alg": "RS256",
@@ -27,14 +38,5 @@
   "grant_types": [
     "authorization_code"
   ],
-  "custom_login_page_on": true,
-  "callbacks": [
-    "http://localhost:2748/callback/EtUc9a2Bpn3PbTm5gmzlYU9LZuz0bAQV"
-  ],
-  "allowed_logout_urls": [
-    "http://localhost:2748"
-  ],
-  "allowed_origins": [
-    "http://localhost:2748"
-  ]
+  "custom_login_page_on": true
 }

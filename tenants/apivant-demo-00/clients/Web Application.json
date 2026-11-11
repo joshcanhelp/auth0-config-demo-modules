@@ -36,6 +36,8 @@
   },
   "sso": true,
   "description": "This is the default app for the tenant. It is used for testing and development purposes.",
+  "created_at": "2026-07-31T16:41:05.000Z",
+  "updated_at": "2026-10-29T17:09:58.101Z",
   "allowed_origins": [],
   "client_id": "8HXiQSqeMgxrE44HdfSxHzM33EgEaySi",
   "jwt_configuration": {

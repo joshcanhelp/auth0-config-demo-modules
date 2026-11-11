@@ -28,6 +28,8 @@
   "client_metadata": {
     "hide_from_demo": "true"
   },
+  "created_at": "2026-07-31T16:37:30.000Z",
+  "updated_at": "2026-10-29T17:08:53.859Z",
   "client_id": "htXUlvz7ZVfqAkupb6HYx9U9NXgFjMSe",
   "jwt_configuration": {
     "alg": "RS256",
