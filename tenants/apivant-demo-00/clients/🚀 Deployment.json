@@ -25,6 +25,9 @@
     }
   },
   "sso": true,
+  "client_metadata": {
+    "hide_from_demo": "true"
+  },
   "client_id": "htXUlvz7ZVfqAkupb6HYx9U9NXgFjMSe",
   "jwt_configuration": {
     "alg": "RS256",
@@ -37,8 +40,5 @@
   "grant_types": [
     "client_credentials"
   ],
-  "custom_login_page_on": true,
-  "client_metadata": {
-    "hide_from_demo": "true"
-  }
+  "custom_login_page_on": true
 }
