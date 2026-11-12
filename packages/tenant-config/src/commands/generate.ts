@@ -1,4 +1,4 @@
-import { notImplemented } from "auth0-demo-core";
+import { notImplemented } from "auth0-config-demo-modules/packages/core/src/index.js";
 import type { Command } from "commander";
 
 // Planned behavior (see projects/003 Restructure.md): today's src/generate/run.ts. `--import`

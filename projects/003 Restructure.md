@@ -26,10 +26,10 @@ General packages/commands we need:
 	- Pull
 		- Generally
 			- Read-only management API calls
-		- Pull specific file
-		- Pull specific entity
-		- Pull local files
-		- Pull local entities
+		- Pull specific local file
+		- Pull specific local entity
+		- Pull all local files
+		- Pull all local entities
 		- Pull everything
 	- Generate
 		- Read from specific directory

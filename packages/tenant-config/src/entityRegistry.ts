@@ -1,4 +1,4 @@
-import { createManagementApiClient } from "auth0-demo-core";
+import { createManagementApiClient } from "auth0-config-demo-modules/packages/core/src/index.js";
 
 export type Auth0ManagementApiClient = ReturnType<typeof createManagementApiClient>;
 

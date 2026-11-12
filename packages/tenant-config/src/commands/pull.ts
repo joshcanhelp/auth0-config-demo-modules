@@ -1,7 +1,11 @@
 import { strict as assert } from "node:assert";
 import { join, resolve } from "node:path";
 import type { Command } from "commander";
-import { PromptSession, printStepDone, printStepInfo } from "auth0-demo-core";
+import {
+  PromptSession,
+  printStepDone,
+  printStepInfo,
+} from "auth0-config-demo-modules/packages/core/src/index.js";
 import { bootstrapTenant } from "../bootstrapTenant.js";
 import {
   ENTITY_REGISTRY,

@@ -21,7 +21,7 @@ import {
   type ExistingTenant,
   type TenantEnv,
   type TenantType,
-} from "auth0-demo-core";
+} from "auth0-config-demo-modules/packages/core/src/index.js";
 import {
   buildProjectPackageJson,
   type SourcePackageJson,

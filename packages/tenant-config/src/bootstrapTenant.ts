@@ -7,7 +7,7 @@ import {
   PromptSession,
   readTenantEnv,
   type ExistingTenant,
-} from "auth0-demo-core";
+} from "auth0-config-demo-modules/packages/core/src/index.js";
 import type { Auth0ManagementApiClient } from "./entityRegistry.js";
 
 export interface TenantContext {

@@ -9,7 +9,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "auth0-demo-core": "^0.1.0",
+    "auth0-config-demo-modules": "file:../..",
     "chalk": "^4.1.2",
     "commander": "^12.0.0"
   }

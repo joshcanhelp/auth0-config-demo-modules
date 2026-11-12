@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ExistingTenant } from "auth0-demo-core";
+import type { ExistingTenant } from "auth0-config-demo-modules/packages/core/src/index.js";
 import { pickTenantName } from "./bootstrapTenant.js";
 
 const tenants: ExistingTenant[] = [
