@@ -16,7 +16,7 @@ export function createAuthenticationApi(
     body: unknown,
     extraHeaders?: Record<string, string>
   ) => {
-    console.log(`POST to ${getApiUrl(path)}`, body);
+    console.log(`POST to ${getApiUrl(path)}`, body, extraHeaders ?? {});
     try {
       return await fetch(getApiUrl(path), {
         method: "POST",
