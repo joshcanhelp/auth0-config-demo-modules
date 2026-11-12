@@ -12,6 +12,15 @@ import { readTenantConfig } from "./../readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
+// The error message can echo back attacker-controlled query params (e.g.
+// error_description on an OAuth error callback), unlike the rest of this
+// page's content - so it's the one piece of output here that gets escaped.
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!
+  );
+}
+
 // A callout lets a project inject its own HTML into the backend callback page
 // based on the tokens/claims from this specific login, without this module
 // needing to know anything about that project's features. Return null to
@@ -85,13 +94,31 @@ export async function renderCallbackPage({
     );
   }
 
-  const { tokens, idTokenClaims, rawAccessToken } = await handleCallback({
-    query: request.query as Record<string, string>,
-    session: request.session,
-    clientId: client.client_id,
-    baseUrl: response.locals.baseUrl,
-    authenticationApi: response.locals.authenticationApi!,
-  });
+  let callbackResult;
+  try {
+    callbackResult = await handleCallback({
+      query: request.query as Record<string, string>,
+      session: request.session,
+      clientId: client.client_id,
+      baseUrl: response.locals.baseUrl,
+      authenticationApi: response.locals.authenticationApi!,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    response.status(400).send(
+      pageLayout({
+        title: `Callback error - ${client.name}`,
+        tenantConfig,
+        body: `
+          ${pageHeader}
+          <h2>Something went wrong</h2>
+          <p>${escapeHtml(message)}</p>
+        `,
+      })
+    );
+    return;
+  }
+  const { tokens, idTokenClaims, rawAccessToken } = callbackResult;
 
   const sub = (idTokenClaims as Record<string, unknown> | null)?.sub;
   if (typeof sub === "string") {
