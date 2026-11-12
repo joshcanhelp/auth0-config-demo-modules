@@ -104,7 +104,12 @@ export async function createApp(tenantDir: string) {
     cookie: { secure: baseUrl.startsWith("https://") },
   };
 
-  app.set("trust proxy", 1);
+  // Number of reverse proxy hops in front of this app (e.g. a CDN in front of
+  // the host platform's own proxy counts as 2) - controls how Express's
+  // req.ip (and anything derived from it, like X-Forwarded-For parsing)
+  // walks back to the real client address. Defaults to 1 (a single hop,
+  // the common case); override per deployment via TRUST_PROXY.
+  app.set("trust proxy", Number(process.env.TRUST_PROXY ?? 1));
   app.use(session(sessionOpts));
 
   app.use((_req: Request, res: Response, next: NextFunction) => {

@@ -67,8 +67,6 @@ export async function renderSessionTransferPage({
     config.clientSecret
   );
 
-  console.log(`request.ip: "${request.ip}", x-forwarded-for: "${request.headers["x-forwarded-for"]}"`);
-
   let sessionTransferToken: string | undefined;
   try {
     const tokens = await authenticationApi.tokenExchange({
