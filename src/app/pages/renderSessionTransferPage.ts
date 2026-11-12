@@ -75,6 +75,10 @@ export async function renderSessionTransferPage({
       subjectToken,
       actorTokenType: "urn:ietf:params:oauth:token-type:id_token",
       actorToken,
+      // This backend calls Auth0 on the actor's behalf, so without this the
+      // session-transfer token gets IP-bound to this server instead of the
+      // browser that will redeem it.
+      forwardedForIp: request.ip,
     });
     sessionTransferToken = tokens.access_token as string | undefined;
   } catch (error) {

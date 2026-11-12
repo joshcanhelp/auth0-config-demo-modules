@@ -11,12 +11,16 @@ export function createAuthenticationApi(
 
   const getApiUrl = (path: string) => `https://${domain}${path}`;
 
-  const postRequest = async (path: string, body: unknown) => {
+  const postRequest = async (
+    path: string,
+    body: unknown,
+    extraHeaders?: Record<string, string>
+  ) => {
     console.log(`POST to ${getApiUrl(path)}`, body);
     try {
       return await fetch(getApiUrl(path), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...extraHeaders },
         body: JSON.stringify(body),
       });
     } catch (err) {
@@ -96,6 +100,12 @@ export function createAuthenticationApi(
     subjectToken: string;
     actorTokenType?: string;
     actorToken?: string;
+    // The actor's real IP, for requests this backend makes on the actor's
+    // behalf - needed so a session-transfer token issued here gets bound to
+    // the browser's IP, not this server's. Requires the client's
+    // is_token_endpoint_ip_header_trusted to be true, or Auth0 ignores it.
+    // https://auth0.com/docs/authenticate/single-sign-on/session-delegation/implement-session-delegation
+    forwardedForIp?: string;
   }): Promise<Record<string, unknown>> => {
     const body: Record<string, string | undefined> = {
       grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
@@ -108,7 +118,11 @@ export function createAuthenticationApi(
       actor_token: params.actorToken,
     };
     return handleResponse<Record<string, unknown>>(
-      await postRequest("/oauth/token", body),
+      await postRequest(
+        "/oauth/token",
+        body,
+        params.forwardedForIp ? { "auth0-forwarded-for": params.forwardedForIp } : undefined
+      ),
       "exchange token"
     );
   };
