@@ -121,7 +121,9 @@ export function createAuthenticationApi(
       await postRequest(
         "/oauth/token",
         body,
-        params.forwardedForIp ? { "auth0-forwarded-for": params.forwardedForIp } : undefined
+        params.forwardedForIp
+          ? { "auth0-forwarded-for": params.forwardedForIp }
+          : undefined
       ),
       "exchange token"
     );

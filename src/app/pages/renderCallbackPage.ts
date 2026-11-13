@@ -16,8 +16,10 @@ const dir = dirname(fileURLToPath(import.meta.url));
 // error_description on an OAuth error callback), unlike the rest of this
 // page's content - so it's the one piece of output here that gets escaped.
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (char) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!
+  return value.replace(
+    /[&<>"']/g,
+    (char) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!
   );
 }
 
