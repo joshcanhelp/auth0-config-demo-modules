@@ -178,18 +178,37 @@ async function resolveClientCredentials(
     if (tenantType === "PULL" && writeScopeCount > 0) {
       printWarning(
         `This client has ${writeScopeCount} non-read scope${writeScopeCount === 1 ? "" : "s"}, ` +
-          `but this tenant is set up as PULL (read-only). Remove the extra scopes for the ` +
-          `Management API in the Auth0 Dashboard and try again, or quit and change this ` +
-          `tenant's type to PUSH if the client should have write access.`
+          `but this tenant is set up as PULL (read-only). It'll still work for read-only ` +
+          `calls, but anything here could also write to this tenant if asked to.`
       );
-      const tryAgain = await prompts.confirm("Try again?");
-      if (!tryAgain) {
+      const choice = await prompts.select<"save" | "recheck" | "retry" | "quit">(
+        "What would you like to do?",
+        [
+          { label: "Save it as-is", value: "save" },
+          {
+            label: "Check again (e.g. after removing scopes in the Dashboard)",
+            value: "recheck",
+          },
+          { label: "Enter a different client ID/secret", value: "retry" },
+          { label: "Quit", value: "quit" },
+        ]
+      );
+
+      if (choice === "quit") {
         throw new Error(
           "Stopped - to change this tenant to PUSH, edit TENANT_TYPE in its .env, then run " +
             "init again."
         );
       }
-      continue;
+      if (choice === "retry") {
+        clientId = undefined;
+        clientSecret = undefined;
+        continue;
+      }
+      if (choice === "recheck") {
+        continue;
+      }
+      // choice === "save": fall through and accept this client as-is.
     }
 
     return { clientId, clientSecret };
