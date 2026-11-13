@@ -2,6 +2,7 @@ import type { Management } from "auth0";
 import chalk from "chalk";
 
 import type { RequestDescriptor } from "../api-client.js";
+import { requireScopes } from "../requireScopes.js";
 import { stripFields } from "../stripFields.js";
 import { stripSecretEncoded, stripTokenVaultPrivilegedAccess } from "./sanitize.js";
 
@@ -31,8 +32,11 @@ const STRIPPED_CREATE_FIELDS = [
 //   is built. Deprecated field names and CIMD-editable-field limits are flagged by
 //   src/validate/entity-handlers/clients/ before a deploy ever gets here, not fixed up silently.
 export function buildCreateClientRequest(
-  params: CreateClientParams | RegisterCimdClientParams
+  params: CreateClientParams | RegisterCimdClientParams,
+  scopes?: string[]
 ): RequestDescriptor {
+  requireScopes(["create:clients"], scopes);
+
   if ("client_secret" in params) {
     throw new Error(
       "client_secret cannot be set through create-client - rotate it through the dedicated rotate-secret endpoint instead."

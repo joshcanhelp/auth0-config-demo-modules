@@ -154,6 +154,13 @@ avoiding `include_totals`/`total`-based termination since the items-array field 
 entity's paginated envelope (`clients`, `users`, ...). Default page size 100, overridable via
 `options.perPage`.
 
+## Scope checks
+
+Every builder calls `requireScopes` (`../requireScopes.ts`) with the scope(s) its own operation
+needs, before building the request - see that file, `clients/get-client.ts`, and `clients/index.ts`
+(the `async` wrapping on `create`/`update`/`delete` matters, not just stylistic - read the comment
+there) for the mechanism and reasoning.
+
 ## Testing
 
 Tests are expected now - `001`'s "no tests right now" note is stale (left from an earlier,

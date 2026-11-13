@@ -84,4 +84,42 @@ describe("createClientsNamespace", () => {
       expect.objectContaining({ query: expect.objectContaining({ is_global: true }) })
     );
   });
+
+  describe("scopes", () => {
+    it("skips the check on every method when scopes is omitted", async () => {
+      const request = vi.fn().mockResolvedValue(rawClient);
+      const clients = createClientsNamespace({ request });
+
+      await expect(clients.get("abc123")).resolves.toBeDefined();
+      await expect(clients.create({ name: "x" })).resolves.toBeDefined();
+      await expect(clients.update("abc123", { name: "x" })).resolves.toBeDefined();
+      await expect(clients.delete("abc123")).resolves.toBeDefined();
+    });
+
+    it("rejects each method when the given scopes are missing what it needs", async () => {
+      const clients = createClientsNamespace({ request: vi.fn() });
+
+      await expect(clients.get("abc123", undefined, [])).rejects.toThrow(
+        "Missing required scope: read:clients"
+      );
+      await expect(clients.create({ name: "x" }, [])).rejects.toThrow(
+        "Missing required scope: create:clients"
+      );
+      await expect(clients.update("abc123", { name: "x" }, [])).rejects.toThrow(
+        "Missing required scope: update:clients"
+      );
+      await expect(clients.delete("abc123", [])).rejects.toThrow(
+        "Missing required scope: delete:clients"
+      );
+    });
+
+    it("succeeds when the given scopes include what's needed", async () => {
+      const request = vi.fn().mockResolvedValue(rawClient);
+      const clients = createClientsNamespace({ request });
+
+      await expect(
+        clients.get("abc123", undefined, ["read:clients"])
+      ).resolves.toBeDefined();
+    });
+  });
 });

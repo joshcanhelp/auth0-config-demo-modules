@@ -51,30 +51,47 @@ function stripExportFields(client: Client): Client {
   }) as Client;
 }
 
+// Every method below takes a trailing, optional `scopes` - the calling token's own granted
+// scopes. Pass it to have the matching builder fail fast, client-side, when it's missing what
+// this specific operation needs; omit it (the default) to skip the check entirely, e.g. when the
+// caller doesn't track scopes at all. See ../requireScopes.ts and ./scopes.ts.
 export function createClientsNamespace(client: ManagementApiClient) {
   return {
-    get: async (id: string, params?: GetClientParams) =>
-      stripExportFields(await client.request<Client>(buildGetClientRequest(id, params))),
+    get: async (id: string, params?: GetClientParams, scopes?: string[]) =>
+      stripExportFields(
+        await client.request<Client>(buildGetClientRequest(id, params, scopes))
+      ),
     // Excludes the tenant's own global/implicit client by default (named "All Applications" in
     // the dashboard unless renamed) - it's not a normal application a demo would deploy or push
     // changes to, and ported from auth0-deploy-cli's own getType(), which always passed
     // is_global: false. An explicit is_global in params overrides this.
-    list: async (params?: ListAllClientsParams): Promise<Client[]> => {
+    list: async (params?: ListAllClientsParams, scopes?: string[]): Promise<Client[]> => {
       const clients = await paginateAll<Client>(
         (pageParams) =>
           client.request<Client[]>(
-            buildListClientsRequest({ is_global: false, ...params, ...pageParams })
+            buildListClientsRequest(
+              { is_global: false, ...params, ...pageParams },
+              scopes
+            )
           ),
         { perPage: params?.per_page ?? undefined }
       );
       return clients.map(stripExportFields);
     },
-    create: (params: CreateClientParams | RegisterCimdClientParams) =>
+    // async here (not just a direct passthrough) even though there's no await before the call -
+    // a builder's requireScopes check throws synchronously, and wrapping it in an async function
+    // turns that into a proper promise rejection, consistent with get/list and safe for a
+    // .catch()-style caller instead of only a try/await one.
+    create: async (
+      params: CreateClientParams | RegisterCimdClientParams,
+      scopes?: string[]
+    ) =>
       client.request<Client | Management.RegisterCimdClientResponseContent>(
-        buildCreateClientRequest(params)
+        buildCreateClientRequest(params, scopes)
       ),
-    update: (id: string, params: UpdateClientParams) =>
-      client.request<Client>(buildUpdateClientRequest(id, params)),
-    delete: (id: string) => client.request<void>(buildDeleteClientRequest(id)),
+    update: async (id: string, params: UpdateClientParams, scopes?: string[]) =>
+      client.request<Client>(buildUpdateClientRequest(id, params, scopes)),
+    delete: async (id: string, scopes?: string[]) =>
+      client.request<void>(buildDeleteClientRequest(id, scopes)),
   };
 }

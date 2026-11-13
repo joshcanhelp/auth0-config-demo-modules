@@ -3,10 +3,12 @@ import { join } from "node:path";
 import {
   createManagementApiClient,
   getClientCredentialsToken,
+  isTenantType,
   listTenantDirectories,
   PromptSession,
   readTenantEnv,
   type ExistingTenant,
+  type TenantEnv,
 } from "auth0-config-demo-modules/packages/core/src/index.js";
 import type { Auth0ManagementApiClient } from "./entityRegistry.js";
 
@@ -35,12 +37,36 @@ export function pickTenantName(
   return tenants.length === 1 ? tenants[0].name : null;
 }
 
+export interface BootstrapTenantOptions {
+  // Set by a command that writes to the tenant (push, generate --import, watch) - rejects a
+  // PULL tenant outright, before a client is even built, rather than letting whatever write call
+  // comes first fail however the API happens to fail it. pull leaves this unset: it only ever
+  // reads, so it works against either tenant type.
+  requireWriteAccess?: boolean;
+}
+
+// Separated from bootstrapTenant so the check itself is testable without driving a real token
+// fetch - takes just what it needs to decide, not the whole TenantContext.
+export function assertWriteAccess(tenantName: string, env: TenantEnv): void {
+  assert(
+    env.TENANT_TYPE && isTenantType(env.TENANT_TYPE),
+    `tenants/${tenantName}/.env has an invalid TENANT_TYPE: "${env.TENANT_TYPE}" (expected PUSH or PULL)`
+  );
+  assert(
+    env.TENANT_TYPE === "PUSH",
+    `"${tenantName}" is a PULL (read-only) tenant - this command writes to the tenant, so it ` +
+      `needs a PUSH tenant. Change TENANT_TYPE in tenants/${tenantName}/.env if this tenant ` +
+      `should allow writes.`
+  );
+}
+
 // Resolves a tenant and builds a Management API client authenticated for it - every
 // tenant-config command's starting point.
 export async function bootstrapTenant(
   tenantsRoot: string,
   prompts: PromptSession,
-  explicitName?: string
+  explicitName?: string,
+  options?: BootstrapTenantOptions
 ): Promise<TenantContext> {
   const tenants = await listTenantDirectories(tenantsRoot);
   const tenantName =
@@ -58,6 +84,10 @@ export async function bootstrapTenant(
     env.M2M_CLIENT_SECRET,
     `tenants/${tenantName}/.env is missing M2M_CLIENT_SECRET`
   );
+
+  if (options?.requireWriteAccess) {
+    assertWriteAccess(tenantName, env);
+  }
 
   const token = await getClientCredentialsToken(
     env.TENANT_DOMAIN,

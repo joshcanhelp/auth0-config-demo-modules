@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ExistingTenant } from "auth0-config-demo-modules/packages/core/src/index.js";
-import { pickTenantName } from "./bootstrapTenant.js";
+import { assertWriteAccess, pickTenantName } from "./bootstrapTenant.js";
 
 const tenants: ExistingTenant[] = [
   { name: "acme", env: {} },
@@ -26,5 +26,24 @@ describe("pickTenantName", () => {
 
   it("throws when no tenant directories exist at all", () => {
     expect(() => pickTenantName([])).toThrow(/No tenant directories found/);
+  });
+});
+
+describe("assertWriteAccess", () => {
+  it("does nothing for a PUSH tenant", () => {
+    expect(() => assertWriteAccess("my-tenant", { TENANT_TYPE: "PUSH" })).not.toThrow();
+  });
+
+  it("throws for a PULL tenant", () => {
+    expect(() => assertWriteAccess("my-tenant", { TENANT_TYPE: "PULL" })).toThrow(
+      /is a PULL \(read-only\) tenant/
+    );
+  });
+
+  it("throws when TENANT_TYPE is missing or invalid", () => {
+    expect(() => assertWriteAccess("my-tenant", {})).toThrow(/invalid TENANT_TYPE/);
+    expect(() => assertWriteAccess("my-tenant", { TENANT_TYPE: "bogus" })).toThrow(
+      /invalid TENANT_TYPE/
+    );
   });
 });

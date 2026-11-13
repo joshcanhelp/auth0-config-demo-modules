@@ -2,6 +2,7 @@ import type { Management } from "auth0";
 import chalk from "chalk";
 
 import type { RequestDescriptor } from "../api-client.js";
+import { requireScopes } from "../requireScopes.js";
 import { stripFields } from "../stripFields.js";
 import { stripSecretEncoded, stripTokenVaultPrivilegedAccess } from "./sanitize.js";
 
@@ -85,10 +86,17 @@ function restrictToCimdEditableFields(
 // - Fields the API rejects outright and token_vault_privileged_access are stripped before the
 //   request is built. Deprecated field names and CIMD-editable-field limits are flagged by
 //   src/validate/entity-handlers/clients/ before a deploy ever gets here, not fixed up silently.
+//
+// `scopes` is the calling token's own granted scopes - pass it to fail fast, client-side, with a
+// clear error naming the missing scope, instead of letting the API's 403 be the first signal.
+// Omit it (the default) to skip the check entirely.
 export function buildUpdateClientRequest(
   id: string,
-  params: UpdateClientParams
+  params: UpdateClientParams,
+  scopes?: string[]
 ): RequestDescriptor {
+  requireScopes(["update:clients"], scopes);
+
   if ("client_secret" in params) {
     throw new Error(
       "client_secret cannot be set through update-client - rotate it through the dedicated rotate-secret endpoint instead."
