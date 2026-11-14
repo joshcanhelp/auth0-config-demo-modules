@@ -1,20 +1,44 @@
 import { strict as assert } from "node:assert";
 import type { Auth0ManagementApiClient, EntityDefinition } from "./entityRegistry.js";
-import { readEntityRecord, writeEntityRecord } from "./localEntityFiles.js";
+import {
+  localFileNames,
+  readEntityRecord,
+  writeEntityRecord,
+} from "./localEntityFiles.js";
 
-// Writes one file per record currently in the tenant - never deletes a local file for a record
-// that's gone from the tenant, so a pull never silently discards local-only work.
+// Writes one file per record currently in the tenant - a rename (the record's own name, and so
+// its filename, changed on the tenant) is cleaned up automatically by writeEntityRecord's scan
+// fallback. A local file whose id isn't in this list at all (the record was deleted from the
+// tenant) is never removed here, only collected into staleFiles - same split as pushEntity, and
+// for the same reason: this module stays prompt-free, so it's the caller's call whether/how to
+// confirm deleting those.
 export async function pullEntity(
   api: Auth0ManagementApiClient,
   tenantDir: string,
   entity: EntityDefinition
-): Promise<string[]> {
+): Promise<{ pulled: string[]; staleFiles: string[] }> {
   const records = await entity.list(api);
-  const paths: string[] = [];
+  const pulled: string[] = [];
   for (const record of records) {
-    paths.push(await writeEntityRecord(tenantDir, entity, record));
+    pulled.push(await writeEntityRecord(tenantDir, entity, record));
   }
-  return paths;
+
+  const remoteIds = new Set(
+    records
+      .map((record) => record[entity.identifierField])
+      .filter((id): id is string => typeof id === "string")
+  );
+
+  const staleFiles: string[] = [];
+  for (const baseFileName of await localFileNames(tenantDir, entity)) {
+    const record = await readEntityRecord(tenantDir, entity, baseFileName);
+    const id = record[entity.identifierField];
+    if (typeof id === "string" && !remoteIds.has(id)) {
+      staleFiles.push(baseFileName);
+    }
+  }
+
+  return { pulled, staleFiles };
 }
 
 // Re-fetches just the one record a local file already represents, identified by whatever that

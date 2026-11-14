@@ -32,15 +32,45 @@ describe("pullEntity", () => {
   it("writes one file per record, named after the entity's fileName", async () => {
     dir = await mkdtemp(join(tmpdir(), "pull-test-"));
 
-    const paths = await pullEntity(fakeApi, dir, fakeEntity);
+    const result = await pullEntity(fakeApi, dir, fakeEntity);
 
-    expect(paths.sort()).toEqual(
+    expect(result.pulled.sort()).toEqual(
       [join(dir, "clients", "My App.json"), join(dir, "clients", "Other App.json")].sort()
     );
+    expect(result.staleFiles).toEqual([]);
     const written = JSON.parse(
       await readFile(join(dir, "clients", "My App.json"), "utf-8")
     );
     expect(written).toEqual({ client_id: "abc123", name: "My App" });
+  });
+
+  it("collects a local file into staleFiles when its id isn't in the list response", async () => {
+    dir = await mkdtemp(join(tmpdir(), "pull-test-"));
+    await mkdir(join(dir, "clients"), { recursive: true });
+    await writeFile(
+      join(dir, "clients", "Gone App.json"),
+      JSON.stringify({ client_id: "zzz999", name: "Gone App" })
+    );
+
+    const result = await pullEntity(fakeApi, dir, fakeEntity);
+
+    expect(result.staleFiles).toEqual(["Gone App"]);
+    await expect(
+      readFile(join(dir, "clients", "Gone App.json"), "utf-8")
+    ).resolves.toBeDefined();
+  });
+
+  it("leaves a local file with no identifierField alone", async () => {
+    dir = await mkdtemp(join(tmpdir(), "pull-test-"));
+    await mkdir(join(dir, "clients"), { recursive: true });
+    await writeFile(
+      join(dir, "clients", "New App.json"),
+      JSON.stringify({ name: "New App" })
+    );
+
+    const result = await pullEntity(fakeApi, dir, fakeEntity);
+
+    expect(result.staleFiles).toEqual([]);
   });
 });
 

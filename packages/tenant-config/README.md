@@ -34,11 +34,12 @@ instead - which also strip whatever else the API itself rejects on write (`clien
 - No mode flag - prompts for one, then (for "a specific file"/"a specific entity type") prompts
   again from what's actually local.
 
-Always additive: writes/overwrites a file per record currently in the tenant, never deletes a
-local file for a record that's gone from the tenant. The one exception is `--file`/"a specific
-file" - a single local record re-fetched by id can 404 if it's since been deleted on the tenant,
-in which case it prompts to delete the local file instead of erroring
-(`localEntityFiles.ts`'s `confirmAndRemoveMissingRecord`).
+Writes/overwrites a file per record currently in the tenant. A local file whose id isn't among
+what the tenant just returned - the record was deleted on the tenant since the last pull - is
+never removed silently; every pull mode prompts to delete it instead
+(`pullEntity.ts`'s `staleFiles`, `localEntityFiles.ts`'s `confirmAndRemoveMissingRecord`). A
+rename (the record's own name changed on the tenant) is handled separately and silently, since
+it's still the same record.
 
 ## `push`
 

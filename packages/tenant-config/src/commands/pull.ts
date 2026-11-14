@@ -42,12 +42,16 @@ function requireEntity(name: string): EntityDefinition {
 async function pullAndReport(
   api: Auth0ManagementApiClient,
   tenantDir: string,
-  entity: EntityDefinition
+  entity: EntityDefinition,
+  prompts: PromptSession
 ): Promise<void> {
-  const paths = await pullEntity(api, tenantDir, entity);
+  const { pulled, staleFiles } = await pullEntity(api, tenantDir, entity);
   printStepDone(
-    `Pulled ${paths.length} ${entity.name} file${paths.length === 1 ? "" : "s"}`
+    `Pulled ${pulled.length} ${entity.name} file${pulled.length === 1 ? "" : "s"}`
   );
+  for (const baseFileName of staleFiles) {
+    await confirmAndRemoveMissingRecord(prompts, tenantDir, entity, baseFileName);
+  }
 }
 
 // Shared by --file and the interactive "specific file" picker - pullEntity (bulk) can't hit this,
@@ -89,7 +93,8 @@ async function promptAndPull(
   );
 
   if (mode === "all") {
-    for (const entity of ENTITY_REGISTRY) await pullAndReport(api, tenantDir, entity);
+    for (const entity of ENTITY_REGISTRY)
+      await pullAndReport(api, tenantDir, entity, prompts);
     return;
   }
 
@@ -99,7 +104,8 @@ async function promptAndPull(
       names.length > 0,
       "Nothing local to pull - no entity directories exist yet for this tenant."
     );
-    for (const name of names) await pullAndReport(api, tenantDir, requireEntity(name));
+    for (const name of names)
+      await pullAndReport(api, tenantDir, requireEntity(name), prompts);
     return;
   }
 
@@ -108,7 +114,7 @@ async function promptAndPull(
       "Which entity type?",
       ENTITY_REGISTRY.map((e) => ({ label: e.name, value: e }))
     );
-    await pullAndReport(api, tenantDir, entity);
+    await pullAndReport(api, tenantDir, entity, prompts);
     return;
   }
 
@@ -167,7 +173,7 @@ async function runPull(options: PullOptions, prompts: PromptSession): Promise<vo
 
   if (options.entity && options.entity.length > 0) {
     for (const name of options.entity)
-      await pullAndReport(api, tenantDir, requireEntity(name));
+      await pullAndReport(api, tenantDir, requireEntity(name), prompts);
     return;
   }
 
@@ -179,12 +185,14 @@ async function runPull(options: PullOptions, prompts: PromptSession): Promise<vo
       );
       return;
     }
-    for (const name of names) await pullAndReport(api, tenantDir, requireEntity(name));
+    for (const name of names)
+      await pullAndReport(api, tenantDir, requireEntity(name), prompts);
     return;
   }
 
   if (options.all) {
-    for (const entity of ENTITY_REGISTRY) await pullAndReport(api, tenantDir, entity);
+    for (const entity of ENTITY_REGISTRY)
+      await pullAndReport(api, tenantDir, entity, prompts);
     return;
   }
 
