@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import { join, resolve } from "node:path";
 import type { Command } from "commander";
 import {
+  ManagementApiError,
   PromptSession,
   printStepDone,
   printStepInfo,
@@ -14,11 +15,11 @@ import {
   type EntityDefinition,
 } from "../entityRegistry.js";
 import {
+  confirmAndRemoveMissingRecord,
   localEntityNames,
   localFileNames,
-  pullEntity,
-  pullSingleFile,
-} from "../pullEntity.js";
+} from "../localEntityFiles.js";
+import { pullEntity, pullSingleFile } from "../pullEntity.js";
 import { resolveFileTarget } from "../resolveFileTarget.js";
 
 interface PullOptions {
@@ -47,6 +48,27 @@ async function pullAndReport(
   printStepDone(
     `Pulled ${paths.length} ${entity.name} file${paths.length === 1 ? "" : "s"}`
   );
+}
+
+// Shared by --file and the interactive "specific file" picker - pullEntity (bulk) can't hit this,
+// since it lists fresh from the API rather than re-fetching a local file's own id.
+async function pullSingleFileOrConfirmDeletion(
+  api: Auth0ManagementApiClient,
+  tenantDir: string,
+  entity: EntityDefinition,
+  baseFileName: string,
+  prompts: PromptSession
+): Promise<void> {
+  try {
+    const filePath = await pullSingleFile(api, tenantDir, entity, baseFileName);
+    printStepDone(`Pulled ${filePath}`);
+  } catch (err) {
+    if (err instanceof ManagementApiError && err.status === 404) {
+      await confirmAndRemoveMissingRecord(prompts, tenantDir, entity, baseFileName);
+      return;
+    }
+    throw err;
+  }
 }
 
 // The bare `pull` fallback when none of --file/--entity/--local/--all were given - always reads
@@ -106,8 +128,7 @@ async function promptAndPull(
     "Which file?",
     fileNames.map((name) => ({ label: name, value: name }))
   );
-  const filePath = await pullSingleFile(api, tenantDir, entity, baseFileName);
-  printStepDone(`Pulled ${filePath}`);
+  await pullSingleFileOrConfirmDeletion(api, tenantDir, entity, baseFileName, prompts);
 }
 
 async function runPull(options: PullOptions, prompts: PromptSession): Promise<void> {
@@ -132,13 +153,13 @@ async function runPull(options: PullOptions, prompts: PromptSession): Promise<vo
       prompts,
       target.tenantName
     );
-    const filePath = await pullSingleFile(
+    await pullSingleFileOrConfirmDeletion(
       api,
       tenantDir,
       requireEntity(target.entityName),
-      target.baseFileName
+      target.baseFileName,
+      prompts
     );
-    printStepDone(`Pulled ${filePath}`);
     return;
   }
 

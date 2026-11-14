@@ -63,6 +63,34 @@ describe("createClientsNamespace", () => {
     });
   });
 
+  it("strips live secrets and read-only fields from create()'s response too", async () => {
+    const clients = createClientsNamespace(createFakeClient(rawClient));
+
+    const result = await clients.create({ name: "My App" });
+
+    expect(result).toEqual({
+      client_id: "abc123",
+      name: "My App",
+      cross_origin_authentication: false,
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-02-01T00:00:00.000Z",
+    });
+  });
+
+  it("strips live secrets and read-only fields from update()'s response too", async () => {
+    const clients = createClientsNamespace(createFakeClient(rawClient));
+
+    const result = await clients.update("abc123", { name: "My App" });
+
+    expect(result).toEqual({
+      client_id: "abc123",
+      name: "My App",
+      cross_origin_authentication: false,
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-02-01T00:00:00.000Z",
+    });
+  });
+
   it("excludes the tenant's global client by default", async () => {
     const request = vi.fn().mockResolvedValue([]);
     const clients = createClientsNamespace({ request });

@@ -25,6 +25,19 @@ export interface ManagementApiClientOptions {
   token: string;
 }
 
+// Carries the HTTP status so a caller can react to a specific one (a 404 meaning "this local
+// record no longer exists on the tenant," say) without parsing it back out of a message string.
+export class ManagementApiError extends Error {
+  constructor(
+    public readonly status: number,
+    path: string,
+    apiMessage: string
+  ) {
+    super(`Failed to ${path}: (${status}) ${apiMessage}`);
+    this.name = "ManagementApiError";
+  }
+}
+
 function buildUrl(domain: string, path: string, query?: object): string {
   const url = new URL(`https://${domain}/api/v2${path}`);
   for (const [key, value] of Object.entries(query ?? {})) {
@@ -41,7 +54,7 @@ async function parseResponse<T>(response: Response, path: string): Promise<T> {
 
   const result = (await response.json()) as T & { message?: string };
   if (!response.ok) {
-    throw new Error(`Failed to ${path}: (${response.status}) ${result.message ?? ""}`);
+    throw new ManagementApiError(response.status, path, result.message ?? "");
   }
   return result;
 }
@@ -53,8 +66,6 @@ export function createManagementApiClient(
 
   return {
     async request<T>({ method, path, query, body }: RequestDescriptor): Promise<T> {
-      console.log(`${method} to ${path}`, body ?? "");
-
       const response = await fetch(buildUrl(domain, path, query), {
         method,
         headers: {

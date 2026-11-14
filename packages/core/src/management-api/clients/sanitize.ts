@@ -6,10 +6,10 @@
 // this layer instead, including the ones that moved to src/validate (deprecated field renames,
 // CIMD field restrictions are flagged there too - see src/validate/entity-handlers/clients/).
 
-import chalk from "chalk";
+import { debugLog } from "../../logger.js";
 
 function logGuardrail(message: string): void {
-  console.log(chalk.gray(`[clients] ${message}`));
+  debugLog(`[clients] ${message}`);
 }
 
 // jwt_configuration.secret_encoded is nested, so it can't go through the flat stripFields list.

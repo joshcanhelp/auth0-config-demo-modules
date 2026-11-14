@@ -1,7 +1,17 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { stripFields } from "./stripFields.js";
 
 describe("stripFields", () => {
+  const originalAuthZeroLog = process.env.AUTH0_LOG;
+
+  afterEach(() => {
+    if (originalAuthZeroLog === undefined) {
+      delete process.env.AUTH0_LOG;
+    } else {
+      process.env.AUTH0_LOG = originalAuthZeroLog;
+    }
+  });
+
   it("removes only the listed fields that are actually present", () => {
     const result = stripFields({ a: 1, b: 2, c: 3 }, ["a", "c", "missing"], "test");
     expect(result).toEqual({ b: 2 });
@@ -17,22 +27,23 @@ describe("stripFields", () => {
     expect(stripFields({ a: 1 }, ["b"], "test")).toEqual({ a: 1 });
   });
 
-  it("logs each stripped field by default", () => {
+  it("logs nothing by default (AUTH0_LOG not set to debug)", () => {
+    delete process.env.AUTH0_LOG;
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    stripFields({ a: 1 }, ["a"], "test");
+
+    expect(logSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
+  });
+
+  it("logs each stripped field when AUTH0_LOG=debug", () => {
+    process.env.AUTH0_LOG = "debug";
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     stripFields({ a: 1 }, ["a"], "test");
 
     expect(logSpy).toHaveBeenCalledOnce();
-    logSpy.mockRestore();
-  });
-
-  it("logs nothing when quiet is true", () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
-    const result = stripFields({ a: 1 }, ["a"], "test", { quiet: true });
-
-    expect(result).toEqual({});
-    expect(logSpy).not.toHaveBeenCalled();
     logSpy.mockRestore();
   });
 });

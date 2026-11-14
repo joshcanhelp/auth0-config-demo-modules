@@ -41,14 +41,19 @@ export type ListAllClientsParams = Omit<ListClientsParams, "page" | "include_tot
 
 // Strips fields that never belong in a local config file (live secrets, deprecated/read-only
 // aliases) from a client the API just returned - see exportFields.ts for why each one's there.
-// Applied on every get/list so nothing downstream (e.g. a pull command writing this straight to
-// disk) has to know to do it itself. Quiet - stripping a secret on every single pull would just be
-// noise, unlike a write-path strip a human might need to notice.
-function stripExportFields(client: Client): Client {
-  const promoted = promoteDeprecatedCrossOriginAuth(client as Record<string, unknown>);
-  return stripFields(promoted, CLIENT_EXPORT_EXCLUDED_FIELDS, "clients", {
-    quiet: true,
-  }) as Client;
+// Applied on every get/list/create/update response - a create in particular returns the full
+// new client, live secret and signing keys included, same as get/list do - so nothing downstream
+// (e.g. a push/import command writing a response straight to disk) has to know to do it itself.
+// Generic rather than pinned to Client so create's CIMD registration response (a different shape)
+// goes through the same strip without a cast.
+function stripExportFields<T extends Record<string, unknown>>(client: T): T {
+  const promoted = promoteDeprecatedCrossOriginAuth(client);
+  return stripFields(
+    promoted,
+    CLIENT_EXPORT_EXCLUDED_FIELDS,
+    "clients",
+    "doesn't belong in local config"
+  ) as T;
 }
 
 // Every method below takes a trailing, optional `scopes` - the calling token's own granted
@@ -86,11 +91,15 @@ export function createClientsNamespace(client: ManagementApiClient) {
       params: CreateClientParams | RegisterCimdClientParams,
       scopes?: string[]
     ) =>
-      client.request<Client | Management.RegisterCimdClientResponseContent>(
-        buildCreateClientRequest(params, scopes)
+      stripExportFields(
+        await client.request<Client | Management.RegisterCimdClientResponseContent>(
+          buildCreateClientRequest(params, scopes)
+        )
       ),
     update: async (id: string, params: UpdateClientParams, scopes?: string[]) =>
-      client.request<Client>(buildUpdateClientRequest(id, params, scopes)),
+      stripExportFields(
+        await client.request<Client>(buildUpdateClientRequest(id, params, scopes))
+      ),
     delete: async (id: string, scopes?: string[]) =>
       client.request<void>(buildDeleteClientRequest(id, scopes)),
   };

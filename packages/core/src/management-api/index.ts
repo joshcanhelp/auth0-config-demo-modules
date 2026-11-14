@@ -6,6 +6,7 @@ import { createManagementApiClient as createCoreClient } from "./api-client.js";
 import type { ManagementApiClient, ManagementApiClientOptions } from "./api-client.js";
 import { createClientsNamespace } from "./clients/index.js";
 
+export { ManagementApiError } from "./api-client.js";
 export type {
   RequestDescriptor,
   ManagementApiClient,

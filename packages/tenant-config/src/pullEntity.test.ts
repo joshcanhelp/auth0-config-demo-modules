@@ -3,12 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Auth0ManagementApiClient, EntityDefinition } from "./entityRegistry.js";
-import {
-  localEntityNames,
-  localFileNames,
-  pullEntity,
-  pullSingleFile,
-} from "./pullEntity.js";
+import { pullEntity, pullSingleFile } from "./pullEntity.js";
 
 const fakeClients: Record<string, unknown>[] = [
   { client_id: "abc123", name: "My App" },
@@ -19,6 +14,8 @@ const fakeEntity: EntityDefinition = {
   name: "clients",
   list: async () => fakeClients,
   get: async (_api, id) => fakeClients.find((c) => c.client_id === id)!,
+  create: async (_api, body) => body,
+  update: async (_api, _id, body) => body,
   identifierField: "client_id",
   fileName: (record) => String(record.name),
 };
@@ -93,48 +90,5 @@ describe("pullSingleFile", () => {
     await expect(pullSingleFile(fakeApi, dir, fakeEntity, "My App")).rejects.toThrow(
       /missing "client_id"/
     );
-  });
-});
-
-describe("localEntityNames", () => {
-  let dir: string;
-
-  afterEach(async () => {
-    await rm(dir, { recursive: true, force: true });
-  });
-
-  it("lists only registered entity directories that exist locally", async () => {
-    dir = await mkdtemp(join(tmpdir(), "pull-test-"));
-    await mkdir(join(dir, "clients"), { recursive: true });
-    await mkdir(join(dir, "not-a-registered-entity"), { recursive: true });
-
-    expect(await localEntityNames(dir)).toEqual(["clients"]);
-  });
-
-  it("returns an empty list when the tenant directory doesn't exist", async () => {
-    dir = await mkdtemp(join(tmpdir(), "pull-test-"));
-    expect(await localEntityNames(join(dir, "missing"))).toEqual([]);
-  });
-});
-
-describe("localFileNames", () => {
-  let dir: string;
-
-  afterEach(async () => {
-    await rm(dir, { recursive: true, force: true });
-  });
-
-  it("lists local file names without their .json extension", async () => {
-    dir = await mkdtemp(join(tmpdir(), "pull-test-"));
-    await mkdir(join(dir, "clients"), { recursive: true });
-    await writeFile(join(dir, "clients", "My App.json"), "{}");
-    await writeFile(join(dir, "clients", "notes.txt"), "ignore me");
-
-    expect(await localFileNames(dir, fakeEntity)).toEqual(["My App"]);
-  });
-
-  it("returns an empty list when the entity directory doesn't exist locally", async () => {
-    dir = await mkdtemp(join(tmpdir(), "pull-test-"));
-    expect(await localFileNames(dir, fakeEntity)).toEqual([]);
   });
 });

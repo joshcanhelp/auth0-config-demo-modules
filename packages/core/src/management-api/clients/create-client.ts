@@ -1,7 +1,7 @@
 import type { Management } from "auth0";
-import chalk from "chalk";
 
 import type { RequestDescriptor } from "../api-client.js";
+import { debugLog } from "../../logger.js";
 import { requireScopes } from "../requireScopes.js";
 import { stripFields } from "../stripFields.js";
 import { stripSecretEncoded, stripTokenVaultPrivilegedAccess } from "./sanitize.js";
@@ -19,6 +19,8 @@ const STRIPPED_CREATE_FIELDS = [
   "jwks_uri",
   "created_at",
   "updated_at",
+  "encrypted",
+  "client_id",
 ] as const;
 
 // https://auth0.com/docs/api/management/v2/clients/post-clients
@@ -44,10 +46,8 @@ export function buildCreateClientRequest(
   }
 
   if ("external_client_id" in params) {
-    console.log(
-      chalk.gray(
-        `[clients] routing create-client to CIMD registration for external_client_id="${params.external_client_id}"`
-      )
+    debugLog(
+      `[clients] routing create-client to CIMD registration for external_client_id="${params.external_client_id}"`
     );
     return {
       method: "POST",

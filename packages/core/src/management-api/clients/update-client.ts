@@ -1,7 +1,7 @@
 import type { Management } from "auth0";
-import chalk from "chalk";
 
 import type { RequestDescriptor } from "../api-client.js";
+import { debugLog } from "../../logger.js";
 import { requireScopes } from "../requireScopes.js";
 import { stripFields } from "../stripFields.js";
 import { stripSecretEncoded, stripTokenVaultPrivilegedAccess } from "./sanitize.js";
@@ -27,6 +27,8 @@ const STRIPPED_UPDATE_FIELDS = [
   "jwks_uri",
   "created_at",
   "updated_at",
+  "encrypted", // read-only, rejected by PATCH - "Additional properties not allowed"
+  "client_id", // the resource's own identifier, already in the URL path - never in the body
   "third_party_security_mode", // immutable after creation - PATCH returns 400
 ] as const;
 
@@ -67,12 +69,10 @@ function restrictToCimdEditableFields(
     }
   }
 
-  console.log(
-    chalk.gray(
-      `[clients] restricting update-client to CIMD-editable fields for external_client_id="${externalClientId}"${
-        dropped.length > 0 ? ` - dropping [${dropped.join(", ")}]` : ""
-      }`
-    )
+  debugLog(
+    `[clients] restricting update-client to CIMD-editable fields for external_client_id="${externalClientId}"${
+      dropped.length > 0 ? ` - dropping [${dropped.join(", ")}]` : ""
+    }`
   );
 
   return kept;
