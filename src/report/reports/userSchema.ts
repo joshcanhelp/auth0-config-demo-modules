@@ -2,7 +2,7 @@ import type {
   UserSchemaDef,
   PrimitiveFieldDef,
   GroupFieldDef,
-} from "../../utils/tenantUserSchema.js";
+} from "../../../packages/core/src/tenantUserSchema.js";
 
 function formatPrimitiveField(
   key: string,

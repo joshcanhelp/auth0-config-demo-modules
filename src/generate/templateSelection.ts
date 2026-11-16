@@ -1,4 +1,4 @@
-import type { SelectOption } from "../scripts/utils/selectPrompt.js";
+import type { SelectOption } from "../../packages/core/src/selectPrompt.js";
 
 export function getTemplateTypes(templateNames: string[]): string[] {
   const types: string[] = [];

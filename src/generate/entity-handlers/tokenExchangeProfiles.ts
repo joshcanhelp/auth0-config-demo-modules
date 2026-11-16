@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { basename, join } from "node:path";
 import process from "node:process";
 
-import { selectPrompt } from "../../scripts/utils/selectPrompt.js";
+import { selectPrompt } from "../../../packages/core/src/selectPrompt.js";
 import { textPrompt } from "../../scripts/utils/textPrompt.js";
 
 const CUSTOM_TOKEN_EXCHANGE_TRIGGER = "custom-token-exchange";

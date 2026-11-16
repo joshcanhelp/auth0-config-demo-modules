@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from "node:path";
 import process from "node:process";
 
-import { confirmPrompt, selectPrompt } from "../../scripts/utils/selectPrompt.js";
+import { confirmPrompt, selectPrompt } from "../../../packages/core/src/selectPrompt.js";
 
 interface ClientEntry {
   name: string;

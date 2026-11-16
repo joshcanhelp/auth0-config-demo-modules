@@ -8,7 +8,7 @@ import { getClientCredentialsToken } from "../../../packages/core/src/clientCred
 import { withRetryOnInsufficientScope } from "../../auth0/withRetryOnInsufficientScope.js";
 import { createFileCache } from "../../scripts/utils/fileCache.js";
 import { loadDeployConfig } from "../../scripts/utils/deployConfig.js";
-import { decodeJwtPayload } from "../jwt.js";
+import { decodeJwtPayload } from "../../../packages/core/src/jwt.js";
 
 function hasNonReadScope(token: string): boolean {
   const { scope } = decodeJwtPayload(token) as { scope?: string };

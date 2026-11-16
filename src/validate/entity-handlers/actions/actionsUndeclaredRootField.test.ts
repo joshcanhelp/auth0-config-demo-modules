@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { UserSchemaDef } from "../../../utils/tenantUserSchema.js";
+import type { UserSchemaDef } from "../../../../packages/core/src/tenantUserSchema.js";
 import { checkUndeclaredRootField } from "./actionsUndeclaredRootField.js";
 
 const SCHEMA: UserSchemaDef = {

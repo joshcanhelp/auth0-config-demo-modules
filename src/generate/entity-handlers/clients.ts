@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import process from "node:process";
 
-import { confirmPrompt } from "../../scripts/utils/selectPrompt.js";
+import { confirmPrompt } from "../../../packages/core/src/selectPrompt.js";
 import { textPrompt } from "../../scripts/utils/textPrompt.js";
 
 function applyUrlsForAppType(

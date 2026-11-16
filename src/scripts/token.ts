@@ -3,7 +3,7 @@ import { readdirSync } from "node:fs";
 
 import dotenv from "dotenv";
 
-import { selectPrompt } from "./utils/selectPrompt.js";
+import { selectPrompt } from "../../packages/core/src/selectPrompt.js";
 import { getClientCredentialsToken } from "../../packages/core/src/clientCredentials.js";
 import { createFileCache } from "./utils/fileCache.js";
 

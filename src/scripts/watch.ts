@@ -6,7 +6,7 @@ import type { AssetTypes } from "auth0-deploy-cli/lib/types.js";
 
 import { buildPromptPartials } from "../deploy/buildPromptPartials.js";
 import { buildTriggers } from "../deploy/buildTriggers.js";
-import { selectTenant } from "./utils/selectTenant.js";
+import { selectTenant } from "../../packages/core/src/selectTenant.js";
 import { deployCliPush } from "../utils/deploy-cli/push-deploy.js";
 import { loadDeployConfig } from "./utils/deployConfig.js";
 import { DIR_TO_ASSET_TYPE } from "./utils/assetDirectories.js";

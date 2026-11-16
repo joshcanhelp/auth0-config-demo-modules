@@ -1,4 +1,7 @@
-import type { GroupFieldDef, UserSchemaDef } from "../../../utils/tenantUserSchema.js";
+import type {
+  GroupFieldDef,
+  UserSchemaDef,
+} from "../../../../packages/core/src/tenantUserSchema.js";
 import { buildFinding } from "../../utils/finding.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { findMatches, type ActionSource } from "./shared.js";

@@ -3,7 +3,7 @@ import process from "node:process";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { confirmPrompt } from "../../scripts/utils/selectPrompt.js";
+import { confirmPrompt } from "../../../packages/core/src/selectPrompt.js";
 import { deriveActionName, writeAction } from "./actions.js";
 import { deriveFlowName, writeFlow } from "./flows.js";
 import { deriveFormName, writeForm } from "./forms.js";
@@ -14,7 +14,7 @@ vi.mock("node:fs", () => ({
   readFileSync: vi.fn(),
   readdirSync: vi.fn(),
 }));
-vi.mock("../../scripts/utils/selectPrompt.js", () => ({
+vi.mock("../../../packages/core/src/selectPrompt.js", () => ({
   confirmPrompt: vi.fn(),
 }));
 vi.mock("./actions.js", () => ({

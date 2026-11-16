@@ -2,9 +2,9 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import process from "node:process";
 
-import { readClients } from "../app/readClients.js";
-import { selectTenant } from "../scripts/utils/selectTenant.js";
-import { loadTenantUserSchema } from "../utils/tenantUserSchema.js";
+import { readClients } from "../../packages/app/src/readClients.js";
+import { selectTenant } from "../../packages/core/src/selectTenant.js";
+import { loadTenantUserSchema } from "../../packages/core/src/tenantUserSchema.js";
 import {
   buildClientsReport,
   CLIENT_REPORT_FORMATS,

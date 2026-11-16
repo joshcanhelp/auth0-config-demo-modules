@@ -3,7 +3,7 @@ import process from "node:process";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { confirmPrompt } from "../../scripts/utils/selectPrompt.js";
+import { confirmPrompt } from "../../../packages/core/src/selectPrompt.js";
 import { textPrompt } from "../../scripts/utils/textPrompt.js";
 import { deriveClientName, handleClient } from "./clients.js";
 
@@ -13,7 +13,7 @@ vi.mock("node:fs", () => ({
   readFileSync: vi.fn(),
   writeFileSync: vi.fn(),
 }));
-vi.mock("../../scripts/utils/selectPrompt.js", () => ({
+vi.mock("../../../packages/core/src/selectPrompt.js", () => ({
   confirmPrompt: vi.fn(),
 }));
 vi.mock("../../scripts/utils/textPrompt.js", () => ({

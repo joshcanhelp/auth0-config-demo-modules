@@ -1,0 +1,167 @@
+import { describe, expect, it } from "vitest";
+
+import { buildAuthorizeUrl } from "./buildAuthorizeUrl.js";
+import type { Auth0Client } from "./types.js";
+
+const client: Auth0Client = {
+  client_id: "abc123",
+  name: "Test App",
+  app_type: "regular_web",
+  grant_types: ["authorization_code"],
+  token_endpoint_auth_method: "client_secret_post",
+  callbacks: [],
+  allowed_logout_urls: [],
+  allowed_origins: [],
+};
+
+describe("buildAuthorizeUrl", () => {
+  it("builds a valid authorize URL", () => {
+    const { url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain("https://login.example.com/authorize");
+    expect(url).toContain("client_id=abc123");
+    expect(url).toContain("response_type=code");
+    expect(url).toContain("code_challenge_method=S256");
+  });
+
+  it("derives the callback URL from baseUrl and client_id", () => {
+    const { url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain(encodeURIComponent("http://localhost:3000/callback/abc123"));
+  });
+
+  it("generates PKCE and returns the code verifier and challenge", () => {
+    const { url, codeVerifier, codeChallenge } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(typeof codeVerifier).toBe("string");
+    expect(codeVerifier.length).toBeGreaterThan(0);
+    expect(typeof codeChallenge).toBe("string");
+    expect(codeChallenge.length).toBeGreaterThan(0);
+    expect(url).toContain("code_challenge=");
+  });
+
+  it("generates an encoded state with a nonce when none is provided", () => {
+    const { state, url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(typeof state).toBe("string");
+    expect(state.length).toBeGreaterThan(0);
+    expect(url).toContain(`state=${state}`);
+    const decoded = JSON.parse(
+      Buffer.from(state, "base64url").toString("utf-8")
+    ) as Record<string, unknown>;
+    expect(typeof decoded.nonce).toBe("string");
+  });
+
+  it("encodes provided state properties alongside the nonce", () => {
+    const { state, url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000",
+      { state: { returnTo: "/dashboard" } }
+    );
+    const decoded = JSON.parse(
+      Buffer.from(state, "base64url").toString("utf-8")
+    ) as Record<string, unknown>;
+    expect(decoded.returnTo).toBe("/dashboard");
+    expect(typeof decoded.nonce).toBe("string");
+    expect(url).toContain(`state=${state}`);
+  });
+
+  it("appends connection to the URL when provided", () => {
+    const { url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000",
+      { connection: "google-oauth2" }
+    );
+    expect(url).toContain("connection=google-oauth2");
+  });
+
+  it("omits offline_access from scope when the client has no refresh_token grant", () => {
+    const { url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain("scope=openid+profile+email&");
+    expect(url).not.toContain("offline_access");
+  });
+
+  it("adds offline_access to scope when the client has a refresh_token grant", () => {
+    const refreshClient: Auth0Client = {
+      ...client,
+      grant_types: ["authorization_code", "refresh_token"],
+    };
+    const { url } = buildAuthorizeUrl(
+      refreshClient,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain("scope=openid+profile+email+offline_access&");
+  });
+
+  it("omits audience when client_metadata has no default_audience", () => {
+    const { url, audience } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).not.toContain("audience=");
+    expect(audience).toBeUndefined();
+  });
+
+  it("adds audience from client_metadata.default_audience when present", () => {
+    const audienceClient: Auth0Client = {
+      ...client,
+      client_metadata: { default_audience: "https://api.example.com/" },
+    };
+    const { url, audience } = buildAuthorizeUrl(
+      audienceClient,
+      "login.example.com",
+      "http://localhost:3000"
+    );
+    expect(url).toContain(`audience=${encodeURIComponent("https://api.example.com/")}`);
+    expect(audience).toBe("https://api.example.com/");
+  });
+
+  it("lets extraParams override the default_audience", () => {
+    const audienceClient: Auth0Client = {
+      ...client,
+      client_metadata: { default_audience: "https://api.example.com/" },
+    };
+    const { url, audience } = buildAuthorizeUrl(
+      audienceClient,
+      "login.example.com",
+      "http://localhost:3000",
+      { extraParams: { audience: "https://api.override.com/" } }
+    );
+    expect(url).toContain(`audience=${encodeURIComponent("https://api.override.com/")}`);
+    expect(url).not.toContain(encodeURIComponent("https://api.example.com/"));
+    expect(audience).toBe("https://api.override.com/");
+  });
+
+  it("appends extra params to the URL when provided", () => {
+    const { url } = buildAuthorizeUrl(
+      client,
+      "login.example.com",
+      "http://localhost:3000",
+      {
+        extraParams: { screen_hint: "signup", prompt: "login" },
+      }
+    );
+    expect(url).toContain("screen_hint=signup");
+    expect(url).toContain("prompt=login");
+  });
+});

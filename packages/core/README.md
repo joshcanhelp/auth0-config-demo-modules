@@ -8,20 +8,19 @@ orchestration of their own. See each module's own comments for what it does.
 unchanged - they were already fully generic (nothing init-specific in any of them), so
 `auth0-demo-tenant-config` can use them too instead of duplicating them. `tenantEnv.ts`'s
 `listTenantDirectories`/`readTenantEnv` are a new, independent read of a tenant's `tenants/<name>`
-directory and `.env` - distinct from the legacy `src/scripts/utils/selectTenant.ts` at the repo
-root (still used by `serve.ts`/`createApp.ts`, and not touched here), which additionally
+directory and `.env` - distinct from `selectTenant.ts` (below), which additionally
 `dotenv.config()`s a tenant's `.env` into `process.env` for code that still reads it that way.
 
-## What moves here next (not done yet)
+`apiAuthentication.ts` (Authentication API client), `apiManagement.ts` plus `userProfile.ts` (the
+user-facing Management API surface, including the My Account-style profile schema), `jwt.ts` and
+`memoryCache.ts` (token utilities - `clientCredentials.ts` already lived here), `tenantUserSchema.ts`,
+and `selectTenant.ts` moved here from the repo root's `src/auth0`/`src/utils`/`src/scripts/utils` -
+these are what `auth0-demo-app` needs to run the demo app without depending on anything
+tenant-config-only (`auth0-deploy-cli`, `auth0-checkmate`). `selectPrompt.ts` moved alongside
+`selectTenant.ts` as its only consumer but isn't re-exported from `index.ts` - it isn't needed
+outside this package, and its own `SelectOption`/`parseSelection` names already collide with
+`prompts.ts`'s newer `PromptSession`-based equivalents (left as-is; a mechanical move doesn't
+reconcile that overlap).
 
-Per `projects/003 Restructure.md`, this package is also meant to eventually hold:
-
-- An Authentication API client (today: `src/auth0/apiAuthentication.ts` at the repo root)
-- A My Account API client (doesn't exist yet)
-- Token/cache utilities (`src/utils/jwt.ts`, `src/utils/memoryCache.ts` - `clientCredentials.ts`
-  already lives here)
-- `src/scripts/utils/selectTenant.ts` itself, and `src/utils/tenantUserSchema.ts`
-
-These are still in active use by the code that hasn't moved into a package yet (the app and the
-existing `src/scripts`/`src/validate`/etc.), so moving them would require rewiring working code -
-out of scope until that's done deliberately, not as a side effect of moving something else.
+Everything here is reached by subpath, not the bare package name
+(`auth0-config-demo-modules/packages/core/src/index.js`) - see `bin/demo.ts`'s comment for why.

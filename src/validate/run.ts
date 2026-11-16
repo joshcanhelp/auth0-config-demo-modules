@@ -5,8 +5,8 @@ import { join } from "node:path";
 import type { Management } from "auth0";
 import chalk from "chalk";
 
-import { selectTenant } from "../scripts/utils/selectTenant.js";
-import { loadTenantUserSchema } from "../utils/tenantUserSchema.js";
+import { selectTenant } from "../../packages/core/src/selectTenant.js";
+import { loadTenantUserSchema } from "../../packages/core/src/tenantUserSchema.js";
 import { validateClients } from "./entity-handlers/clients/index.js";
 import { TENANT_TAGS, type TenantTag } from "./utils/tenantTag.js";
 import {

@@ -3,8 +3,8 @@ import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { selectTenant } from "../scripts/utils/selectTenant.js";
-import { selectPrompt } from "../scripts/utils/selectPrompt.js";
+import { selectTenant } from "../../packages/core/src/selectTenant.js";
+import { selectPrompt } from "../../packages/core/src/selectPrompt.js";
 import { handleAction } from "./entity-handlers/actions.js";
 import { handleClient } from "./entity-handlers/clients.js";
 import { handleGrant } from "./entity-handlers/grants.js";

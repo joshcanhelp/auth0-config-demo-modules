@@ -1,6 +1,5 @@
-// Public surface of auth0-demo-core: the Management API client (today) plus, as they get moved
-// here, the Authentication API and My Account API clients and the token/tenant-selection
-// utilities currently still in the root src/auth0 and src/utils - see projects/003 Restructure.md.
+// Public surface of auth0-demo-core: the Management API client, the Authentication API and My
+// Account API (user profile) clients, and shared token/tenant-selection utilities.
 export * from "./management-api/index.js";
 export { buildDashboardUrl } from "./buildDashboardUrl.js";
 export * from "./clientCredentials.js";
@@ -10,3 +9,11 @@ export * from "./prompts.js";
 export * from "./tenantEnv.js";
 export * from "./tenantType.js";
 export * from "./ui.js";
+export * from "./apiAuthentication.js";
+export * from "./apiManagement.js";
+export * from "./userProfile.js";
+export { decodeJwtPayload } from "./jwt.js";
+export * from "./memoryCache.js";
+export * from "./tenantUserSchema.js";
+export { selectTenant } from "./selectTenant.js";
+export type { TenantPaths, TenantPathsWithOptionalType } from "./selectTenant.js";

@@ -9,7 +9,6 @@
 // npm workspace symlinks, which exist in this repo's own (gitignored) node_modules but never ship
 // with an installed copy of this package, so code meant to run from an installed module (this CLI
 // included) has to reach every other internal package this same way.
-import { registerServeCommand } from "auth0-config-demo-modules/packages/app/src/index.js";
 import { registerBulkImportCommand } from "auth0-config-demo-modules/packages/bulk-import/src/index.js";
 import { registerInitCommand } from "auth0-config-demo-modules/packages/init/src/index.js";
 import {
@@ -31,7 +30,6 @@ program
   .version("0.1.0");
 
 registerInitCommand(program);
-registerServeCommand(program);
 registerValidateCommand(program);
 registerPullCommand(program);
 registerGenerateCommand(program);

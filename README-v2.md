@@ -1,12 +1,12 @@
 # Auth0 Demo CLI (v2)
 
-What's actually implemented so far, end to end: scaffolding a new project with `init`, then
-pulling a tenant's clients into local files with `pull`. Everything else the CLI lists
-(`serve`/`validate`/`generate`/`push`/`watch`/`bulk-import`) still just throws
-`"<command>" is not implemented yet` - this walks through the two commands that work today.
+What's actually implemented so far, end to end: scaffolding a new project with `init`, and pulling
+a tenant's clients into local files with `pull`. Everything else the CLI lists
+(`validate`/`generate`/`push`/`watch`/`bulk-import`) still just throws
+`"<command>" is not implemented yet` - this walks through the commands that work today.
 
 Run both from this repo's root with `npm run cli -- <command> ...` (there's no installed `demo`
-binary yet).
+binary yet). Running the demo app itself isn't a CLI command - see "Run the demo app" below.
 
 ## 1. Scaffold a project with `init`
 
@@ -87,3 +87,16 @@ my-project/
             ├── My App.json
             └── Another App.json
 ```
+
+## Run the demo app
+
+There's no `demo serve` command - `serve.ts` is a plain script, run directly:
+
+```bash
+tsx serve.ts --tenant my-tenant
+```
+
+It serves the client list and detail pages described by the tenant's local config, and exercises
+whatever each client is set up for - Authentication API login, My Account API calls, or
+user-focused Management API calls - depending on that client's own grants. The route wiring itself
+is right there in `serve.ts`, not hidden behind a command - see `packages/app/README.md` for why.

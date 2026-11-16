@@ -30,16 +30,17 @@ npm run cli -- init [dir]
 `dir` is the directory to scaffold into - if omitted, it prompts for one and defaults to the
 current directory.
 
-## `demo serve`
+## Running the demo app
 
-_auth0-demo-app._ **Not implemented.** Runs the demo app against a tenant's local config -
-Authentication API, My Account API, and user-focused Management API calls, depending on what each
-client is configured to do.
+The `auth0-demo-app` package is supporting files only (`createApp`, route
+handlers, page renderers), not a CLI command. A project runs its own `serve.ts` directly:
 
-| Option            | Description                                              |
-| ----------------- | -------------------------------------------------------- |
-| `--tenant <name>` | Tenant directory name (skips interactive selection)      |
-| `--port <number>` | Port to listen on, overriding the tenant's `.env` `PORT` |
+```bash
+tsx serve.ts --tenant my-tenant
+```
+
+See `packages/app/README.md` for why route wiring lives in each project's own `serve.ts` instead of
+a generic command.
 
 ## `demo validate`
 
