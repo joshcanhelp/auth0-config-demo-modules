@@ -1,9 +1,9 @@
 # auth0-demo-app
 
-The `demo serve` command - the Express demo app that renders client pages and exercises
-Authentication API, My Account API, and user-focused Management API calls on their behalf.
+The Express demo app's supporting code: `createApp()`, every route handler, and every page
+renderer. A project wires these into its own `serve.ts` and runs it directly (`tsx serve.ts` /
+`npm start`).
 
-Stub only - the real app still lives at the repo root (`src/app`, `serve.ts`) and is unaffected by
 ## `createApp(tenantDir)`
 
 Builds the Express app for one tenant directory - session, static files, locals, and
