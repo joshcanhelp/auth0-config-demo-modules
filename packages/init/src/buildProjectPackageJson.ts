@@ -36,9 +36,9 @@ export function buildProjectPackageJson(rootPackageJson: SourcePackageJson): str
     type: "module",
     scripts: {
       "start": "tsx ./serve.ts",
-      "init": "npx demo init",
-      "pull": "npx demo pull",
-      "push": "npx demo push",
+      "init": "tsx node_modules/auth0-config-demo-modules/bin/demo.ts init",
+      "pull": "tsx node_modules/auth0-config-demo-modules/bin/demo.ts pull",
+      "push": "tsx node_modules/auth0-config-demo-modules/bin/demo.ts push",
       // Switches which auth0-config-demo-modules this project runs against, with no
       // release/version/publish step either way. "local" (the default below) is a sibling
       // checkout, for developing against local edits to it. "remote" installs from its main

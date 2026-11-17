@@ -38,9 +38,9 @@ describe("buildProjectPackageJson", () => {
     expect(result.type).toBe("module");
     expect(result.scripts).toEqual({
       "start": "tsx ./serve.ts",
-      "init": "npx demo init",
-      "pull": "npx demo pull",
-      "push": "npx demo push",
+      "init": "tsx node_modules/auth0-config-demo-modules/bin/demo.ts init",
+      "pull": "tsx node_modules/auth0-config-demo-modules/bin/demo.ts pull",
+      "push": "tsx node_modules/auth0-config-demo-modules/bin/demo.ts push",
       "modules:local":
         "npm install auth0-config-demo-modules@file:../auth0-config-demo-modules",
       "modules:remote":

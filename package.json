@@ -10,9 +10,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "bin": {
-    "demo": "./bin/demo.ts"
-  },
   "scripts": {
     "start": "tsx serve.ts",
     "init": "tsx bin/demo.ts init",
