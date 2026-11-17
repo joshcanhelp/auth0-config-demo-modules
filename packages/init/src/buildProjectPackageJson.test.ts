@@ -23,7 +23,7 @@ describe("buildProjectPackageJson", () => {
     const result = JSON.parse(buildProjectPackageJson(rootPackageJson));
 
     expect(result.dependencies).toEqual({
-      "auth0-config-demo-modules": "file:../auth0-config-demo-modules",
+      "auth0-config-demo-modules": "github:joshcanhelp/auth0-config-demo-modules#main",
       "express": "^5.2.1",
       "express-session": "^1.19.0",
       "zod": "^4.4.3",
@@ -38,6 +38,9 @@ describe("buildProjectPackageJson", () => {
     expect(result.type).toBe("module");
     expect(result.scripts).toEqual({
       "start": "tsx ./serve.ts",
+      "init": "npx demo init",
+      "pull": "npx demo pull",
+      "push": "npx demo push",
       "modules:local":
         "npm install auth0-config-demo-modules@file:../auth0-config-demo-modules",
       "modules:remote":

@@ -17,7 +17,7 @@ const DEV_DEPENDENCY_KEYS = [
 ];
 
 // Update if this repo ever moves to a different GitHub owner/org.
-const MODULES_GITHUB_PATH = "joshcanhelp/auth0-config-demo-modules";
+const GITHUB_MODULE = "github:joshcanhelp/auth0-config-demo-modules#main";
 
 function pick(source: Record<string, string>, keys: string[]): Record<string, string> {
   return Object.fromEntries(
@@ -36,6 +36,9 @@ export function buildProjectPackageJson(rootPackageJson: SourcePackageJson): str
     type: "module",
     scripts: {
       "start": "tsx ./serve.ts",
+      "init": "npx demo init",
+      "pull": "npx demo pull",
+      "push": "npx demo push",
       // Switches which auth0-config-demo-modules this project runs against, with no
       // release/version/publish step either way. "local" (the default below) is a sibling
       // checkout, for developing against local edits to it. "remote" installs from its main
@@ -43,10 +46,10 @@ export function buildProjectPackageJson(rootPackageJson: SourcePackageJson): str
       // the deploy's own `npm install` (which installs everything else).
       "modules:local":
         "npm install auth0-config-demo-modules@file:../auth0-config-demo-modules",
-      "modules:remote": `npm install auth0-config-demo-modules@github:${MODULES_GITHUB_PATH}#main`,
+      "modules:remote": `npm install auth0-config-demo-modules@${GITHUB_MODULE}`,
     },
     dependencies: {
-      "auth0-config-demo-modules": "file:../auth0-config-demo-modules",
+      "auth0-config-demo-modules": GITHUB_MODULE,
       ...pick(rootPackageJson.dependencies, DEPENDENCY_KEYS),
     },
     devDependencies: {
