@@ -198,7 +198,7 @@ export async function handleChangePasswordLink({
   }
 
   const changePasswordLinkScript = readFileSync(
-    join(dir, "browser", "changePasswordLink.js"),
+    join(dir, "..", "..", "browser", "changePasswordLink.js"),
     "utf-8"
   );
   const pageConfig = JSON.stringify({ clientId: client.client_id });

@@ -29,7 +29,7 @@ export function handleLogout({
       returnTo: response.locals.baseUrl,
     });
 
-    const logoutScript = readFileSync(join(dir, "browser", "logout.js"), "utf-8");
+    const logoutScript = readFileSync(join(dir, "..", "..", "browser", "logout.js"), "utf-8");
     const logoutConfig = JSON.stringify({ auth0LogoutUrl });
 
     response.send(

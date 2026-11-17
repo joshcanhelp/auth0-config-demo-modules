@@ -57,7 +57,10 @@ export function handleLoginRedirect({
   );
 
   if (detectLoginMethod(client, env) === "frontend") {
-    const spaLoginScript = readFileSync(join(dir, "browser", "spaLogin.js"), "utf-8");
+    const spaLoginScript = readFileSync(
+      join(dir, "..", "..", "browser", "spaLogin.js"),
+      "utf-8"
+    );
     const loginConfig = JSON.stringify({
       domain: loginDomain,
       clientId: client.client_id,

@@ -84,7 +84,7 @@ export async function handleChangePasswordEmail({
   }
 
   const changePasswordScript = readFileSync(
-    join(dir, "browser", "changePasswordEmail.js"),
+    join(dir, "..", "..", "browser", "changePasswordEmail.js"),
     "utf-8"
   );
   const pageConfig = JSON.stringify({
