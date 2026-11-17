@@ -3,15 +3,15 @@
 // for why.
 export { createApp } from "./createApp.js";
 export { detectLoginMethod } from "./detectLoginMethod.js";
-export { handleChangePasswordEmail } from "./handleChangePasswordEmail.js";
-export { handleChangePasswordLink } from "./handleChangePasswordLink.js";
-export { handleVerifyEmail } from "./handleVerifyEmail.js";
-export { handleLoginRedirect } from "./handleLoginRedirect.js";
-export { handleLogout } from "./handleLogout.js";
-export { handleCreateUser } from "./handleCreateUser.js";
-export { handleSearchUsers } from "./handleSearchUsers.js";
-export { handleStoreIdToken } from "./handleStoreIdToken.js";
-export { handleSessionTransfer } from "./handleSessionTransfer.js";
-export { renderClientPage } from "./pages/renderClientPage.js";
-export { renderCallbackPage } from "./pages/renderCallbackPage.js";
+export { handleChangePasswordEmail } from "./routes/change-password-email/handler.js";
+export { handleChangePasswordLink } from "./routes/change-password-link/handler.js";
+export { handleVerifyEmail } from "./routes/verify-email/handler.js";
+export { handleLoginRedirect } from "./routes/login/handler.js";
+export { handleLogout } from "./routes/logout/handler.js";
+export { handleCreateUser } from "./routes/create-user/handler.js";
+export { handleSearchUsers } from "./routes/search-users/handler.js";
+export { handleStoreIdToken } from "./routes/store-id-token/handler.js";
+export { handleSessionTransfer } from "./routes/session-transfer/handler.js";
+export { renderClientPage } from "./routes/client/handler.js";
+export { renderCallbackPage } from "./routes/callback/handler.js";
 export { resolveBaseUrl } from "./updateClientUrls.js";

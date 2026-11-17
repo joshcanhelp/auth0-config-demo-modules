@@ -21,8 +21,8 @@ import { resolveBaseUrl, updateAllClientUrls } from "./updateClientUrls.js";
 import { validateClient } from "./validateClient.js";
 import { Auth0Client } from "./types.js";
 import { readTenantConfig } from "./readTenantConfig.js";
-import { renderClientListPage } from "./pages/renderClientListPage.js";
-import { handleErrorPage } from "./handleErrorPage.js";
+import { renderClientListPage } from "./routes/client-list/handler.js";
+import { handleErrorPage } from "./routes/error-page/handler.js";
 
 declare module "express-serve-static-core" {
   interface Locals {
