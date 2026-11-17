@@ -1,0 +1,86 @@
+<p><a href="{{ backHref }}">&larr; Back</a></p>
+<h1>{{ clientName }}</h1>
+<dl>
+  <dt>Client ID</dt><dd><div style="display:flex;align-items:center;gap:0.5rem;">
+    <code>{{ clientId }}</code>
+    <button type="button" class="outline secondary" style="margin:0;padding:0.15rem 0.5rem;font-size:0.85em;" aria-label="Copy {{ clientId }}" onclick="navigator.clipboard.writeText('{{ clientId }}').then(() => { const b = this; const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => { b.textContent = t; }, 1500); })">Copy</button>
+  </div></dd>
+  <dt>Type</dt><dd><span tabindex="0" style="cursor:help;border-bottom:1px dotted;" data-tooltip="{{ appType.description }}">{{ appType.value }}</span></dd>
+  <dt>Grants</dt><dd>{{ grantTypesDisplay }}</dd>
+  <dt>Login method</dt><dd><span tabindex="0" style="cursor:help;border-bottom:1px dotted;" data-tooltip="{{ loginMethodDescription }}">{{ loginMethod }}</span></dd>
+  {% if hasLoginDomains %}
+  <dt>Login Domain(s)</dt>
+  <dd style="display:flex;flex-direction:column;gap:0.35rem;">
+    {% for d in loginDomains %}
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <code>{{ d.value }}</code>
+        <button type="button" class="outline secondary" style="margin:0;padding:0.15rem 0.5rem;font-size:0.85em;" aria-label="Copy {{ d.value }}" onclick="navigator.clipboard.writeText('{{ d.value }}').then(() => { const b = this; const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => { b.textContent = t; }, 1500); })">Copy</button>
+        {% if d.isDefault %} <small>(default)</small>{% endif %}
+      </div>
+    {% endfor %}
+  </dd>
+  {% else %}
+  <dt>Login Domain(s)</dt><dd>(none)</dd>
+  {% endif %}
+</dl>
+
+{% if showGrantsSection %}
+<h2>Client Grants</h2>
+
+{% if hasGrants %}
+<ul>
+  {% for grant in grants %}
+    <li><strong>{{ grant.audience }}</strong>: {{ grant.scopeDisplay }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No grants found locally. Run <code>npm run export</code> to pull grants from the tenant.</p>
+{% endif %}
+
+{% endif %}
+
+<h2>Login</h2>
+<form method="get" action="{{ loginAction }}">
+  {% if hasConnections %}
+  <div>
+    <label for="connection">Connection</label>
+    <select id="connection" name="connection">
+      <option value="">-- Default --</option>
+      {% for c in connections %}<option value="{{ c.name }}">{{ c.name }} ({{ c.strategy }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% else %}
+  <p>No connections found for this client.</p>
+  {% endif %}
+  <div>
+    <label for="login_domain">Login Domain</label>
+    <select id="login_domain" name="login_domain">
+      {% for o in loginDomainOptions %}<option value="{{ o.value }}"{% if o.selected %} selected{% endif %}>{{ o.value }}{% if o.isTenantDomain %} (testing){% endif %}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="extra_params">Extra parameters</label>
+    <textarea id="extra_params" name="extra_params" placeholder="screen_hint=signup&#10;prompt=login"></textarea>
+  </div>
+  <button type="submit">Login</button>
+</form>
+
+<h2>Self-Service</h2>
+
+{% if selfService.showNoUserMessage %}
+<p>{{ selfService.noUserError }}</p>
+{% else %}
+
+<dl id="client-self-service-actions">
+  {% for row in selfService.rows %}<dt>{{ row.label }}</dt><dd>{% if row.available %}<a href="{{ row.href }}"><button>{{ row.label }}</button></a>{% else %}<span style="color:#cf222e;">{{ row.reason }}</span>{% endif %}</dd>
+  {% endfor %}
+</dl>
+
+<script>
+if (!localStorage.getItem("auth0_user_id")) {
+  document.getElementById("client-self-service-actions").outerHTML = "<p>{{ selfService.noUserError }}</p>"
+}
+</script>
+{% endif %}

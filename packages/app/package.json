@@ -12,7 +12,8 @@
     "auth0": "^6.3.0",
     "auth0-config-demo-modules": "file:../..",
     "express": "^5.2.1",
-    "express-session": "^1.19.0"
+    "express-session": "^1.19.0",
+    "liquidjs": "^10.30.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

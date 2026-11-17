@@ -1,0 +1,31 @@
+<div style="display:flex;justify-content:space-between;align-items:baseline;">
+  <h1>{{ friendlyName }}</h1>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Application</th>
+      <th>Type</th>
+      <th>Grants</th>
+      <th>Login Method</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for client in clients %}
+    <tr>
+      <td>
+        {% if client.logoUri %}<img src="{{ client.logoUri }}" alt="{{ client.name }} logo" class="client-list-logo">{% endif %}
+        <a href="/client/{{ client.clientId }}">{{ client.name }}</a>
+      </td>
+      <td><code>{{ client.appType }}</code></td>
+      <td><code>{{ client.grantTypes | join: "</code>, <code>" }}</code></td>
+      <td>{% unless client.isM2M %}{{ client.loginMethod }}{% endunless %}</td>
+      <td>
+        {% unless client.isM2M %}<a href="/login/{{ client.clientId }}">Login</a>
+        <a href="/login/{{ client.clientId }}?extra_params={{ "screen_hint=signup" | url_encode }}">Signup</a>{% endunless %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

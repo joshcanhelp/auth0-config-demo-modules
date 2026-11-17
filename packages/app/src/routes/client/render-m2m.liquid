@@ -1,0 +1,89 @@
+<p><a href="{{ backHref }}">&larr; Back</a></p>
+<h1>{{ clientName }}</h1>
+<dl>
+  <dt>Client ID</dt><dd><div style="display:flex;align-items:center;gap:0.5rem;">
+    <code>{{ clientId }}</code>
+    <button type="button" class="outline secondary" style="margin:0;padding:0.15rem 0.5rem;font-size:0.85em;" aria-label="Copy {{ clientId }}" onclick="navigator.clipboard.writeText('{{ clientId }}').then(() => { const b = this; const t = b.textContent; b.textContent = 'Copied!'; setTimeout(() => { b.textContent = t; }, 1500); })">Copy</button>
+  </div></dd>
+  <dt>Type</dt><dd><span tabindex="0" style="cursor:help;border-bottom:1px dotted;" data-tooltip="{{ appType.description }}">{{ appType.value }}</span></dd>
+  <dt>Grants</dt><dd>{{ grantTypesDisplay }}</dd>
+</dl>
+<h2>Client Grants</h2>
+{% if hasGrants %}
+<ul>
+  {% for grant in grants %}<li><strong>{{ grant.audience }}</strong>: {{ grant.scopeDisplay }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No grants found locally. Run <code>npm run export</code> to pull grants from the tenant.</p>
+{% endif %}
+{% if canSearchUsers %}
+<h2>User Search</h2>
+<form method="post" action="{{ searchUsersAction }}">
+  <label for="query">Search query</label>
+  <div style="display:flex;gap:0.5rem;">
+    <input type="text" id="query" name="query" placeholder="email:user@example.com">
+    <button type="submit">Search</button>
+  </div>
+</form>
+{% endif %}
+{% if createUserState == "no-schema" %}
+<p>No user schema defined for this tenant. Add a <code>user-schema.ts</code> to enable user creation.</p>
+{% elsif createUserState == "no-db-connections" %}
+<p>No database connections are assigned to this client. Assign at least one database connection to enable user creation.</p>
+{% elsif createUserState == "ready" %}
+<h2>Create User</h2>
+<button type="button" onclick="document.getElementById('create-user-dialog').showModal()">
+    Create User
+  </button>
+
+  <dialog id="create-user-dialog">
+    <article>
+      <header><h2>Create User</h2></header>
+      <form id="create-user-form" method="post" action="{{ createUserAction }}">
+        <div>
+          <label for="connection">Connection</label>
+          <select id="connection" name="connection" required>
+            {% for c in dbConnectionOptions %}<option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% for field in userSchemaFields %}
+        {% if field.isGroup %}
+        <fieldset>
+          <legend>{{ field.label }}</legend>
+          {% if field.description %}<small>{{ field.description }}</small>{% endif %}
+          {% for sub in field.fields %}
+          {% if sub.isBoolean %}<div class="field-wrapper">
+            <label><input type="checkbox" name="{{ sub.formName }}" value="true"> {{ sub.label }}</label>{% if sub.description %}
+            <small>{{ sub.description }}</small>{% endif %}
+          </div>
+          {% else %}<div class="field-wrapper">
+            <label for="{{ sub.formName }}">{{ sub.label }}{% if sub.required %} *{% endif %}</label>
+            <input type="{{ sub.inputType }}" id="{{ sub.formName }}" name="{{ sub.formName }}"{% if sub.required %} required{% endif %}{% if sub.required %} value="{{ sub.mockValue }}"{% endif %}>{% if sub.description %}
+            <small>{{ sub.description }}</small>{% endif %}
+          </div>
+          {% endif %}
+          {% endfor %}
+        </fieldset>
+        {% else %}
+        {% if field.isBoolean %}<div class="field-wrapper">
+          <label><input type="checkbox" name="{{ field.formName }}" value="true"> {{ field.label }}</label>{% if field.description %}
+          <small>{{ field.description }}</small>{% endif %}
+        </div>
+        {% else %}<div class="field-wrapper">
+          <label for="{{ field.formName }}">{{ field.label }}{% if field.required %} *{% endif %}</label>
+          <input type="{{ field.inputType }}" id="{{ field.formName }}" name="{{ field.formName }}"{% if field.required %} required{% endif %}{% if field.required %} value="{{ field.mockValue }}"{% endif %}>{% if field.description %}
+          <small>{{ field.description }}</small>{% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+      </form>
+      <footer>
+        <button type="button" class="outline secondary" onclick="document.getElementById('create-user-dialog').close()">Cancel</button>
+        <button type="submit" form="create-user-form">Create</button>
+      </footer>
+    </article>
+  </dialog>
+{% endif %}
