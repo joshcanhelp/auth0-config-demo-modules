@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import type { Response } from "express";
 
 import { detectLoginMethod } from "../../detectLoginMethod.js";
-import { liquid } from "../../liquidEngine.js";
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import type { Auth0Client } from "../../types.js";
 import { readClients } from "../../readClients.js";
@@ -35,7 +35,7 @@ export async function renderClientListPage({
       };
     });
 
-  const body = await liquid.renderFile(join(dir, "render.liquid"), {
+  const body = await renderLiquidFile(join(dir, "render.liquid"), {
     friendlyName: tenantConfig.friendlyName,
     clients: clientRows,
   });

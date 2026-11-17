@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import type { Response, Request } from "express";
 
 import { detectLoginMethod } from "../../detectLoginMethod.js";
-import { liquid } from "../../liquidEngine.js";
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { clientHasScope, getClientGrants, readGrants } from "../../readGrants.js";
 import type { ClientGrant } from "../../readGrants.js";
@@ -124,7 +124,7 @@ async function renderM2MClientPage(
     createUserState = "no-scope";
   else createUserState = "ready";
 
-  const body = await liquid.renderFile(join(dir, "render-m2m.liquid"), {
+  const body = await renderLiquidFile(join(dir, "render-m2m.liquid"), {
     backHref: "/",
     clientName: client.name,
     clientId: client.client_id,
@@ -237,7 +237,7 @@ async function renderLoginClientPage(
   const defaultLoginDomain = getDefaultLoginDomain(client, tenantConfig, loginDomains);
   const showGrantsSection = client.grant_types.includes("client_credentials");
 
-  const body = await liquid.renderFile(join(dir, "render-login.liquid"), {
+  const body = await renderLiquidFile(join(dir, "render-login.liquid"), {
     backHref: "/",
     clientName: client.name,
     clientId: client.client_id,
