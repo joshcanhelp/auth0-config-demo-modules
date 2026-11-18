@@ -24,8 +24,8 @@
     "refresh": "tsx src/scripts/refresh.ts",
     "watch": "tsx src/scripts/watch.ts",
     "report": "tsx src/report/run.ts",
-    "validate": "tsx src/validate/run.ts",
-    "validate:list": "tsx src/validate/list.ts",
+    "validate": "tsx bin/demo.ts validate",
+    "validate:list": "tsx bin/demo.ts validate-list",
     "modules:local": "npm install auth0-config-demo-modules@file:.",
     "modules:remote": "npm install auth0-config-demo-modules@github:joshcanhelp/auth0-config-demo-modules#main",
     "build": "tsc",
@@ -34,7 +34,6 @@
     "format": "prettier --write ./src ./packages ./bin"
   },
   "devDependencies": {
-    "@auth0/auth0-checkmate": "^1.9.3",
     "@eslint/js": "^9.0.0",
     "@tsconfig/node22": "^22.0.5",
     "@types/express": "^5.0.6",
@@ -44,6 +43,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",
     "prettier": "^3.0.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.73.0",
     "vitest": "^5.0.0"
@@ -56,7 +56,6 @@
     "eslint-config-prettier": "^6.15.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
-    "tsx": "^4.0.0",
     "zod": "^4.4.3"
   },
   "allowScripts": {

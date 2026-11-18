@@ -3,8 +3,9 @@
 // is being created or updated. Ported from auth0-deploy-cli's ClientHandler
 // (auth0-deploy-cli/src/tools/auth0/handlers/clients.ts) - see
 // projects/001 Replace Deploy CLI.md for which deploy-cli quirks were deliberately left out of
-// this layer instead, including the ones that moved to src/validate (deprecated field renames,
-// CIMD field restrictions are flagged there too - see src/validate/entity-handlers/clients/).
+// this layer instead, including the ones that moved to packages/tenant-config/src/validate
+// (deprecated field renames, CIMD field restrictions are flagged there too - see
+// packages/tenant-config/src/validate/entity-handlers/clients/).
 
 import { debugLog } from "../../logger.js";
 

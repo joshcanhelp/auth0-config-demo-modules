@@ -34,7 +34,8 @@ const STRIPPED_UPDATE_FIELDS = [
 
 // Once a CIMD (Client ID Metadata Document) client exists, only this field set can be changed
 // through update-client - everything else about it is owned by the external Client ID Metadata
-// Document. Mirrored in src/validate/entity-handlers/clients/clientsCimdFieldsNotEditable.ts,
+// Document. Mirrored in
+// packages/tenant-config/src/validate/entity-handlers/clients/clientsCimdFieldsNotEditable.ts,
 // which flags local config setting anything outside this set before a deploy gets here - keep
 // both lists in sync.
 const CIMD_EDITABLE_FIELDS = new Set<string>([
@@ -85,7 +86,8 @@ function restrictToCimdEditableFields(
 // - A CIMD client (external_client_id set) only allows updating a narrow field set.
 // - Fields the API rejects outright and token_vault_privileged_access are stripped before the
 //   request is built. Deprecated field names and CIMD-editable-field limits are flagged by
-//   src/validate/entity-handlers/clients/ before a deploy ever gets here, not fixed up silently.
+//   packages/tenant-config/src/validate/entity-handlers/clients/ before a deploy ever gets
+//   here, not fixed up silently.
 //
 // `scopes` is the calling token's own granted scopes - pass it to fail fast, client-side, with a
 // clear error naming the missing scope, instead of letting the API's 403 be the first signal.
