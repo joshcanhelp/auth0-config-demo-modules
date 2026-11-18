@@ -5,13 +5,14 @@ import type { Request, Response } from "express";
 
 import { buildAuthorizeUrl } from "../../buildAuthorizeUrl.js";
 import { detectLoginMethod } from "../../detectLoginMethod.js";
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { readTenantConfig } from "../../readTenantConfig.js";
 import { getLoginDomains, getDefaultLoginDomain } from "../../loginDomain.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
-export function handleLoginRedirect({
+export async function handleLoginRedirect({
   request,
   response,
   env,
@@ -61,7 +62,7 @@ export function handleLoginRedirect({
       join(dir, "..", "..", "browser", "spaLogin.js"),
       "utf-8"
     );
-    const loginConfig = JSON.stringify({
+    const loginConfigJson = JSON.stringify({
       domain: loginDomain,
       clientId: client.client_id,
       redirectUri: `${response.locals.baseUrl}/callback/${client.client_id}`,
@@ -73,14 +74,15 @@ export function handleLoginRedirect({
       ...(connection ? { connection } : {}),
       ...(Object.keys(extraParams).length > 0 ? { extraParams } : {}),
     });
+    const body = await renderLiquidFile(join(dir, "render.liquid"), {
+      loginConfigJson,
+      spaLoginScript,
+    });
     return response.send(
       pageLayout({
         title: `Redirecting - ${client.name}`,
         tenantConfig,
-        body: `
-  <p>Redirecting to login&hellip;</p>
-  <script id="spa-login-config" type="application/json">${loginConfig}</script>
-  <script>${spaLoginScript}</script>`,
+        body,
       })
     );
   }

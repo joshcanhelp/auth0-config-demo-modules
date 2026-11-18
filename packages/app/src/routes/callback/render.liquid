@@ -1,0 +1,30 @@
+<h1>Logging in to {{ clientName }}</h1>
+<p>
+  <a href="/client/{{ clientId }}">&larr; Back to {{ clientName }}</a> &bull;
+  <a href="/login/{{ clientId }}">Login again &rarr;</a>
+</p>
+
+{% if state == "frontend" %}
+<div id="steps"></div>
+<div id="tokens"></div>
+<script id="spa-callback-config" type="application/json">{{ callbackConfigJson }}</script>
+<script>{{ spaCallbackScript }}</script>
+{% elsif state == "error" %}
+<h2>Something went wrong</h2>
+<p>{{ errorMessage | escape }}</p>
+{% else %}
+{% if sessionDelegationUrl %}
+<div class="callout">
+  <p>You chose to delegate your session.</p>
+  <a href="{{ sessionDelegationUrl }}"><button>Continue session delegation</button></a>
+</div>
+{% endif %}
+<h2>ID Token Claims</h2>
+<pre>{{ idTokenClaimsJson }}</pre>
+{% if accessTokenClaimsJson %}
+<h2>Access Token Claims</h2>
+<pre>{{ accessTokenClaimsJson }}</pre>
+{% endif %}
+<h2>Token Response</h2>
+<pre>{{ tokensJson }}</pre>
+{% endif %}

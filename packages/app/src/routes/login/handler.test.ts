@@ -1,8 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-vi.mock("node:fs", () => ({
-  readFileSync: vi.fn(() => "/* spaLogin script */"),
-}));
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...actual,
+    // Only stub the browser script read - renderLiquidFile also uses readFileSync
+    // to load the real .liquid template, which must still come from disk.
+    readFileSync: vi.fn((path: Parameters<typeof actual.readFileSync>[0], ...rest) =>
+      typeof path === "string" && path.endsWith(".liquid")
+        ? actual.readFileSync(path, ...rest)
+        : "/* spaLogin script */"
+    ),
+  };
+});
 
 vi.mock("../../readTenantConfig.js", () => ({
   readTenantConfig: vi.fn(() => ({
@@ -74,16 +84,24 @@ beforeEach(() => {
 
 describe("handleLoginRedirect", () => {
   describe("frontend login", () => {
-    it("sends an HTML page instead of redirecting", () => {
+    it("sends an HTML page instead of redirecting", async () => {
       const { req, res } = makeReqRes(frontendClient);
-      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      await handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: {},
+      });
       expect(res.send).toHaveBeenCalled();
       expect(res.redirect).not.toHaveBeenCalled();
     });
 
-    it("embeds domain, clientId, and PKCE values in the page config", () => {
+    it("embeds domain, clientId, and PKCE values in the page config", async () => {
       const { req, res } = makeReqRes(frontendClient);
-      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      await handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: {},
+      });
       const html = res.send.mock.calls[0][0] as string;
       expect(html).toContain("spa-login-config");
       expect(html).toContain("example.auth0.com");
@@ -93,30 +111,46 @@ describe("handleLoginRedirect", () => {
       expect(html).toContain("challenge-xyz");
     });
 
-    it("embeds the computed scope in the page config", () => {
+    it("embeds the computed scope in the page config", async () => {
       const { req, res } = makeReqRes(frontendClient);
-      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      await handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: {},
+      });
       const html = res.send.mock.calls[0][0] as string;
       expect(html).toContain("openid profile email offline_access");
     });
 
-    it("embeds the computed audience in the page config", () => {
+    it("embeds the computed audience in the page config", async () => {
       const { req, res } = makeReqRes(frontendClient);
-      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      await handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: {},
+      });
       const html = res.send.mock.calls[0][0] as string;
       expect(html).toContain("https://api.example.com/");
     });
 
-    it("inlines the spaLogin script", () => {
+    it("inlines the spaLogin script", async () => {
       const { req, res } = makeReqRes(frontendClient);
-      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      await handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: {},
+      });
       const html = res.send.mock.calls[0][0] as string;
       expect(html).toContain("/* spaLogin script */");
     });
 
-    it("does not write to the session", () => {
+    it("does not write to the session", async () => {
       const { req, res, session } = makeReqRes(frontendClient);
-      handleLoginRedirect({ request: req as never, response: res as never, env: {} });
+      await handleLoginRedirect({
+        request: req as never,
+        response: res as never,
+        env: {},
+      });
       expect(session.oauthState).toBeUndefined();
       expect(session.pkceVerifier).toBeUndefined();
     });
