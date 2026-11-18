@@ -1,0 +1,11 @@
+<p><a href="/client/{{ clientId }}">&larr; Back</a></p>
+<h1>Verify Email - {{ clientName }}</h1>
+{% if state == "no-user" %}
+<p>No user is logged in. <a href="/login/{{ clientId }}">Please login</a> to use this feature.</p>
+{% else %}
+<div class="steps">
+  {% for step in steps %}<p style="color:{% if step.success %}#1a7f37{% else %}#cf222e{% endif %};">{% if step.success %}✓{% else %}✗{% endif %} {{ step.label }}{% if step.detail %}: {{ step.detail }}{% endif %}</p>
+  {% endfor %}
+</div>
+{% if sent %}<p style="color:#1a7f37;">&#10003; Verification email sent.</p>{% endif %}
+{% endif %}

@@ -1,8 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-vi.mock("node:fs", () => ({
-  readFileSync: vi.fn(() => "/* logout script */"),
-}));
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...actual,
+    // Only stub the browser script read - renderLiquidFile also uses readFileSync
+    // to load the real .liquid template, which must still come from disk.
+    readFileSync: vi.fn((path: Parameters<typeof actual.readFileSync>[0], ...rest) =>
+      typeof path === "string" && path.endsWith(".liquid")
+        ? actual.readFileSync(path, ...rest)
+        : "/* logout script */"
+    ),
+  };
+});
 
 vi.mock("../../readTenantConfig.js", () => ({
   readTenantConfig: vi.fn(() => ({
@@ -43,39 +53,39 @@ beforeEach(() => {
 });
 
 describe("handleLogout", () => {
-  it("destroys the session", () => {
+  it("destroys the session", async () => {
     const { req, res, session } = makeReqRes();
-    handleLogout({ request: req as never, response: res as never, env: {} });
+    await handleLogout({ request: req as never, response: res as never, env: {} });
     expect(session.destroy).toHaveBeenCalled();
   });
 
-  it("sends a page with the Auth0 logout URL in config", () => {
+  it("sends a page with the Auth0 logout URL in config", async () => {
     const { req, res } = makeReqRes();
-    handleLogout({ request: req as never, response: res as never, env: {} });
+    await handleLogout({ request: req as never, response: res as never, env: {} });
     const html = res.send.mock.calls[0][0] as string;
     expect(html).toContain("logout-config");
     expect(html).toContain("example.auth0.com/v2/logout");
     expect(html).toContain(encodeURIComponent("http://localhost:3000"));
   });
 
-  it("inlines the logout script", () => {
+  it("inlines the logout script", async () => {
     const { req, res } = makeReqRes();
-    handleLogout({ request: req as never, response: res as never, env: {} });
+    await handleLogout({ request: req as never, response: res as never, env: {} });
     const html = res.send.mock.calls[0][0] as string;
     expect(html).toContain("/* logout script */");
   });
 
-  it("includes the client_id in the logout URL when one is stored in session", () => {
+  it("includes the client_id in the logout URL when one is stored in session", async () => {
     const { req, res, session } = makeReqRes();
     session.auth0ClientId = "abc123";
-    handleLogout({ request: req as never, response: res as never, env: {} });
+    await handleLogout({ request: req as never, response: res as never, env: {} });
     const html = res.send.mock.calls[0][0] as string;
     expect(html).toContain("client_id=abc123");
   });
 
-  it("omits the client_id when none is stored in session", () => {
+  it("omits the client_id when none is stored in session", async () => {
     const { req, res } = makeReqRes();
-    handleLogout({ request: req as never, response: res as never, env: {} });
+    await handleLogout({ request: req as never, response: res as never, env: {} });
     const html = res.send.mock.calls[0][0] as string;
     expect(html).not.toContain("client_id");
   });

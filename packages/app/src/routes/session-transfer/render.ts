@@ -1,7 +1,10 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
 import { createAuthenticationApi } from "auth0-config-demo-modules/packages/core/src/index.js";
 import { buildLogoutUrl } from "../../buildLogoutUrl.js";
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { readTenantConfig } from "../../readTenantConfig.js";
 
@@ -15,6 +18,7 @@ export interface SessionTransferConfig {
 }
 
 const PAGE_TITLE = "Session Transfer";
+const dir = dirname(fileURLToPath(import.meta.url));
 
 export async function renderSessionTransferPage({
   request,
@@ -28,24 +32,24 @@ export async function renderSessionTransferPage({
   config: SessionTransferConfig;
 }) {
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
-  const renderError = (status: number, message: string) =>
-    response.status(status).send(
-      pageLayout({
-        title: PAGE_TITLE,
-        tenantConfig,
-        body: `<h1>${PAGE_TITLE}</h1><p>${message}</p>`,
-      })
-    );
+  const renderError = async (status: number, message: string) => {
+    const body = await renderLiquidFile(join(dir, "render.liquid"), {
+      title: PAGE_TITLE,
+      state: "error",
+      message,
+    });
+    response.status(status).send(pageLayout({ title: PAGE_TITLE, tenantConfig, body }));
+  };
 
   const subjectToken = request.query.subject_token;
   if (typeof subjectToken !== "string" || subjectToken.length === 0) {
-    renderError(400, "Missing subject_token parameter.");
+    await renderError(400, "Missing subject_token parameter.");
     return;
   }
 
   const actorToken = request.session.auth0IdToken;
   if (!actorToken) {
-    renderError(400, "No actor identity in session - please log in again.");
+    await renderError(400, "No actor identity in session - please log in again.");
     return;
   }
   // Single-use: this ID token is only meant to authorize the one exchange.
@@ -57,7 +61,7 @@ export async function renderSessionTransferPage({
   // pick up that same login session.
   const clientId = request.session.auth0ClientId;
   if (!clientId) {
-    renderError(400, "No client identity in session - please log in again.");
+    await renderError(400, "No client identity in session - please log in again.");
     return;
   }
 
@@ -82,7 +86,7 @@ export async function renderSessionTransferPage({
     });
     sessionTransferToken = tokens.access_token as string | undefined;
   } catch (error) {
-    renderError(
+    await renderError(
       502,
       `Unable to obtain a session transfer token: ${(error as Error).message}`
     );
@@ -90,7 +94,7 @@ export async function renderSessionTransferPage({
   }
 
   if (!sessionTransferToken) {
-    renderError(502, "Unable to obtain a session transfer token.");
+    await renderError(502, "Unable to obtain a session transfer token.");
     return;
   }
 
@@ -108,15 +112,11 @@ export async function renderSessionTransferPage({
     returnTo: targetUrl.toString(),
   });
 
-  response.send(
-    pageLayout({
-      title: PAGE_TITLE,
-      tenantConfig,
-      body: `
-        <h1>${PAGE_TITLE}</h1>
-        <p>A new session is ready.</p>
-        <a href="${continueUrl}"><button>Continue</button></a>
-      `,
-    })
-  );
+  const body = await renderLiquidFile(join(dir, "render.liquid"), {
+    title: PAGE_TITLE,
+    state: "success",
+    continueUrl,
+  });
+
+  response.send(pageLayout({ title: PAGE_TITLE, tenantConfig, body }));
 }

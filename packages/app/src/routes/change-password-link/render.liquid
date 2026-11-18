@@ -1,0 +1,17 @@
+<p><a href="/client/{{ clientId }}">&larr; Back</a></p>
+<h1>Change Password Link - {{ clientName }}</h1>
+{% if state == "backend-result" %}
+<div class="steps">
+  {% for step in steps %}<p style="color:{% if step.success %}#1a7f37{% else %}#cf222e{% endif %};">{% if step.success %}✓{% else %}✗{% endif %} {{ step.label }}{% if step.detail %}: {{ step.detail }}{% endif %}</p>
+  {% endfor %}
+</div>
+{% if ticket %}<div class="ticket-link"><strong>Password change link:</strong><br><a href="{{ ticket }}">{{ ticket }}</a></div>{% endif %}
+{% elsif state == "no-bff" %}
+<p style="color: #cf222e">✗ No <code>bff_client_id</code> found in client metadata.</p>
+{% elsif state == "script" %}
+<div id="status"></div>
+<div class="steps" id="steps"></div>
+<div id="ticket-section"></div>
+<script id="change-password-link-config" type="application/json">{{ pageConfigJson }}</script>
+<script>{{ changePasswordLinkScript }}</script>
+{% endif %}

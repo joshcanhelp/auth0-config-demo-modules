@@ -1,8 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-vi.mock("node:fs", () => ({
-  readFileSync: vi.fn(() => "/* changePasswordLink script */"),
-}));
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...actual,
+    // Only stub the browser script read - renderLiquidFile also uses readFileSync
+    // to load the real .liquid template, which must still come from disk.
+    readFileSync: vi.fn((path: Parameters<typeof actual.readFileSync>[0], ...rest) =>
+      typeof path === "string" && path.endsWith(".liquid")
+        ? actual.readFileSync(path, ...rest)
+        : "/* changePasswordLink script */"
+    ),
+  };
+});
 
 vi.mock("../../readTenantConfig.js", () => ({
   readTenantConfig: vi.fn(() => ({

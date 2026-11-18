@@ -1,0 +1,7 @@
+<h1>{{ title }}</h1>
+{% if state == "error" %}
+<p>{{ message }}</p>
+{% else %}
+<p>A new session is ready.</p>
+<a href="{{ continueUrl }}"><button>Continue</button></a>
+{% endif %}

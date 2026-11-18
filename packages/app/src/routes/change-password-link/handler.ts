@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
 import { detectLoginMethod } from "../../detectLoginMethod.js";
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { readTenantConfig } from "../../readTenantConfig.js";
 import { readClients } from "../../readClients.js";
@@ -18,13 +19,6 @@ interface Step {
   label: string;
   success: boolean;
   detail?: string;
-}
-
-function stepHtml(step: Step): string {
-  const color = step.success ? "#1a7f37" : "#cf222e";
-  const marker = step.success ? "✓" : "✗";
-  const detail = step.detail ? `: ${step.detail}` : "";
-  return `<p style="color:${color};">${marker} ${step.label}${detail}</p>`;
 }
 
 // https://auth0.com/docs/api/management/v2/tickets/post-password-change
@@ -101,7 +95,17 @@ export async function handleChangePasswordLink({
   const client = response.locals.client!;
   const loginMethod = detectLoginMethod(client, env);
   const auth0Domain = response.locals.auth0Domain;
-  const backLink = `<p><a href="/client/${client.client_id}">&larr; Back</a></p>`;
+
+  const send = async (data: Record<string, unknown>) => {
+    const body = await renderLiquidFile(join(dir, "render.liquid"), {
+      clientId: client.client_id,
+      clientName: client.name,
+      ...data,
+    });
+    return response.send(
+      pageLayout({ title: `Change Password Link - ${client.name}`, tenantConfig, body })
+    );
+  };
 
   // POST from SPA browser script: use BFF client credentials, return JSON steps
   if (request.method === "POST") {
@@ -161,60 +165,21 @@ export async function handleChangePasswordLink({
       userId
     );
 
-    const stepsHtml = steps.map(stepHtml).join("\n    ");
-    const ticketHtml = ticket
-      ? `<div class="ticket-link"><strong>Password change link:</strong><br><a href="${ticket}">${ticket}</a></div>`
-      : "";
-
-    return response.send(
-      pageLayout({
-        title: `Change Password Link - ${client.name}`,
-        tenantConfig,
-
-        body: `${backLink}
-  <h1>Change Password Link - ${client.name}</h1>
-  <div class="steps">
-    ${stepsHtml}
-  </div>
-  ${ticketHtml}`,
-      })
-    );
+    return send({ state: "backend-result", steps, ticket });
   }
 
   // GET: SPA/native - check for BFF then render page with browser script
   const bffClientId = client.client_metadata?.bff_client_id as string | undefined;
 
   if (!bffClientId) {
-    return response.send(
-      pageLayout({
-        title: `Change Password Link - ${client.name}`,
-        tenantConfig,
-
-        body: `${backLink}
-  <h1>Change Password Link - ${client.name}</h1>
-  <p style="color: #cf222e">✗ No <code>bff_client_id</code> found in client metadata.</p>`,
-      })
-    );
+    return send({ state: "no-bff" });
   }
 
   const changePasswordLinkScript = readFileSync(
     join(dir, "..", "..", "browser", "changePasswordLink.js"),
     "utf-8"
   );
-  const pageConfig = JSON.stringify({ clientId: client.client_id });
+  const pageConfigJson = JSON.stringify({ clientId: client.client_id });
 
-  return response.send(
-    pageLayout({
-      title: `Change Password Link - ${client.name}`,
-      tenantConfig,
-
-      body: `${backLink}
-  <h1>Change Password Link - ${client.name}</h1>
-  <div id="status"></div>
-  <div class="steps" id="steps"></div>
-  <div id="ticket-section"></div>
-  <script id="change-password-link-config" type="application/json">${pageConfig}</script>
-  <script>${changePasswordLinkScript}</script>`,
-    })
-  );
+  return send({ state: "script", pageConfigJson, changePasswordLinkScript });
 }

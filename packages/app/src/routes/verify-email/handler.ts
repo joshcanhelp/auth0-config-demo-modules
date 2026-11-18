@@ -1,5 +1,8 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { readTenantConfig } from "../../readTenantConfig.js";
 import {
@@ -7,17 +10,12 @@ import {
   createManagementApi,
 } from "auth0-config-demo-modules/packages/core/src/index.js";
 
+const dir = dirname(fileURLToPath(import.meta.url));
+
 interface Step {
   label: string;
   success: boolean;
   detail?: string;
-}
-
-function stepHtml(step: Step): string {
-  const color = step.success ? "#1a7f37" : "#cf222e";
-  const marker = step.success ? "✓" : "✗";
-  const detail = step.detail ? `: ${step.detail}` : "";
-  return `<p style="color:${color};">${marker} ${step.label}${detail}</p>`;
 }
 
 // https://auth0.com/docs/api/management/v2/jobs/post-verification-email
@@ -91,20 +89,21 @@ export async function handleVerifyEmail({
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   const client = response.locals.client!;
   const auth0Domain = response.locals.auth0Domain;
-  const backLink = `<p><a href="/client/${client.client_id}">&larr; Back</a></p>`;
+
+  const send = async (data: Record<string, unknown>) => {
+    const body = await renderLiquidFile(join(dir, "render.liquid"), {
+      clientId: client.client_id,
+      clientName: client.name,
+      ...data,
+    });
+    return response.send(
+      pageLayout({ title: `Verify Email - ${client.name}`, tenantConfig, body })
+    );
+  };
 
   const userId = request.session.auth0UserId;
   if (!userId) {
-    return response.send(
-      pageLayout({
-        title: `Verify Email - ${client.name}`,
-        tenantConfig,
-
-        body: `${backLink}
-  <h1>Verify Email - ${client.name}</h1>
-  <p>No user is logged in. <a href="/login/${client.client_id}">Please login</a> to use this feature.</p>`,
-      })
-    );
+    return send({ state: "no-user" });
   }
 
   const hasGrant = client.grant_types.includes("client_credentials");
@@ -118,22 +117,5 @@ export async function handleVerifyEmail({
     userId
   );
 
-  const stepsHtml = steps.map(stepHtml).join("\n    ");
-  const sentHtml = sent
-    ? `<p style="color:#1a7f37;">&#10003; Verification email sent.</p>`
-    : "";
-
-  return response.send(
-    pageLayout({
-      title: `Verify Email - ${client.name}`,
-      tenantConfig,
-
-      body: `${backLink}
-  <h1>Verify Email - ${client.name}</h1>
-  <div class="steps">
-    ${stepsHtml}
-  </div>
-  ${sentHtml}`,
-    })
-  );
+  return send({ state: "result", steps, sent });
 }

@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
 import { buildLogoutUrl } from "../../buildLogoutUrl.js";
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { readTenantConfig } from "../../readTenantConfig.js";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
-export function handleLogout({
+export async function handleLogout({
   request,
   response,
   env,
@@ -22,28 +23,23 @@ export function handleLogout({
   const loginDomain = request.session.loginDomain ?? tenantConfig.loginDomain;
   const clientId = request.session.auth0ClientId;
 
-  request.session.destroy(() => {
-    const auth0LogoutUrl = buildLogoutUrl({
-      loginDomain,
-      clientId,
-      returnTo: response.locals.baseUrl,
-    });
+  await new Promise<void>((resolve) => request.session.destroy(() => resolve()));
 
-    const logoutScript = readFileSync(
-      join(dir, "..", "..", "browser", "logout.js"),
-      "utf-8"
-    );
-    const logoutConfig = JSON.stringify({ auth0LogoutUrl });
-
-    response.send(
-      pageLayout({
-        title: "Logging out",
-        tenantConfig,
-        body: `
-  <p>Logging out&hellip;</p>
-  <script id="logout-config" type="application/json">${logoutConfig}</script>
-  <script>${logoutScript}</script>`,
-      })
-    );
+  const auth0LogoutUrl = buildLogoutUrl({
+    loginDomain,
+    clientId,
+    returnTo: response.locals.baseUrl,
   });
+  const logoutScript = readFileSync(
+    join(dir, "..", "..", "browser", "logout.js"),
+    "utf-8"
+  );
+  const logoutConfigJson = JSON.stringify({ auth0LogoutUrl });
+
+  const body = await renderLiquidFile(join(dir, "render.liquid"), {
+    logoutConfigJson,
+    logoutScript,
+  });
+
+  response.send(pageLayout({ title: "Logging out", tenantConfig, body }));
 }

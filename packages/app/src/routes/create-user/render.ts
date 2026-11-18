@@ -1,19 +1,23 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import type { TenantConfig } from "../../types.js";
 
-export function renderCreateUserPage(
+const dir = dirname(fileURLToPath(import.meta.url));
+
+export async function renderCreateUserPage(
   clientId: string,
   result: Record<string, unknown> | null,
   tenantConfig: TenantConfig,
   error?: string
-): string {
-  const body = error
-    ? `<p><a href="/client/${clientId}">&larr; Back to client</a></p>
-  <h2>User creation failed</h2>
-  <p style="color:red">${error}</p>`
-    : `<p><a href="/client/${clientId}">&larr; Back to client</a></p>
-  <h2>User created</h2>
-  <pre>${JSON.stringify(result, null, 2)}</pre>`;
+): Promise<string> {
+  const body = await renderLiquidFile(join(dir, "render.liquid"), {
+    clientId,
+    error: error ?? null,
+    resultJson: error ? null : JSON.stringify(result, null, 2),
+  });
 
   return pageLayout({
     title: "Create User",

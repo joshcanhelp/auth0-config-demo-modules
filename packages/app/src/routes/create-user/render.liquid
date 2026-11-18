@@ -1,0 +1,8 @@
+<p><a href="/client/{{ clientId }}">&larr; Back to client</a></p>
+{% if error %}
+<h2>User creation failed</h2>
+<p style="color:red">{{ error }}</p>
+{% else %}
+<h2>User created</h2>
+<pre>{{ resultJson }}</pre>
+{% endif %}

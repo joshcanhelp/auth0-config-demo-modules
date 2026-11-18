@@ -20,18 +20,18 @@ export async function handleCreateUser({
   const clientId = response.locals.client!.client_id;
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
 
-  const sendError = (error: unknown) => {
+  const sendError = async (error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
     response
       .status(400)
-      .send(renderCreateUserPage(clientId, null, tenantConfig, message));
+      .send(await renderCreateUserPage(clientId, null, tenantConfig, message));
   };
 
   let body: Record<string, unknown>;
   try {
     body = preprocessFormBody(request.body as Record<string, unknown>);
   } catch (error) {
-    sendError(error);
+    await sendError(error);
     return null;
   }
 
@@ -60,7 +60,7 @@ export async function handleCreateUser({
     //   }
     // );
   } catch (error) {
-    sendError(error);
+    await sendError(error);
     return null;
   }
 
@@ -68,5 +68,5 @@ export async function handleCreateUser({
     await postCreateAction(dbResult);
   }
 
-  response.send(renderCreateUserPage(clientId, dbResult, tenantConfig));
+  response.send(await renderCreateUserPage(clientId, dbResult, tenantConfig));
 }

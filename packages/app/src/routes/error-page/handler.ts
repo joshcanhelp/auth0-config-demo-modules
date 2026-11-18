@@ -1,10 +1,15 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Request, Response } from "express";
 
+import { renderLiquidFile } from "../../liquidEngine.js";
 import { pageLayout } from "../../pageLayout.js";
 import { readTenantConfig } from "../../readTenantConfig.js";
 
+const dir = dirname(fileURLToPath(import.meta.url));
+
 // https://auth0.com/docs/customize/login-pages/custom-error-pages
-export function handleErrorPage({
+export async function handleErrorPage({
   request,
   response,
   env,
@@ -26,20 +31,15 @@ export function handleErrorPage({
     ["Language", lang],
   ]
     .filter(([, value]) => Boolean(value))
-    .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
-    .join("\n    ");
+    .map(([label, value]) => ({ label, value }));
+
+  const body = await renderLiquidFile(join(dir, "render.liquid"), { rows });
 
   return response.status(400).send(
     pageLayout({
-      title: `Error — ${tenantConfig.friendlyName}`,
+      title: `Error - ${tenantConfig.friendlyName}`,
       tenantConfig,
-
-      body: `
-  <h1>Something went wrong</h1>
-  <dl>
-    ${rows}
-  </dl>
-  <p><a href="/">&larr; Back to app list</a></p>`,
+      body,
     })
   );
 }

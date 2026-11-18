@@ -16,5 +16,5 @@ export async function handleSearchUsers({
   const tenantConfig = readTenantConfig(response.locals.tenantDataDir, env);
   const query = (request.body as Record<string, string>).query ?? "";
   const users = await response.locals.managementApi!.getUsers(query);
-  response.send(renderSearchUsersPage(client, tenantConfig, query, users));
+  response.send(await renderSearchUsersPage(client, tenantConfig, query, users));
 }

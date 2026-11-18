@@ -1,0 +1,30 @@
+<p><a href="/client/{{ clientId }}">&larr; Back to {{ clientName }}</a></p>
+<h1>User Search - {{ friendlyName }}</h1>
+<form method="post" action="/search-users/{{ clientId }}">
+  <div>
+    <label for="query">Search query</label>
+    <input type="text" id="query" name="query" value="{{ query | escape }}">
+  </div>
+  <button type="submit">Search</button>
+</form>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>User ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if users.size == 0 %}
+    <tr><td colspan="3">No users found.</td></tr>
+    {% else %}
+    {% for user in users %}<tr>
+      <td>{{ user.name }}</td>
+      <td>{{ user.email }}</td>
+      <td><code>{{ user.userId }}</code></td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+  </tbody>
+</table>
