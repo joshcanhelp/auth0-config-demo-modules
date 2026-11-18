@@ -1,0 +1,112 @@
+{
+  "id": "ap_dqmruUGbHEBCfJt6uFHcv7",
+  "name": "Email Verification for Account Linking",
+  "languages": {
+    "primary": "en"
+  },
+  "nodes": [
+    {
+      "id": "step_qJEB",
+      "type": "STEP",
+      "coordinates": {
+        "x": 422,
+        "y": -100
+      },
+      "alias": "Email verification",
+      "config": {
+        "components": [
+          {
+            "id": "logo",
+            "category": "BLOCK",
+            "type": "IMAGE",
+            "config": {
+              "src": "https://s7d2.scene7.com/is/image/PetSmart/uxt-1252-logo-bounce-2X?wid=240",
+              "position": "CENTER",
+              "height": 150
+            }
+          },
+          {
+            "id": "rich_text_Cqas",
+            "category": "BLOCK",
+            "type": "RICH_TEXT",
+            "config": {
+              "content": "<div class=\"ps-otp-intro\"><h2 class=\"sparky-c-heading\">Enter your email passcode</h2><p>A one-time passcode has been sent to <strong>{{vars.email}}</strong>. Check your email and enter the passcode below.</p></div>"
+            }
+          },
+          {
+            "id": "verification_code",
+            "category": "FIELD",
+            "type": "TEXT",
+            "label": "Passcode",
+            "required": true,
+            "sensitive": false,
+            "config": {
+              "multiline": false
+            }
+          },
+          {
+            "id": "next_button_BtEe",
+            "category": "BLOCK",
+            "type": "NEXT_BUTTON",
+            "config": {
+              "text": "Continue"
+            }
+          },
+          {
+            "id": "resend_button_7eih",
+            "category": "BLOCK",
+            "type": "RESEND_BUTTON",
+            "config": {
+              "active_text": " ",
+              "button_text": "Resend email passcode",
+              "waiting_text": "Resend in {{remaining_seconds}} seconds",
+              "text_alignment": "CENTER",
+              "flow_id": "af_8JF2a8P9dAMBd5eA2SNq3y",
+              "max_attempts": 3,
+              "waiting_time": 60
+            }
+          }
+        ],
+        "next_node": "flow_hq3b"
+      }
+    },
+    {
+      "id": "flow_hq3b",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 982,
+        "y": 52
+      },
+      "config": {
+        "flow_id": "Verify OTP & Update user",
+        "next_node": "$ending"
+      }
+    },
+    {
+      "id": "flow_3Qle",
+      "type": "FLOW",
+      "coordinates": {
+        "x": 56,
+        "y": 56
+      },
+      "config": {
+        "flow_id": "Generate OTP & Send email",
+        "next_node": "step_qJEB"
+      }
+    }
+  ],
+  "start": {
+    "next_node": "flow_3Qle",
+    "coordinates": {
+      "x": -197,
+      "y": 41
+    }
+  },
+  "ending": {
+    "resume_flow": true,
+    "coordinates": {
+      "x": 1357,
+      "y": 29
+    }
+  }
+}

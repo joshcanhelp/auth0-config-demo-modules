@@ -1,0 +1,16 @@
+{
+  "id": "857f2900-dadf-4a75-8d73-4a9eeedf8cdc",
+  "runtime": "node22",
+  "status": "built",
+  "dependencies": [],
+  "secrets": [],
+  "supported_triggers": [
+    {
+      "id": "post-login",
+      "version": "v3"
+    }
+  ],
+  "deployed": true,
+  "name": "[Post-Login] Testing",
+  "code": "./actions/[Post-Login] Testing/code.js"
+}

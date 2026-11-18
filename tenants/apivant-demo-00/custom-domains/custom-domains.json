@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "custom_domain_id": "cd_FSgoIJEBXHR19EHg",
+    "domain": "login.apivant.dev",
+    "primary": true,
+    "is_default": false,
+    "status": "ready",
+    "type": "auth0_managed_certs",
+    "verification": {
+      "methods": [
+        {
+          "name": "CNAME",
+          "record": "apivant-demo-00-cd-fsgoijebxhr19ehg.edge.tenants.cic-demo-platform.auth0app.com",
+          "domain": "login.apivant.dev"
+        }
+      ],
+      "status": "verified",
+      "last_verified_at": "2026-10-23T15:16:03Z"
+    },
+    "tls_policy": "recommended",
+    "domain_metadata": {},
+    "certificate": {
+      "certificate_authority": "letsencrypt",
+      "renews_before": "2027-01-21T14:20:18Z",
+      "status": "provisioned"
+    },
+    "created_at": "2026-10-23T15:16:03.714Z"
+  }
+]

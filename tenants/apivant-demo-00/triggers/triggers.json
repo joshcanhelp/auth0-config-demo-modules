@@ -1,1 +1,8 @@
-{}
+{
+  "post-login": [
+    {
+      "action_name": "[Post-Login] Testing",
+      "display_name": "[Post-Login] Testing"
+    }
+  ]
+}

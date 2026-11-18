@@ -26,5 +26,6 @@
     }
   },
   "resource_parameter_profile": "audience",
-  "client_id_metadata_document_supported": false
+  "client_id_metadata_document_supported": false,
+  "client_id_metadata_document_dynamic_registration_supported": false
 }

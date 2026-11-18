@@ -44,7 +44,8 @@
     "password_complexity_options": {
       "min_length": 1
     },
-    "enabledDatabaseCustomization": false
+    "enabledDatabaseCustomization": false,
+    "disable_self_service_change_password": false
   },
   "strategy": "auth0",
   "name": "Username-Password-Authentication",
@@ -61,6 +62,6 @@
   "enabled_clients": [
     "Mobile Application",
     "Single-Page Application",
-    "Web Application"
+    "Web Applicationn"
   ]
 }
