@@ -12,14 +12,14 @@ export type CheckmateResult = { details: CheckmateItem[] };
 type CheckmateFn = (options: { emailTemplates: unknown[] }) => Promise<CheckmateResult>;
 
 const checkEmailTemplates = _require(
-  "auth0-checkmate/analyzer/lib/email_templates/checkEmailTemplates.js"
+  "@auth0/auth0-checkmate/analyzer/lib/email_templates/checkEmailTemplates.js"
 ) as CheckmateFn;
 
 // Maps a deploy-cli template type (the file name under the tenant's `emails` directory, e.g.
 // "blocked_account") to the display name Auth0 uses for it. checkEmailTemplates expects a
 // report against every known template type, not just the ones configured, so this also
 // defines the full set to check.
-const EMAIL_TEMPLATE_NAMES = _require("auth0-checkmate/analyzer/lib/constants.js")
+const EMAIL_TEMPLATE_NAMES = _require("@auth0/auth0-checkmate/analyzer/lib/constants.js")
   .EMAIL_TEMPLATES_NAMES as Record<string, string>;
 
 export async function runEmailTemplatesCheck(

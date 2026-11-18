@@ -13,6 +13,6 @@ export type CheckmateFn = (options: { tenant: unknown }) => Promise<CheckmateRes
 
 export function loadCheck(filename: string): CheckmateFn {
   return _require(
-    `auth0-checkmate/analyzer/lib/tenant_settings/${filename}`
+    `@auth0/auth0-checkmate/analyzer/lib/tenant_settings/${filename}`
   ) as CheckmateFn;
 }

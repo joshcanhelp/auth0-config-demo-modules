@@ -10,6 +10,6 @@ export type CheckmateFn = (options: {
 
 export function loadCheck(filename: string): CheckmateFn {
   return _require(
-    `auth0-checkmate/analyzer/lib/custom_domain/${filename}`
+    `@auth0/auth0-checkmate/analyzer/lib/custom_domain/${filename}`
   ) as CheckmateFn;
 }

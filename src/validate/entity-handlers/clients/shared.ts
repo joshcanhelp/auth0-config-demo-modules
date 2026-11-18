@@ -22,7 +22,9 @@ export type CheckmateFn = (options: {
 }) => Promise<CheckmateCheckResult>;
 
 export function loadCheck(filename: string): CheckmateFn {
-  return _require(`auth0-checkmate/analyzer/lib/clients/${filename}`) as CheckmateFn;
+  return _require(
+    `@auth0/auth0-checkmate/analyzer/lib/clients/${filename}`
+  ) as CheckmateFn;
 }
 
 // checkmate names a report item "Client Name (client_id)" - this strips the id suffix back

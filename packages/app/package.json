@@ -9,7 +9,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "auth0": "^6.3.0",
+    "auth0": "^7.8.0",
     "auth0-config-demo-modules": "file:../..",
     "express": "^5.2.1",
     "express-session": "^1.19.0",

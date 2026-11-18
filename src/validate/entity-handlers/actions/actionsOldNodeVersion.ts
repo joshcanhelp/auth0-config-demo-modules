@@ -7,7 +7,7 @@ import { parseActionName, type CheckmateFlatFn } from "./shared.js";
 const _require = createRequire(import.meta.url);
 
 const checkActionsRuntime = _require(
-  "auth0-checkmate/analyzer/lib/actions/checkActionsRuntime.js"
+  "@auth0/auth0-checkmate/analyzer/lib/actions/checkActionsRuntime.js"
 ) as CheckmateFlatFn;
 
 export const DEFINITIONS: Record<string, ValidationDefinition> = {

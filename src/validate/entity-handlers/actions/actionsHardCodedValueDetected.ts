@@ -7,7 +7,7 @@ import { parseActionName, type CheckmateNestedFn } from "./shared.js";
 const _require = createRequire(import.meta.url);
 
 const checkActionsHardCodedValues = _require(
-  "auth0-checkmate/analyzer/lib/actions/checkActionsHardCodedValues.js"
+  "@auth0/auth0-checkmate/analyzer/lib/actions/checkActionsHardCodedValues.js"
 ) as CheckmateNestedFn;
 
 export const DEFINITIONS: Record<string, ValidationDefinition> = {

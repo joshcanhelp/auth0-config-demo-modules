@@ -47,6 +47,8 @@ export function buildProjectPackageJson(rootPackageJson: SourcePackageJson): str
       "modules:local":
         "npm install auth0-config-demo-modules@file:../auth0-config-demo-modules",
       "modules:remote": `npm install auth0-config-demo-modules@${GITHUB_MODULE}`,
+      "build:deploy": "npm run modules:remote && npm install",
+      "start:deploy": "npm start -- --tenant tenant-dev",
     },
     dependencies: {
       "auth0-config-demo-modules": GITHUB_MODULE,

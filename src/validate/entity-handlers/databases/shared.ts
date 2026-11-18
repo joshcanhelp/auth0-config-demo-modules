@@ -30,12 +30,12 @@ export type CheckmateNestedFn = (options: {
 
 export function loadFlatCheck(filename: string): CheckmateFlatFn {
   return _require(
-    `auth0-checkmate/analyzer/lib/databases/${filename}`
+    `@auth0/auth0-checkmate/analyzer/lib/databases/${filename}`
   ) as CheckmateFlatFn;
 }
 
 export function loadNestedCheck(filename: string): CheckmateNestedFn {
   return _require(
-    `auth0-checkmate/analyzer/lib/databases/${filename}`
+    `@auth0/auth0-checkmate/analyzer/lib/databases/${filename}`
   ) as CheckmateNestedFn;
 }
