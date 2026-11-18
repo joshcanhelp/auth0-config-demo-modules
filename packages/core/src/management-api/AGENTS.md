@@ -87,7 +87,7 @@ Easy to get wrong - re-read this before writing a builder:
   `001` as "the deploy scripts" - the future `push`/`watch` logic in `packages/tenant-config`).
 - **Not allowed here at all**: a problem that's actually _fixable by editing local config_ (a
   deprecated field name a human could rename, a field set outside what's valid for the record's
-  shape). That belongs in `src/validate/entity-handlers/<entity>/` instead - one file per check
+  shape). That belongs in `packages/tenant-config/src/validate/entity-handlers/<entity>/` instead - one file per check
   (not per field), prefixed with the entity name (`clientsDeprecatedFieldNames.ts`,
   `clientsCimdFieldsNotEditable.ts`), rolled up by an `index.ts`, run against local config _before_
   a push ever reaches this layer. `validate` and `management-api` are meant to stay independent -
@@ -194,8 +194,8 @@ pullable once its `management-api` module exists.
   `getClientCredentialsToken` takes an optional `cache`; `src/scripts/utils/fileCache.ts` is the
   existing file-backed cache used by the old `export.ts`). Whether a new entity's call sites should
   wire this in, and how, hasn't been decided.
-- **Wiring `src/validate` into push** - validation still only runs standalone (`npm run validate`
-  equivalent); nothing in a push/deploy path calls it yet. Don't assume "run before push" means
+- **Wiring `validate` into push** - validation still only runs standalone (`demo validate`);
+  nothing in a push/deploy path calls it yet. Don't assume "run before push" means
   "block on any finding" vs. "warn and continue" vs. "block only on critical" - confirm before
   wiring it in, if that's ever the task.
 - `packages/core/src/management-api/actions-modules/README.md` has a standalone, unacted-on note:

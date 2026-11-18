@@ -21,12 +21,13 @@ Discoveries should be reported as one of 4 different levels:
 
 ## Commands
 
-- `npm run validate` => `tsx ./run.ts` - Runs all validations. Pass `--show-passed` to also list, after the findings, every validation code for the selected entities that produced no findings in this run. Pass `--verbose` to print each finding's code and setting (the configuration property it checks) below its message. Pass `--csv <dir>` to also write a CSV report into the existing directory `<dir>`, named `<tenant-name>-<YYYY-MM-DDTHH-MM-SS>.csv`, with one row per fail/skipped finding and per passed code, columned `status,level,code,entity,description,property,entityName,entityId,field,value,message`. Fails if that filename already exists.
-- `npm run validate:list` => `tsx ./list.ts` - Lists every validation code, grouped by entity and sorted by level, along with a description of what each one checks.
+See the root `demo validate`/`demo validate-list` commands (`../commands/validate.ts`,
+`../commands/validateList.ts`, implemented in `runValidate.ts`) for the CLI surface - options,
+flags, and what each one does.
 
 ## Entity discovery
 
-`run.ts` only offers an entity if its auth0-deploy-cli export directory exists and has data - an entity with an empty or missing directory is silently skipped rather than shown as available. Most directory names match the entity name (`clients`, `custom-domains`, etc.), but email templates are the exception: auth0-deploy-cli exports them to an `emails` directory, not `email-templates`. This mapping lives in `run.ts`'s `ENTITY_DIRECTORY_NAMES`.
+`runValidate.ts` only offers an entity if its auth0-deploy-cli export directory exists and has data - an entity with an empty or missing directory is silently skipped rather than shown as available. Most directory names match the entity name (`clients`, `custom-domains`, etc.), but email templates are the exception: auth0-deploy-cli exports them to an `emails` directory, not `email-templates`. This mapping lives in `runValidate.ts`'s `ENTITY_DIRECTORY_NAMES`.
 
 ## Skipping validations per tenant
 
@@ -44,4 +45,4 @@ A tenant can suppress specific findings by adding a `.skip-validations.json` fil
 - `skipCodes` suppresses a code everywhere, for every instance, across the whole tenant.
 - `skipInstances` suppresses a code only for the named instances - the finding's `entityName` or `entityId` must match one of the listed identifiers. This is the way to, for example, accept that one specific email template isn't configured without silencing that check for every other template.
 
-The file is optional; a missing or empty file means nothing is skipped. Invalid JSON or an unrecognized code logs a warning and is otherwise ignored rather than failing the run. When any findings are skipped, `run.ts` reports the count in its summary output.
+The file is optional; a missing or empty file means nothing is skipped. Invalid JSON or an unrecognized code logs a warning and is otherwise ignored rather than failing the run. When any findings are skipped, `runValidate.ts` reports the count in its summary output.

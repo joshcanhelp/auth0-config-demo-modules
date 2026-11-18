@@ -1,11 +1,12 @@
 # auth0-demo-tenant-config
 
-The `demo validate`, `demo pull`, `demo generate`, `demo push`, and `demo watch` commands -
-everything to do with managing a tenant's config as local files, outside of a push/deploy.
+The `demo validate`, `demo validate-list`, `demo pull`, `demo generate`, `demo push`, and
+`demo watch` commands - everything to do with managing a tenant's config as local files, outside
+of a push/deploy.
 
-`validate`/`generate`/`watch` are still stubs - the real logic for those still lives at the repo
-root (`src/validate`, `src/generate`, `src/report`, `src/deploy`) and is unaffected by this
-package. See `projects/003 Restructure.md` for the full plan this package is part of.
+`generate`/`watch` are still stubs - the real logic for those still lives at the repo root
+(`src/generate`, `src/report`, `src/deploy`) and is unaffected by this package. See
+`projects/003 Restructure.md` for the full plan this package is part of.
 
 Both `pull` and `push` are built against this repo's own Management API client
 (`auth0-demo-core`), not `auth0-deploy-cli` - today's `src/scripts/export.ts`/`import.ts`/
@@ -21,6 +22,26 @@ gets this for free. `created_at`/`updated_at` are the one exception: kept in loc
 reference, and stripped independently on the way back out by `create-client.ts`/`update-client.ts`
 instead - which also strip whatever else the API itself rejects on write (`client_id`, `encrypted`,
 ...). A real local record was used to verify this live before trusting either list was complete.
+
+## `validate`
+
+Runs local tenant config through the checks in `validate/entity-handlers/` - no Management API
+client involved, since everything it needs is already on disk. See `validate/README.md` for the
+checks themselves, validation codes/levels, and the `.skip-validations.json` format.
+
+- `--tenant <name>` - skips interactive tenant selection.
+- `--tenant-tag <tag>` - scopes environment-specific checks (`dev`/`stage`/`prod`).
+- `--entity <name...>` - limits validation to one or more entity types; defaults to every entity
+  type that has local data.
+- `--show-passed` - also lists every validation code that produced no findings for the selected
+  entities.
+- `--verbose` - prints each finding's code and the config property it checks.
+- `--csv <dir>` - also writes a CSV report into that (already-existing) directory.
+
+## `validate-list`
+
+Lists every validation code `validate` can produce, grouped by entity and sorted by level, along
+with what each one checks.
 
 ## `pull`
 

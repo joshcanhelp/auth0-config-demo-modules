@@ -1,9 +1,9 @@
-import { notImplemented } from "auth0-config-demo-modules/packages/core/src/index.js";
+import { PromptSession } from "auth0-config-demo-modules/packages/core/src/index.js";
 import type { Command } from "commander";
+import { runValidate, type ValidateOptions } from "../validate/runValidate.js";
 
-// Planned behavior (see projects/003 Restructure.md): today's src/validate/run.ts, moved here
-// unchanged in behavior. Also runnable as a step inside `pull`/`push`/`watch` rather than only
-// standalone - those commands' own options (e.g. `watch --no-validate`) control that.
+// Also runnable as a step inside `pull`/`push`/`watch` rather than only standalone - those
+// commands' own options (e.g. `watch --no-validate`) control that.
 export function registerValidateCommand(program: Command): void {
   program
     .command("validate")
@@ -21,5 +21,12 @@ export function registerValidateCommand(program: Command): void {
     )
     .option("--verbose", "print each finding's code and setting below its message", false)
     .option("--csv <dir>", "also write a CSV report into this directory")
-    .action(() => notImplemented("validate"));
+    .action(async (options: ValidateOptions) => {
+      const prompts = new PromptSession();
+      try {
+        await runValidate(options, prompts);
+      } finally {
+        prompts.close();
+      }
+    });
 }

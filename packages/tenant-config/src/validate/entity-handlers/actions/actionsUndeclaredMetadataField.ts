@@ -1,7 +1,7 @@
 import type {
   GroupFieldDef,
   UserSchemaDef,
-} from "../../../../packages/core/src/tenantUserSchema.js";
+} from "auth0-config-demo-modules/packages/core/src/tenantUserSchema.js";
 import { buildFinding } from "../../utils/finding.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { findMatches, type ActionSource } from "./shared.js";

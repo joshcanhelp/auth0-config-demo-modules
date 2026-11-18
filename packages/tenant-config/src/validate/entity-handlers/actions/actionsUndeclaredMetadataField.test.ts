@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { UserSchemaDef } from "../../../../packages/core/src/tenantUserSchema.js";
+import type { UserSchemaDef } from "auth0-config-demo-modules/packages/core/src/tenantUserSchema.js";
 import { checkUndeclaredMetadataField } from "./actionsUndeclaredMetadataField.js";
 
 const SCHEMA: UserSchemaDef = {

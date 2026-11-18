@@ -60,14 +60,20 @@ export function assertWriteAccess(tenantName: string, env: TenantEnv): void {
   );
 }
 
-// Resolves a tenant and builds a Management API client authenticated for it - every
-// tenant-config command's starting point.
-export async function bootstrapTenant(
+export interface TenantDirectory {
+  tenantName: string;
+  tenantDir: string;
+}
+
+// Resolves which tenant directory to operate on - the given name, the only one that exists, or
+// a prompt - without touching the tenant's .env or building an API client. Shared by
+// bootstrapTenant (which needs both of those next) and any command that only reads local files,
+// like validate.
+export async function resolveTenantDirectory(
   tenantsRoot: string,
   prompts: PromptSession,
-  explicitName?: string,
-  options?: BootstrapTenantOptions
-): Promise<TenantContext> {
+  explicitName?: string
+): Promise<TenantDirectory> {
   const tenants = await listTenantDirectories(tenantsRoot);
   const tenantName =
     pickTenantName(tenants, explicitName) ??
@@ -76,7 +82,22 @@ export async function bootstrapTenant(
       tenants.map((tenant) => ({ label: tenant.name, value: tenant.name }))
     ));
 
-  const tenantDir = join(tenantsRoot, tenantName);
+  return { tenantName, tenantDir: join(tenantsRoot, tenantName) };
+}
+
+// Resolves a tenant and builds a Management API client authenticated for it - every
+// tenant-config command's starting point.
+export async function bootstrapTenant(
+  tenantsRoot: string,
+  prompts: PromptSession,
+  explicitName?: string,
+  options?: BootstrapTenantOptions
+): Promise<TenantContext> {
+  const { tenantName, tenantDir } = await resolveTenantDirectory(
+    tenantsRoot,
+    prompts,
+    explicitName
+  );
   const env = await readTenantEnv(tenantDir);
   assert(env.TENANT_DOMAIN, `tenants/${tenantName}/.env is missing TENANT_DOMAIN`);
   assert(env.M2M_CLIENT_ID, `tenants/${tenantName}/.env is missing M2M_CLIENT_ID`);

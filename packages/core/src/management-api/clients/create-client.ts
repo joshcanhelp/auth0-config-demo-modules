@@ -32,7 +32,8 @@ const STRIPPED_CREATE_FIELDS = [
 //   registered through its own endpoint rather than the standard create call.
 // - Fields the API sets itself and token_vault_privileged_access are stripped before the request
 //   is built. Deprecated field names and CIMD-editable-field limits are flagged by
-//   src/validate/entity-handlers/clients/ before a deploy ever gets here, not fixed up silently.
+//   packages/tenant-config/src/validate/entity-handlers/clients/ before a deploy ever gets
+//   here, not fixed up silently.
 export function buildCreateClientRequest(
   params: CreateClientParams | RegisterCimdClientParams,
   scopes?: string[]

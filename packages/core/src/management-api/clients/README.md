@@ -31,7 +31,7 @@ Rules for a file in this directory:
   `client_authentication_methods`), or represents a _fixable_ problem in local config (a deprecated
   field name, a field a CIMD client can't actually have set) belongs elsewhere instead - the former
   one layer up in the code that calls this module (the deploy scripts), the latter in
-  `src/validate/entity-handlers/clients/`, which runs against local config before a deploy ever
+  `packages/tenant-config/src/validate/entity-handlers/clients/`, which runs against local config before a deploy ever
   reaches this module. See `projects/001 Replace Deploy CLI.md` for the full history of this
   boundary.
 - The generic field-stripping mechanic (`stripFields`) lives at `../stripFields.ts`, not in this

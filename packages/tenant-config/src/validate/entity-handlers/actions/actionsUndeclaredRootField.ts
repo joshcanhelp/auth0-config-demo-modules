@@ -1,4 +1,4 @@
-import type { UserSchemaDef } from "../../../../packages/core/src/tenantUserSchema.js";
+import type { UserSchemaDef } from "auth0-config-demo-modules/packages/core/src/tenantUserSchema.js";
 import { buildFinding } from "../../utils/finding.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import { findMatches, type ActionSource } from "./shared.js";
