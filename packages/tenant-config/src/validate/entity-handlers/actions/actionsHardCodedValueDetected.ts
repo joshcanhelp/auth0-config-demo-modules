@@ -39,7 +39,14 @@ export async function checkHardCodedValues(
           "actions_hard_coded_value_detected",
           actionName,
           `code: Hardcoded value "${r.value}" in variable "${r.variableName}" at line ${r.line}.`,
-          includeEntityId ? { entityId: trigger } : undefined
+          {
+            ...(includeEntityId ? { entityId: trigger } : undefined),
+            // Lets a tenant's validate.skipHardcodedValues/skipHardcodedVariable
+            // suppress this by the actual value/variable name detected, not just by which
+            // action it's in.
+            value: r.value,
+            field: r.variableName,
+          }
         )
       );
     }

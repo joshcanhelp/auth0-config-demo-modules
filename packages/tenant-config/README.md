@@ -23,11 +23,18 @@ reference, and stripped independently on the way back out by `create-client.ts`/
 instead - which also strip whatever else the API itself rejects on write (`client_id`, `encrypted`,
 ...). A real local record was used to verify this live before trusting either list was complete.
 
+`tenantConfigFile.ts` is this package's one place for per-tenant tool config outside of the
+entities themselves: a `.auth0vant.json` file, read from both `tenants/<tenant>/` and `tenants/`
+(the shared one, for every tenant) and merged - tenant keys override the shared file's matching
+keys, one level deep, so (for example) a tenant can override just one sub-key of `validate` without
+losing the shared file's other settings. Any command can land its own top-level key in this same
+file; `validate`'s `skipCodes`/`skipInstances` (below) is the only one that exists today.
+
 ## `validate`
 
 Runs local tenant config through the checks in `validate/entity-handlers/` - no Management API
 client involved, since everything it needs is already on disk. See `validate/README.md` for the
-checks themselves, validation codes/levels, and the `.skip-validations.json` format.
+checks themselves, validation codes/levels, and the `.auth0vant.json` format.
 
 - `--tenant <name>` - skips interactive tenant selection.
 - `--tenant-tag <tag>` - scopes environment-specific checks (`dev`/`stage`/`prod`).

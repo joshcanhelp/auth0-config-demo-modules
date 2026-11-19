@@ -1,10 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-
+import { loadTenantConfigFile, TENANT_CONFIG_FILENAME } from "../../tenantConfigFile.js";
 import { ALL_DEFINITIONS } from "./definitions.js";
 import type { Finding } from "./types.js";
-
-export const SKIP_CONFIG_FILENAME = ".skip-validations.json";
 
 export interface SkipConfig {
   // Codes suppressed everywhere, for every instance, tenant-wide.
@@ -12,34 +8,56 @@ export interface SkipConfig {
   // Code -> list of instance identifiers (a Finding's entityName or entityId)
   // for which that code alone should be suppressed.
   skipInstances: Record<string, string[]>;
+  // Hardcoded-value-detection findings (actions and databases both use these codes) whose
+  // detected value or variable name matches one of these are suppressed tenant-wide, regardless
+  // of which action/script they turned up in - for a known value/variable that's expected to
+  // recur across many of them.
+  skipHardcodedValues: string[];
+  skipHardcodedVariable: string[];
 }
 
-const EMPTY_SKIP_CONFIG: SkipConfig = { skipCodes: [], skipInstances: {} };
+const EMPTY_SKIP_CONFIG: SkipConfig = {
+  skipCodes: [],
+  skipInstances: {},
+  skipHardcodedValues: [],
+  skipHardcodedVariable: [],
+};
 
-const KNOWN_TOP_LEVEL_KEYS = new Set(["skipCodes", "skipInstances"]);
+const KNOWN_VALIDATE_KEYS = new Set([
+  "skipCodes",
+  "skipInstances",
+  "skipHardcodedValues",
+  "skipHardcodedVariable",
+]);
 
-// Reads and validates a tenant's skip config. Missing or empty files are
-// treated as "no skips configured"; malformed JSON or unrecognized codes are
-// warnings, not fatal errors, matching this app's "warn, don't exit" pattern.
-export function loadSkipConfig(tenantDir: string): SkipConfig {
-  const filePath = join(tenantDir, SKIP_CONFIG_FILENAME);
-  if (!existsSync(filePath)) return EMPTY_SKIP_CONFIG;
+const HARD_CODED_VALUE_CODES = new Set([
+  "actions_hard_coded_value_detected",
+  "databases_hard_coded_value_detected",
+]);
 
-  const raw = readFileSync(filePath, "utf-8").trim();
-  if (raw === "") return EMPTY_SKIP_CONFIG;
+// Reads a tenant's "validate" config out of TENANT_CONFIG_FILENAME (tenant-specific merged over
+// shared - see loadTenantConfigFile). A missing "validate" key is "no skips configured"; a
+// malformed value or unrecognized code is a warning, not a fatal error, matching this app's
+// "warn, don't exit" pattern.
+export function loadSkipConfig(tenantDir: string, tenantsRoot: string): SkipConfig {
+  const { validate } = loadTenantConfigFile(tenantDir, tenantsRoot);
+  if (validate === undefined) return EMPTY_SKIP_CONFIG;
 
-  let parsed: Partial<SkipConfig>;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    console.warn(`Warning: ${SKIP_CONFIG_FILENAME} is not valid JSON. Ignoring it.`);
+  if (typeof validate !== "object" || validate === null || Array.isArray(validate)) {
+    console.warn(
+      `Warning: ${TENANT_CONFIG_FILENAME}'s "validate" key must be an object. Ignoring it.`
+    );
     return EMPTY_SKIP_CONFIG;
   }
 
+  const parsed = validate as Partial<SkipConfig>;
+
   for (const key of Object.keys(parsed)) {
-    if (!KNOWN_TOP_LEVEL_KEYS.has(key)) {
+    if (!KNOWN_VALIDATE_KEYS.has(key)) {
       console.warn(
-        `Warning: ${SKIP_CONFIG_FILENAME} has an unrecognized top-level key "${key}". Expected "skipCodes" and/or "skipInstances".`
+        `Warning: ${TENANT_CONFIG_FILENAME}'s "validate" has an unrecognized key "${key}". ` +
+          `Expected "skipCodes", "skipInstances", "skipHardcodedValues", and/or ` +
+          `"skipHardcodedVariable".`
       );
     }
   }
@@ -47,6 +65,8 @@ export function loadSkipConfig(tenantDir: string): SkipConfig {
   const skipConfig: SkipConfig = {
     skipCodes: parsed.skipCodes ?? [],
     skipInstances: parsed.skipInstances ?? {},
+    skipHardcodedValues: parsed.skipHardcodedValues ?? [],
+    skipHardcodedVariable: parsed.skipHardcodedVariable ?? [],
   };
 
   const referencedCodes = [
@@ -56,7 +76,7 @@ export function loadSkipConfig(tenantDir: string): SkipConfig {
   for (const code of referencedCodes) {
     if (!ALL_DEFINITIONS[code]) {
       console.warn(
-        `Warning: ${SKIP_CONFIG_FILENAME} references unknown validation code "${code}".`
+        `Warning: ${TENANT_CONFIG_FILENAME} references unknown validation code "${code}".`
       );
     }
   }
@@ -68,7 +88,24 @@ export function isFindingSkipped(finding: Finding, skipConfig: SkipConfig): bool
   if (skipConfig.skipCodes.includes(finding.code)) return true;
 
   const instances = skipConfig.skipInstances[finding.code];
-  if (!instances) return false;
+  if (instances?.some((id) => id === finding.entityName || id === finding.entityId)) {
+    return true;
+  }
 
-  return instances.some((id) => id === finding.entityName || id === finding.entityId);
+  if (HARD_CODED_VALUE_CODES.has(finding.code)) {
+    if (
+      finding.value !== undefined &&
+      skipConfig.skipHardcodedValues.includes(finding.value)
+    ) {
+      return true;
+    }
+    if (
+      finding.field !== undefined &&
+      skipConfig.skipHardcodedVariable.includes(finding.field)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }

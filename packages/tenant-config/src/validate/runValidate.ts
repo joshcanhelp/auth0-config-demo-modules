@@ -8,6 +8,7 @@ import {
   type PromptSession,
 } from "auth0-config-demo-modules/packages/core/src/index.js";
 import { resolveTenantDirectory } from "../bootstrapTenant.js";
+import { TENANT_CONFIG_FILENAME } from "../tenantConfigFile.js";
 import {
   validateActionModules,
   validateActions,
@@ -27,11 +28,7 @@ import { validateTenantSettings } from "./entity-handlers/tenantSettings/index.j
 import { buildCsvReport, resolveCsvPath } from "./utils/csvReport.js";
 import { ENTITY_DEFINITIONS } from "./utils/definitions.js";
 import { LEVEL_COLOR, LEVEL_ORDER } from "./utils/levels.js";
-import {
-  SKIP_CONFIG_FILENAME,
-  isFindingSkipped,
-  loadSkipConfig,
-} from "./utils/skipConfig.js";
+import { isFindingSkipped, loadSkipConfig } from "./utils/skipConfig.js";
 import { TENANT_TAGS, type TenantTag } from "./utils/tenantTag.js";
 import type { Finding, FindingLevel, ValidationDefinition } from "./utils/types.js";
 
@@ -279,7 +276,7 @@ export async function runValidate(
     assert(!existsSync(csvPath), `CSV output file "${csvPath}" already exists.`);
   }
 
-  const skipConfig = loadSkipConfig(tenantDir);
+  const skipConfig = loadSkipConfig(tenantDir, tenantsRoot);
 
   const availableEntities = SUPPORTED_ENTITIES.filter(
     (e) => getEntityFiles(tenantDir, e).length > 0
@@ -359,7 +356,7 @@ export async function runValidate(
     console.log(chalk.green("No issues found."));
     if (skippedCount > 0) {
       console.log(
-        chalk.gray(`(${skippedCount} finding(s) skipped via ${SKIP_CONFIG_FILENAME})`)
+        chalk.gray(`(${skippedCount} finding(s) skipped via ${TENANT_CONFIG_FILENAME})`)
       );
     }
     printPassed(options.showPassed, allFindings, relevantDefinitions, passedCodes);
@@ -383,7 +380,7 @@ export async function runValidate(
   console.log(`  ${LEVEL_COLOR.informational(`Informational: ${counts.informational}`)}`);
   if (skippedCount > 0) {
     console.log(
-      chalk.gray(`  Skipped:       ${skippedCount} (via ${SKIP_CONFIG_FILENAME})`)
+      chalk.gray(`  Skipped:       ${skippedCount} (via ${TENANT_CONFIG_FILENAME})`)
     );
   }
   console.log("");

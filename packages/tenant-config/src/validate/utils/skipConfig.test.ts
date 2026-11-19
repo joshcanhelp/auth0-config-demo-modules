@@ -1,14 +1,22 @@
-import { existsSync, readFileSync } from "node:fs";
-
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { isFindingSkipped, loadSkipConfig } from "./skipConfig.js";
+import { isFindingSkipped, loadSkipConfig, type SkipConfig } from "./skipConfig.js";
 import type { Finding } from "./types.js";
 
-vi.mock("node:fs", () => ({ existsSync: vi.fn(), readFileSync: vi.fn() }));
+vi.mock("../../tenantConfigFile.js", () => ({
+  loadTenantConfigFile: vi.fn(),
+  TENANT_CONFIG_FILENAME: ".auth0vant.json",
+}));
 
-const mockExistsSync = vi.mocked(existsSync);
-const mockReadFileSync = vi.mocked(readFileSync);
+const { loadTenantConfigFile } = await import("../../tenantConfigFile.js");
+const mockLoadTenantConfigFile = vi.mocked(loadTenantConfigFile);
+
+const EMPTY_SKIP_CONFIG: SkipConfig = {
+  skipCodes: [],
+  skipInstances: {},
+  skipHardcodedValues: [],
+  skipHardcodedVariable: [],
+};
 
 function makeFinding(overrides: Partial<Finding> = {}): Finding {
   return {
@@ -29,86 +37,80 @@ afterEach(() => {
 });
 
 describe("loadSkipConfig", () => {
-  it("returns an empty config when the file does not exist", () => {
-    mockExistsSync.mockReturnValue(false);
-    expect(loadSkipConfig("./tenants/example")).toEqual({
-      skipCodes: [],
-      skipInstances: {},
-    });
+  it("returns an empty config when there's no validate key at all", () => {
+    mockLoadTenantConfigFile.mockReturnValue({});
+    expect(loadSkipConfig("./tenants/example", "./tenants")).toEqual(EMPTY_SKIP_CONFIG);
   });
 
-  it("returns an empty config when the file is empty", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue("   ");
-    expect(loadSkipConfig("./tenants/example")).toEqual({
-      skipCodes: [],
-      skipInstances: {},
-    });
-  });
-
-  it("parses skipCodes and skipInstances from valid JSON", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue(
-      JSON.stringify({
+  it("reads every key from the merged config's validate key", () => {
+    mockLoadTenantConfigFile.mockReturnValue({
+      validate: {
         skipCodes: ["tenant_settings_no_support_url"],
         skipInstances: {
           email_template_not_configured: ["Verification Code for Email MFA"],
         },
-      })
-    );
+        skipHardcodedValues: ["https://example.com"],
+        skipHardcodedVariable: ["apiKey"],
+      },
+    });
 
-    expect(loadSkipConfig("./tenants/example")).toEqual({
+    expect(loadSkipConfig("./tenants/example", "./tenants")).toEqual({
       skipCodes: ["tenant_settings_no_support_url"],
       skipInstances: {
         email_template_not_configured: ["Verification Code for Email MFA"],
       },
+      skipHardcodedValues: ["https://example.com"],
+      skipHardcodedVariable: ["apiKey"],
     });
   });
 
-  it("defaults missing keys to empty", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue("{}");
-    expect(loadSkipConfig("./tenants/example")).toEqual({
-      skipCodes: [],
-      skipInstances: {},
-    });
+  it("defaults missing keys within validate to empty", () => {
+    mockLoadTenantConfigFile.mockReturnValue({ validate: {} });
+    expect(loadSkipConfig("./tenants/example", "./tenants")).toEqual(EMPTY_SKIP_CONFIG);
   });
 
-  it("warns and returns an empty config on invalid JSON", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue("not json");
+  it("warns and returns an empty config when validate isn't an object", () => {
+    mockLoadTenantConfigFile.mockReturnValue({ validate: "oops" });
 
-    expect(loadSkipConfig("./tenants/example")).toEqual({
-      skipCodes: [],
-      skipInstances: {},
-    });
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("not valid JSON"));
+    expect(loadSkipConfig("./tenants/example", "./tenants")).toEqual(EMPTY_SKIP_CONFIG);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("must be an object")
+    );
   });
 
   it("warns on an unrecognized code but still returns the config", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue(JSON.stringify({ skipCodes: ["not_a_real_code"] }));
+    mockLoadTenantConfigFile.mockReturnValue({
+      validate: { skipCodes: ["not_a_real_code"] },
+    });
 
-    expect(loadSkipConfig("./tenants/example")).toEqual({
+    expect(loadSkipConfig("./tenants/example", "./tenants")).toEqual({
+      ...EMPTY_SKIP_CONFIG,
       skipCodes: ["not_a_real_code"],
-      skipInstances: {},
     });
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("not_a_real_code"));
   });
 
-  it("warns on an unrecognized top-level key, e.g. nesting by entity instead of using skipInstances", () => {
-    mockExistsSync.mockReturnValue(true);
-    mockReadFileSync.mockReturnValue(
-      JSON.stringify({
+  it("warns on an unrecognized key within validate, e.g. nesting by entity instead of using skipInstances", () => {
+    mockLoadTenantConfigFile.mockReturnValue({
+      validate: {
         email_templates: { email_template_not_configured: ["Welcome Email"] },
-      })
-    );
-
-    expect(loadSkipConfig("./tenants/example")).toEqual({
-      skipCodes: [],
-      skipInstances: {},
+      },
     });
+
+    expect(loadSkipConfig("./tenants/example", "./tenants")).toEqual(EMPTY_SKIP_CONFIG);
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("email_templates"));
+  });
+
+  it("does not warn about skipHardcodedValues/skipHardcodedVariable as unrecognized keys", () => {
+    mockLoadTenantConfigFile.mockReturnValue({
+      validate: {
+        skipHardcodedValues: ["a"],
+        skipHardcodedVariable: ["b"],
+      },
+    });
+
+    loadSkipConfig("./tenants/example", "./tenants");
+    expect(console.warn).not.toHaveBeenCalled();
   });
 });
 
@@ -116,22 +118,22 @@ describe("isFindingSkipped", () => {
   it("skips a finding whose code is in skipCodes", () => {
     const finding = makeFinding({ code: "tenant_settings_no_support_url" });
     const skipConfig = {
+      ...EMPTY_SKIP_CONFIG,
       skipCodes: ["tenant_settings_no_support_url"],
-      skipInstances: {},
     };
     expect(isFindingSkipped(finding, skipConfig)).toBe(true);
   });
 
   it("does not skip an unrelated code", () => {
     const finding = makeFinding({ code: "tenant_settings_no_support_url" });
-    const skipConfig = { skipCodes: ["some_other_code"], skipInstances: {} };
+    const skipConfig = { ...EMPTY_SKIP_CONFIG, skipCodes: ["some_other_code"] };
     expect(isFindingSkipped(finding, skipConfig)).toBe(false);
   });
 
   it("skips a finding matching an instance by entityName", () => {
     const finding = makeFinding({ entityName: "Verification Code for Email MFA" });
     const skipConfig = {
-      skipCodes: [],
+      ...EMPTY_SKIP_CONFIG,
       skipInstances: {
         email_template_not_configured: ["Verification Code for Email MFA"],
       },
@@ -146,7 +148,7 @@ describe("isFindingSkipped", () => {
       entityId: "abc123",
     });
     const skipConfig = {
-      skipCodes: [],
+      ...EMPTY_SKIP_CONFIG,
       skipInstances: { clients_unexpected_fields_for_app_type: ["abc123"] },
     };
     expect(isFindingSkipped(finding, skipConfig)).toBe(true);
@@ -155,10 +157,69 @@ describe("isFindingSkipped", () => {
   it("does not skip other instances of the same code", () => {
     const finding = makeFinding({ entityName: "Welcome Email" });
     const skipConfig = {
-      skipCodes: [],
+      ...EMPTY_SKIP_CONFIG,
       skipInstances: {
         email_template_not_configured: ["Verification Code for Email MFA"],
       },
+    };
+    expect(isFindingSkipped(finding, skipConfig)).toBe(false);
+  });
+
+  it("skips an actions hardcoded-value finding whose value matches skipHardcodedValues", () => {
+    const finding = makeFinding({
+      code: "actions_hard_coded_value_detected",
+      value: "https://example.com",
+      field: "apiBaseUrl",
+    });
+    const skipConfig = {
+      ...EMPTY_SKIP_CONFIG,
+      skipHardcodedValues: ["https://example.com"],
+    };
+    expect(isFindingSkipped(finding, skipConfig)).toBe(true);
+  });
+
+  it("skips an actions hardcoded-value finding whose variable name matches skipHardcodedVariable", () => {
+    const finding = makeFinding({
+      code: "actions_hard_coded_value_detected",
+      field: "apiKey",
+    });
+    const skipConfig = { ...EMPTY_SKIP_CONFIG, skipHardcodedVariable: ["apiKey"] };
+    expect(isFindingSkipped(finding, skipConfig)).toBe(true);
+  });
+
+  it("skips a databases hardcoded-value finding whose variable name matches skipHardcodedVariable", () => {
+    const finding = makeFinding({
+      code: "databases_hard_coded_value_detected",
+      field: "apiKey",
+    });
+    const skipConfig = { ...EMPTY_SKIP_CONFIG, skipHardcodedVariable: ["apiKey"] };
+    expect(isFindingSkipped(finding, skipConfig)).toBe(true);
+  });
+
+  it("does not skip a hardcoded-value finding whose value/variable aren't listed", () => {
+    const finding = makeFinding({
+      code: "actions_hard_coded_value_detected",
+      value: "https://example.com",
+      field: "apiBaseUrl",
+    });
+    const skipConfig = {
+      ...EMPTY_SKIP_CONFIG,
+      skipHardcodedValues: ["something-else"],
+      skipHardcodedVariable: ["something-else"],
+    };
+    expect(isFindingSkipped(finding, skipConfig)).toBe(false);
+  });
+
+  it("does not apply skipHardcodedValues/skipHardcodedVariable to an unrelated code", () => {
+    const finding = makeFinding({
+      code: "clients_unexpected_fields_for_app_type",
+      value: "https://example.com",
+      field: "apiKey",
+    });
+    const skipConfig = {
+      ...EMPTY_SKIP_CONFIG,
+      skipHardcodedValues: ["https://example.com"],
+      skipHardcodedVariable: ["apiKey"],
     };
     expect(isFindingSkipped(finding, skipConfig)).toBe(false);
   });

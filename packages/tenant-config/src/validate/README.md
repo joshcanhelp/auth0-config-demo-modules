@@ -31,18 +31,34 @@ flags, and what each one does.
 
 ## Skipping validations per tenant
 
-A tenant can suppress specific findings by adding a `.skip-validations.json` file next to its `tenant.json`:
+A tenant can suppress specific findings via the `validate` key of its `.auth0vant.json` file (see
+`../tenantConfigFile.ts` for where that file lives and how tenant/shared config combine):
 
 ```json
 {
-  "skipCodes": ["tenant_settings_no_support_url"],
-  "skipInstances": {
-    "email_template_not_configured": ["Verification Code for Email MFA"]
+  "validate": {
+    "skipCodes": ["tenant_settings_no_support_url"],
+    "skipInstances": {
+      "email_template_not_configured": ["Verification Code for Email MFA"]
+    },
+    "skipHardcodedValues": ["https://internal-tool.example.com"],
+    "skipHardcodedVariable": ["apiKey"]
   }
 }
 ```
 
 - `skipCodes` suppresses a code everywhere, for every instance, across the whole tenant.
 - `skipInstances` suppresses a code only for the named instances - the finding's `entityName` or `entityId` must match one of the listed identifiers. This is the way to, for example, accept that one specific email template isn't configured without silencing that check for every other template.
+- `skipHardcodedValues`/`skipHardcodedVariable` are specific to the hardcoded-value checks
+  (`actions_hard_coded_value_detected`, `databases_hard_coded_value_detected`) - they suppress a
+  finding whenever the actual detected value or variable name matches one in the list, across
+  every action/script it turns up in. Use this instead of `skipInstances` for a known value or
+  variable name that's expected to recur in many places (a shared constant, a non-secret base
+  URL, ...) rather than listing every instance individually. The databases check doesn't surface
+  the hardcoded value itself (only the variable name), so `skipHardcodedValues` only has an effect
+  on `actions_hard_coded_value_detected` findings.
 
-The file is optional; a missing or empty file means nothing is skipped. Invalid JSON or an unrecognized code logs a warning and is otherwise ignored rather than failing the run. When any findings are skipped, `runValidate.ts` reports the count in its summary output.
+A missing `validate` key (or missing file entirely) means nothing is skipped. Invalid JSON, a
+non-object `validate` value, or an unrecognized code/key logs a warning and is otherwise ignored
+rather than failing the run. When any findings are skipped, `runValidate.ts` reports the count in
+its summary output.

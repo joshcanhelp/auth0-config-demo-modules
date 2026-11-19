@@ -27,7 +27,10 @@ export async function checkDatabasesHardCodedValueDetected(
           DEFINITIONS,
           "databases_hard_coded_value_detected",
           entry.name,
-          `customScripts.${item.scriptName}: Hardcoded value in variable "${item.variableName}" at line ${item.line}.`
+          `customScripts.${item.scriptName}: Hardcoded value in variable "${item.variableName}" at line ${item.line}.`,
+          // checkmate doesn't surface the actual hardcoded value for this check, only the
+          // variable name - so only validate.skipHardcodedVariable can match these findings.
+          { field: item.variableName }
         )
       );
     }
