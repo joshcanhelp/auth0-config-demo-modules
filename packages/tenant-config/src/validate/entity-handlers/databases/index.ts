@@ -1,6 +1,10 @@
 import type { TenantTag } from "../../utils/tenantTag.js";
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import {
+  checkDatabasesEslintIssues,
+  DEFINITIONS as ESLINT_ISSUE_DEFINITIONS,
+} from "./databasesEslintCheck.js";
+import {
   checkDatabasesExternalUserStore,
   DEFINITIONS as EXTERNAL_USER_STORE_DEFINITIONS,
 } from "./databasesExternalUserStore.js";
@@ -57,6 +61,7 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   ...PASSWORD_NO_PERSONAL_INFO_DISABLED_DEFINITIONS,
   ...PASSWORD_POLICY_WEAK_DEFINITIONS,
   ...PASSWORD_POLICY_MISSING_DEFINITIONS,
+  ...ESLINT_ISSUE_DEFINITIONS,
 };
 
 // Skipped checks for databases:
@@ -78,6 +83,7 @@ export async function validateDatabases(
     checkDatabasesPasswordNoPersonalInfoDisabled(databases),
     checkDatabasesPasswordPolicyWeak(databases),
     checkDatabasesPasswordPolicyMissing(databases),
+    checkDatabasesEslintIssues(databases),
   ]);
 
   return results.flat();

@@ -1,9 +1,11 @@
 # Auth0 Demo CLI (v2)
 
-What's actually implemented so far, end to end: scaffolding a new project with `init`, and pulling
-a tenant's clients into local files with `pull`. Everything else the CLI lists
-(`validate`/`generate`/`push`/`watch`/`bulk-import`) still just throws
-`"<command>" is not implemented yet` - this walks through the commands that work today.
+What's actually implemented so far, end to end: scaffolding a new project with `init`, pulling a
+tenant's clients into local files with `pull`, pushing local changes back with `push`, validating
+local config with `validate`, generating new local config from templates with `generate`, and
+reporting on local config with `report`. Everything else the CLI lists (`watch`/`bulk-import`)
+still just throws `"<command>" is not implemented yet` - this walks through the commands that work
+today.
 
 Run both from this repo's root with `npm run cli -- <command> ...` (there's no installed `demo`
 binary yet). Running the demo app itself isn't a CLI command - see "Run the demo app" below.

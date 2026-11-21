@@ -2,6 +2,10 @@ import type { UserSchemaDef } from "auth0-config-demo-modules/packages/core/src/
 import type { Finding, ValidationDefinition } from "../../utils/types.js";
 import type { TenantTag } from "../../utils/tenantTag.js";
 import {
+  checkActionsEslintIssues,
+  DEFINITIONS as ESLINT_ISSUE_DEFINITIONS,
+} from "./actionsEslintCheck.js";
+import {
   checkHardCodedValues,
   DEFINITIONS as HARD_CODED_VALUE_DEFINITIONS,
 } from "./actionsHardCodedValueDetected.js";
@@ -31,11 +35,12 @@ export const DEFINITIONS: Record<string, ValidationDefinition> = {
   ...USER_ENUMERATION_DEFINITIONS,
   ...UNDECLARED_ROOT_FIELD_DEFINITIONS,
   ...UNDECLARED_METADATA_FIELD_DEFINITIONS,
+  ...ESLINT_ISSUE_DEFINITIONS,
 };
 
-// Action modules only have code + name - no triggers or runtime. Only the hardcoded-values
-// check applies to them; the others either crash on missing fields or filter by trigger type
-// and would produce no results anyway.
+// Action modules only have code + name - no triggers or runtime. The hardcoded-values and
+// ESLint checks only need code + name, so both apply; the others either crash on missing
+// fields or filter by trigger type and would produce no results anyway.
 export async function validateActionModules(
   modules: unknown[],
   _tenantTag?: TenantTag
@@ -45,7 +50,12 @@ export async function validateActionModules(
     supported_triggers: [{ id: "action-module", version: "v1" }],
   }));
 
-  return checkHardCodedValues(adapted, { includeEntityId: false });
+  const [hardCodedValueFindings, eslintFindings] = await Promise.all([
+    checkHardCodedValues(adapted, { includeEntityId: false }),
+    checkActionsEslintIssues(adapted, { isModule: true }),
+  ]);
+
+  return [...hardCodedValueFindings, ...eslintFindings];
 }
 
 export async function validateActions(
@@ -53,17 +63,23 @@ export async function validateActions(
   schema?: UserSchemaDef | null,
   _tenantTag?: TenantTag
 ): Promise<Finding[]> {
-  const [hardCodedValueFindings, oldNodeVersionFindings, userEnumerationFindings] =
-    await Promise.all([
-      checkHardCodedValues(actions),
-      checkOldNodeVersion(actions),
-      checkUserEnumerationVulnerability(actions),
-    ]);
+  const [
+    hardCodedValueFindings,
+    oldNodeVersionFindings,
+    userEnumerationFindings,
+    eslintFindings,
+  ] = await Promise.all([
+    checkHardCodedValues(actions),
+    checkOldNodeVersion(actions),
+    checkUserEnumerationVulnerability(actions),
+    checkActionsEslintIssues(actions),
+  ]);
 
   return [
     ...hardCodedValueFindings,
     ...oldNodeVersionFindings,
     ...userEnumerationFindings,
+    ...eslintFindings,
     ...checkUndeclaredRootField(actions, schema ?? null),
     ...checkUndeclaredMetadataField(actions, schema ?? null),
   ];

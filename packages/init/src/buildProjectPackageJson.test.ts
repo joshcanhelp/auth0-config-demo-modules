@@ -15,6 +15,7 @@ const rootPackageJson = {
     "@tsconfig/node22": "^22.0.5",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
+    "eslint": "^9.0.0",
   },
 };
 
@@ -34,6 +35,7 @@ describe("buildProjectPackageJson", () => {
       "@types/express-session": "^1.19.0",
       "@tsconfig/node22": "^22.0.5",
       "tsx": "^4.0.0",
+      "eslint": "^9.0.0",
     });
     expect(result.type).toBe("module");
     expect(result.scripts).toEqual({

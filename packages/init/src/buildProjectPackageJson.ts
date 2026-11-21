@@ -16,6 +16,9 @@ const DEV_DEPENDENCY_KEYS = [
   "@types/express-session",
   "@tsconfig/node22",
   "tsx",
+  // So the generated eslint.config.js (buildProjectEslintConfig.ts) actually has something
+  // to run with - `npx eslint .` or an editor's ESLint extension.
+  "eslint",
 ];
 
 // Update if this repo ever moves to a different GitHub owner/org.

@@ -168,11 +168,24 @@ async function loadAndValidate(
   }
 
   if (entity === "database-connections") {
-    const databases = files.map((f) =>
-      JSON.parse(
-        readFileSync(join(entityDirPath(tenantDir, entity), f, "database.json"), "utf-8")
-      )
-    );
+    const databases = files.map((f) => {
+      const connectionDir = join(entityDirPath(tenantDir, entity), f);
+      const database = JSON.parse(
+        readFileSync(join(connectionDir, "database.json"), "utf-8")
+      );
+      // customScripts holds "./script.js" references relative to the connection's own
+      // directory, not inline code - resolve them here so checks (hardcoded-value
+      // detection, ESLint) see the actual script content, same as actions' item.code.
+      const customScripts = database.options?.customScripts;
+      if (customScripts && typeof customScripts === "object") {
+        for (const [key, value] of Object.entries(customScripts)) {
+          if (typeof value === "string" && value.startsWith("./")) {
+            customScripts[key] = readFileSync(join(connectionDir, value), "utf-8");
+          }
+        }
+      }
+      return database;
+    });
     console.log(`Validating ${databases.length} database connection(s)...`);
     return validateDatabases(databases, tenantTag);
   }
