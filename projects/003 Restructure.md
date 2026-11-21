@@ -39,11 +39,16 @@ General packages/commands we need:
 		- Push entities without IDs to create and record the ID locally
 		- Delete specific entities
 	- Watch
-		- Watch specific files (choose from list)
-		- Prompt to update local files before watching starts
-		- Watch specific entities
-		- Run validation on the changed file before pushing (turn off with flag)
-			- Confirm push if validation has warnings (turn off with flag)
+    - Watch specific files or entities (choose from list) or all
+    - Prompt to update local files before watching starts
+    - Runs export for each local file being watched if yes
+    - Run validation on the changed file before pushing (turn off with flag)
+    - Confirm push if validation has warnings (turn off with flag)
+    - On each watched file change, prompt to deploy
+    	- Flag to auto-deploy on change
+    - Only deploy the file(s) changed
+    - If a new file is found that needs an ID, prompt to import
+    - Show a menu at rest to quit, deploy (see above), validate, or generate
 - **Bulk import**
 	- * Needs limited Management API coverage
 	- Init
