@@ -22,6 +22,7 @@ import {
   type TenantEnv,
   type TenantType,
 } from "auth0-config-demo-modules/packages/core/src/index.js";
+import { buildProjectEslintConfig } from "../buildProjectEslintConfig.js";
 import {
   buildProjectPackageJson,
   type SourcePackageJson,
@@ -34,7 +35,7 @@ import { writeFileIfMissing } from "../writeFileIfMissing.js";
 
 const STEPS = [
   "Create your project folder",
-  "Scaffold project files (package.json, serve.ts)",
+  "Scaffold project files (package.json, serve.ts, eslint.config.js)",
   "Find or create your tenant folder",
   "Choose how this project connects to Auth0 (PUSH or PULL)",
   "Connect to your Auth0 tenant",
@@ -67,6 +68,16 @@ async function scaffoldProjectFiles(projectDir: string): Promise<void> {
     packageJsonResult === "created"
       ? "Created package.json"
       : "Using existing package.json"
+  );
+
+  const eslintConfigResult = await writeFileIfMissing(
+    join(projectDir, "eslint.config.js"),
+    buildProjectEslintConfig()
+  );
+  printStepDone(
+    eslintConfigResult === "created"
+      ? "Created eslint.config.js"
+      : "Using existing eslint.config.js"
   );
 }
 
