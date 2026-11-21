@@ -4,8 +4,8 @@ The `demo validate`, `demo validate-list`, `demo pull`, `demo generate`, `demo p
 `demo watch` commands - everything to do with managing a tenant's config as local files, outside
 of a push/deploy.
 
-`generate`/`watch` are still stubs - the real logic for those still lives at the repo root
-(`src/generate`, `src/report`, `src/deploy`) and is unaffected by this package. See
+`watch` is still a stub. `report`/`deploy` aren't part of this package - their logic still lives at
+the repo root (`src/report`, `src/deploy`) and is unaffected by it. See
 `projects/003 Restructure.md` for the full plan this package is part of.
 
 Both `pull` and `push` are built against this repo's own Management API client
@@ -68,6 +68,53 @@ never removed silently; every pull mode prompts to delete it instead
 (`pullEntity.ts`'s `staleFiles`, `localEntityFiles.ts`'s `confirmAndRemoveMissingRecord`). A
 rename (the record's own name changed on the tenant) is handled separately and silently, since
 it's still the same record.
+
+## `generate`
+
+Builds new local tenant config files from a templates directory - useful for templating config for
+a new client rather than pulling it from an existing tenant. No Management API client involved
+(same as `validate`), so it works against either tenant type - it only reads the tenant's domain
+from `.env` (for a `Grant` template's `audience`), never writes to Auth0 itself.
+
+- `--tenant <name>` - skips interactive tenant selection.
+- `--dir <path>` - directory to read templates from. Templates live in a separate, privately-cloned
+  repo (`auth0-templates`); without `--dir`, this assumes that repo is checked out as a sibling of
+  the current project directory (`../auth0-templates/templates`).
+- `--import` - declared (matching `003 Restructure.md`'s planned flags) but not implemented;
+  `generate` throws clearly if it's passed.
+
+Prompts for an entity type, then a template of that type, then whatever that template needs
+(`generate/entity-handlers/`) - one handler per `Action`/`Client`/`Flow`/`Form`/`Grant`/
+`Solution`/`Token Exchange` template type.
+
+A `Solution > ...` template can include a `solution.json` file listing the other top-level
+templates (by their full `Type > Name`) it's built from. Every referenced template is checked for
+existence before anything is written - if any are missing, nothing is created. `solution.json` can
+be either:
+
+- An array of template names, using each template's default output name:
+
+  ```json
+  ["Action > Post-Login > Add Custom Claims", "Flow > Send Welcome Email"]
+  ```
+
+- An object keyed by template name, where a value can override the output name and/or mark the
+  entry as optional:
+
+  ```json
+  {
+    "Action > Post-Login > Add Custom Claims": { "name": "Custom Claims - Onboarding" },
+    "Flow > Send Welcome Email": { "optional": true },
+    "Form > Progressive Profiling": null
+  }
+  ```
+
+  Setting `"optional": true` on an entry prompts to confirm whether to create it before it's
+  written; declining skips that entry without affecting the rest of the solution.
+
+Only `Action`, `Flow`, and `Form` templates are supported in a solution. If a `Solution` template
+has no `solution.json`, its own subdirectories (named `Action > ...`, `Flow > ...`, `Form > ...`)
+are used instead.
 
 ## `push`
 

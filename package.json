@@ -19,7 +19,7 @@
     "pull": "tsx bin/demo.ts pull",
     "pussh": "tsx bin/demo.ts push",
     "export": "tsx src/scripts/export.ts",
-    "generate": "tsx src/generate/run.ts",
+    "generate": "tsx bin/demo.ts generate",
     "import": "tsx src/scripts/import.ts",
     "refresh": "tsx src/scripts/refresh.ts",
     "watch": "tsx src/scripts/watch.ts",
