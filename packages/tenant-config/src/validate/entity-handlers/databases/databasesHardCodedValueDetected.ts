@@ -30,7 +30,10 @@ export async function checkDatabasesHardCodedValueDetected(
           `customScripts.${item.scriptName}: Hardcoded value in variable "${item.variableName}" at line ${item.line}.`,
           // checkmate doesn't surface the actual hardcoded value for this check, only the
           // variable name - so only validate.skipHardcodedVariable can match these findings.
-          { field: item.variableName }
+          // String(...) because a numeric object-literal key (e.g. `{ 2801: 'US' }`) comes
+          // back from checkmate as a real number, not the string Finding.field is typed as -
+          // left as a number, it can never match a skip list entry (always a JSON string).
+          { field: String(item.variableName) }
         )
       );
     }
