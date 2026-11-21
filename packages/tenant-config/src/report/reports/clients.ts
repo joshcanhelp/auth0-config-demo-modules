@@ -1,4 +1,4 @@
-import type { Auth0Client } from "../../../packages/app/src/types.js";
+import type { Auth0Client } from "auth0-config-demo-modules/packages/app/src/types.js";
 
 export type ClientReportFormat = "md" | "json";
 export const CLIENT_REPORT_FORMATS: readonly ClientReportFormat[] = ["md", "json"];

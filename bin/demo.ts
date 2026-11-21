@@ -16,6 +16,7 @@ import {
   registerGenerateCommand,
   registerPullCommand,
   registerPushCommand,
+  registerReportCommand,
   registerValidateCommand,
   registerValidateListCommand,
   registerWatchCommand,
@@ -46,6 +47,7 @@ registerValidateListCommand(program);
 registerPullCommand(program);
 registerGenerateCommand(program);
 registerPushCommand(program);
+registerReportCommand(program);
 registerWatchCommand(program);
 registerBulkImportCommand(program);
 

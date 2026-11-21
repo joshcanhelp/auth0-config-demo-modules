@@ -23,7 +23,7 @@
     "import": "tsx src/scripts/import.ts",
     "refresh": "tsx src/scripts/refresh.ts",
     "watch": "tsx src/scripts/watch.ts",
-    "report": "tsx src/report/run.ts",
+    "report": "tsx bin/demo.ts report",
     "validate": "tsx bin/demo.ts validate",
     "validate:list": "tsx bin/demo.ts validate-list",
     "modules:local": "npm install auth0-config-demo-modules@file:.",

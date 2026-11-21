@@ -1,12 +1,12 @@
 # auth0-demo-tenant-config
 
-The `demo validate`, `demo validate-list`, `demo pull`, `demo generate`, `demo push`, and
-`demo watch` commands - everything to do with managing a tenant's config as local files, outside
-of a push/deploy.
+The `demo validate`, `demo validate-list`, `demo pull`, `demo generate`, `demo push`,
+`demo report`, and `demo watch` commands - everything to do with managing a tenant's config as
+local files, outside of a push/deploy.
 
-`watch` is still a stub. `report`/`deploy` aren't part of this package - their logic still lives at
-the repo root (`src/report`, `src/deploy`) and is unaffected by it. See
-`projects/003 Restructure.md` for the full plan this package is part of.
+`watch` is still a stub. `deploy` isn't part of this package - its logic still lives at the repo
+root (`src/deploy`) and is unaffected by it. See `projects/003 Restructure.md` for the full plan
+this package is part of.
 
 Both `pull` and `push` are built against this repo's own Management API client
 (`auth0-demo-core`), not `auth0-deploy-cli` - today's `src/scripts/export.ts`/`import.ts`/
@@ -140,3 +140,19 @@ only ever updates a record that already has one (`pushEntity.ts`'s `requireIdent
 - `--delete` and `--changed-only` are declared (matching `003 Restructure.md`'s planned flags) but
   not implemented - `push` throws clearly if either is passed. `--delete` needs a new tenant type
   (a third option alongside `PUSH`/`PULL`) that doesn't exist yet.
+
+## `report`
+
+Two nested subcommands, neither touching the Management API or writing to Auth0 - both only ever
+read what's already local and write into a `reports/` directory (created if missing) at the project
+root. A report overwrites the previous one for the same tenant/format/report type - re-run the
+command to refresh it.
+
+- `demo report clients` - a report of client names, descriptions, client IDs, and application
+  types, built from `tenants/<tenant>/clients/*.json` (same local-only reads as `validate`, so
+  `TENANT_TYPE` isn't required).
+  - `--tenant <name>` - skips interactive tenant selection.
+  - `--format <md|json>` - defaults to `md`.
+- `demo report user-schema` - a report of the project's `user-schema.ts` field definitions (the
+  same file `createApp.ts` loads at runtime). Not tenant-specific - no `--tenant` flag, and throws
+  if the project has no `user-schema.ts`.

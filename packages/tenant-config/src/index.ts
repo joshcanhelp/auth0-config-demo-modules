@@ -3,4 +3,5 @@ export { registerValidateListCommand } from "./commands/validateList.js";
 export { registerPullCommand } from "./commands/pull.js";
 export { registerGenerateCommand } from "./commands/generate.js";
 export { registerPushCommand } from "./commands/push.js";
+export { registerReportCommand } from "./commands/report.js";
 export { registerWatchCommand } from "./commands/watch.js";
